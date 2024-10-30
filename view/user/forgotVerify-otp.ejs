@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>OTP Verification</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link
+      rel="stylesheet"
+      href="fonts/material-design-iconic-font/css/material-design-iconic-font.min.css"
+    />
+
+    <link rel="stylesheet" href="http://localhost:3700/css/style.css" />
+  </head>
+
+  <body>
+    <div
+      class="wrapper"
+      style="background-image: url('http://localhost:3700/images/bg-registration-form-1.jpg')"
+    >
+      <div class="inner">
+        <div class="image-holder">
+          <img src="http://localhost:3700/images/registration-form-1.jpg" alt="OTP Verification" />
+        </div>
+        <form method="post" action="/forgotVerify-otp">
+          <h3>Verify OTP</h3>
+          <p style="color: red;"><%= invalidOtp %></p>
+          <div class="form-wrapper">
+            <input
+              type="text"
+              name="otp"
+              placeholder="Enter OTP"
+              class="form-control"
+              required
+              id="otpInput"
+            />
+            <i class="zmdi zmdi-key"></i>
+          </div>
+          <input type="hidden" name="id" value="<%= id %>">
+         
+          
+          <p style="color: green">
+            Time remaining: <span id="countdown">05:00</span>
+          </p>
+          <div>
+
+            <a id="resendButton" style="display:none;" href="/forgotResendOtp"
+            >Resend OTP</a>
+          </div>
+          <p id="expiredMessage" style="color: red"></p>
+          <button type="submit" id="verifyButton">
+            Verify OTP
+            <i class="zmdi zmdi-arrow-right"></i>
+            <p style="color: red"><%#= errorOtp %> </button>
+              <!-- <a
+              href="verify-otp"
+              onclick="document.getElementById('resendOtpForm').submit();"
+              class="resend-link"
+              style="
+                margin-left: 118px;                                   
+                color: rgb(92, 92, 96);
+                text-decoration: underline;
+                cursor: pointer;"
+               href="/resend-otp">Resend OTP</a> -->
+
+
+
+            </p>
+              
+              
+            </form>
+            <!-- <form
+              method="post"
+              action="/resend-otp"
+              id="resendOtpForm"
+              style="display: none"
+            ></form> -->
+           
+      </div>
+    </div>
+
+    <!-- <script>
+      
+      let countdownTime = 15;
+
+      const countdownInterval = setInterval(() => {
+        const minutes = Math.floor(countdownTime / 60);
+        const seconds = countdownTime % 60;
+
+        document.getElementById("countdown").textContent = `${String(
+          minutes
+        ).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+
+        countdownTime--;
+
+        if (countdownTime < 0) {
+          clearInterval(countdownInterval);
+          document.getElementById("countdown").textContent = "00:00";
+          document.getElementById("expiredMessage").textContent =
+            "OTP has expired. Please request a new one.";
+          document.getElementById("otpInput").disabled = true;
+          document.getElementById("verifyButton").disabled = true;
+        }
+      }, 1000);
+    </script> -->
+    <script>
+      const otpExpiredAt = new Date("<%= otpExpiredAt %>").getTime();
+      const countdownElement = document.getElementById("countdown");
+      const expiredMessageElement = document.getElementById("expiredMessage");
+      const resendButton = document.getElementById("resendButton");
+    
+      function startCountdown() {
+        const interval = setInterval(() => {
+          const now = new Date().getTime();
+          const timeLeft = otpExpiredAt - now;
+    
+          if (timeLeft <= 0) {
+            clearInterval(interval);
+            countdownElement.innerHTML = "00:00";
+            expiredMessageElement.innerHTML = "OTP has expired.";
+            resendButton.style.display = "block";
+            document.getElementById("verifyButton").disabled = true; // Disable the verify button when OTP expires
+          } else {
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+            countdownElement.innerHTML = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+          }
+        }, 1000);
+      }
+    
+      // Start the countdown
+      startCountdown();
+    </script>
+  </body>
+</html>

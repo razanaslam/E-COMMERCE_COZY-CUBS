@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Login Form by Colorlib</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link
+      rel="stylesheet"
+      href="fonts/material-design-iconic-font/css/material-design-iconic-font.min.css"
+    />
+
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+
+  <body>
+    <div
+      class="wrapper"
+      style="background-image: url('images/bg-registration-form-1.jpg')"
+    >
+      <div class="inner">
+        <div class="image-holder">
+          <img src="images/registration-form-1.jpg" alt="" />
+        </div>
+        <form method="post" action="/login" id="loginForm">
+          <h3>Login Form</h3>
+          <p style="color: red"><%= loginError %></p>
+          <p style="color: red"><%= blocked %></p>
+
+          <div id="error-container" style="color: red"></div>
+
+          <div class="form-wrapper">
+            <input
+              type="text"
+              id="email"
+              placeholder="Email Address"
+              name="email"
+              class="form-control"
+            />
+            <i class="zmdi zmdi-email"></i>
+          </div>
+          <div class="form-wrapper">
+            <input
+              type="password"
+              id="password"
+              placeholder="Password"
+              name="password"
+              class="form-control"
+            />
+            <i class="zmdi zmdi-lock"></i>
+          </div>
+          <a href="/forgotPassword">Forgot Password?</a>
+          <button type="submit">
+            Login
+            <i class="zmdi zmdi-arrow-right"></i>
+          </button>
+          <a style="margin-left: 90px" href="/auth/google"
+            >Sign in with Google</a
+          >
+        </form>
+      </div>
+    </div>
+
+    <script>
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", function (event) {
+          const email = document.getElementById("email").value;
+          const password = document.getElementById("password").value;
+
+          const errorContainer = document.getElementById("error-container");
+          errorContainer.textContent = "";
+
+          let errorMessage = "";
+
+          if (!email && !password) {
+            errorMessage = "Please enter your email and password.";
+          } else if (!email) {
+            errorMessage = "Please enter your email.";
+          } else if (!password) {
+            errorMessage = "Please enter your password.";
+          }
+
+          if (errorMessage) {
+            errorContainer.textContent = errorMessage;
+            event.preventDefault();
+          }
+        });
+    </script>
+  </body>
+</html>
