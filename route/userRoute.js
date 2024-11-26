@@ -47,6 +47,13 @@ userRoute.get("/verify-otp/:id", userController.loadVerifyOtp);
 userRoute.get("/resend-otp", userController.resendOtp);
 userRoute.post("/verify-otp", userController.verifyOtp);
 // userRoute.post("/resend-otp", userController.resendOtp);
+
+userRoute.get("/", (req, res) => {
+  res.redirect("/home"); // Redirect to the home route
+});
+
+// Define your other routes
+userRoute.get("/home", isUser, userController.loadHome);
 userRoute.get("/home", isUser, userController.loadHome);
 userRoute.get("/product", isUser, userController.loadProductList);
 userRoute.get(
@@ -69,8 +76,45 @@ userRoute.post(
 );
 userRoute.get("/userAddress", isUser, userController.loadAddress);
 userRoute.post("/userAddress", userController.addAddress);
-userRoute.post("/userAddress", userController.editAddress);
-
+userRoute.post("/userAddress/edit", userController.editAddress);
+userRoute.get("/userAddress/delete/:_id", userController.deleteAddress);
+userRoute.post("/addToCart", userController.addToCart);
+userRoute.post("/cart/incrementQty", userController.incrementQty);
+userRoute.post("/cart/decrementQty", userController.decrementQty);
+userRoute.post("/cart/delete/:productId", userController.deleteCart);
+userRoute.get("/checkout", isUser, userController.loadCheckout);
+userRoute.post("/checkout", userController.addCheckoutAddress);
+userRoute.post("/checkout/edit", userController.editCheckoutAddress);
+userRoute.post("/placeorder", isUser, userController.orderPlaced);
+userRoute.get("/order-confirmed", isUser, userController.loadOrderPlaced);
+userRoute.get("/myOrders", isUser, userController.loadMyOrders);
+userRoute.get(
+  "/orderDetails/:orderId",
+  isUser,
+  userController.loadOrderDetails
+);
+// userRoute.post("/updateOrderStatus/:orderId", userController.orderList);
+userRoute.post("/updateOrderStatus/:id", userController.cancelOrder);
 userRoute.get("/logout", userController.logout);
+userRoute.post("/sort-products", userController.sortProducts);
+
+// userRoute.get("/loadShopPage", userController.loadProductList);
+
+userRoute.get("/whishlist", isUser, userController.loadWishlist);
+userRoute.get("/addToWhishlist", isUser, userController.addToWhishlist);
+userRoute.get(
+  "/whishlist/delete/:productId",
+  userController.removeFromWhishlist
+);
+
+userRoute.get("/getcoupon", isUser, userController.getCoupon);
+userRoute.get("/applycoupon", userController.applyCoupon);
+userRoute.post("/cancelcoupon", userController.cancelCoupon);
+// userRoute.get("/search", isUser, userController.searchItems);
+userRoute.get("/wallet", isUser, userController.loadWallet);
+///razor pay asdfsda
+userRoute.post("/create-order", userController.createOrder);
+userRoute.post("/verify-payment", userController.verifyPayment);
+// userRoute.post("/paymentSuccessfull", userController.paymentSuccess);
 
 module.exports = userRoute;

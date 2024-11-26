@@ -35,8 +35,21 @@ const productSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  size: {
-    type: String,
+  inWishlist: {
+    type: Boolean,
+    default: false,
   },
+  bestOffer: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Offer",
+    default: null,
+  },
+  discountedPrice: {
+    type: Number,
+    default: null,
+  },
+  name: String,
+  price: Number,
+  isNewProduct: { type: Boolean, default: false },
 });
 module.exports = mongoose.model("products", productSchema);

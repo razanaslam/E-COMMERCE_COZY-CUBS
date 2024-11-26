@@ -17,6 +17,94 @@
       type="image/x-icon"
       href="http://localhost:3700/admin/http://localhost:3700/admin/assets/imgs/theme/favicon.svg"
     />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" />
+  <style>
+    /* crop */
+    #overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+}
+
+#cropModal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 999;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+    display: none
+
+}
+
+#cropButton {
+    cursor: pointer;
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+
+#cropButton:hover {
+    background-color: #0056b3;
+}
+
+    /* General styling */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #ffffff;
+    }
+
+    .card-body {
+      max-width: 500px;
+      margin: 20px auto;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+
+    /* Crop modal styling */
+    #cropModal {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      z-index: 10;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    #croppingImage {
+      max-width: 100%;
+    }
+
+    /* .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 5;
+    } */
+  </style>
     <!-- Template CSS -->
     <link
       href="http://localhost:3700/admin/assets/css/main.css"
@@ -25,17 +113,20 @@
     />
   </head>
 
+
   <body>
     <div class="screen-overlay"></div>
     <aside class="navbar-aside" id="offcanvas_aside">
       <div class="aside-top">
-        <a href="index.html" class="brand-wrap">
+        <a href="dashboard" class="brand-wrap">
           <img
-            src="http://localhost:3700/admin/assets/imgs/theme/logo.svg"
+            src="assets/imgs/theme/logo1.svg"
             class="logo"
             alt="Evara Dashboard"
+            style="width: 50px; height: 111px"
           />
         </a>
+
         <div>
           <button class="btn btn-icon btn-aside-minimize">
             <i class="text-muted material-icons md-menu_open"></i>
@@ -44,20 +135,20 @@
       </div>
       <nav>
         <ul class="menu-aside">
-          <li class="menu-item">
-            <a class="menu-link" href="index.html">
+          <li class="menu-item active">
+            <a class="menu-link" href="dashboard">
               <i class="icon material-icons md-home"></i>
               <span class="text">Dashboard</span>
             </a>
           </li>
-          <li class="menu-item has-submenu active">
-            <a class="menu-link" href="page-products-list.html">
+          <li class="menu-item">
+            <a class="menu-link" href="productsList">
               <i class="icon material-icons md-shopping_bag"></i>
               <span class="text">Products</span>
             </a>
-           
+            <!-- <a href="productsList.ejs">Product List</a> -->
           </li>
-          <li class="menu-item has-submenu">
+          <!-- <li class="menu-item has-submenu">
             <a class="menu-link" href="page-orders-1.html">
               <i class="icon material-icons md-shopping_cart"></i>
               <span class="text">Orders</span>
@@ -67,19 +158,9 @@
               <a href="page-orders-2.html">Order list 2</a>
               <a href="page-orders-detail.html">Order detail</a>
             </div>
-          </li>
-          <li class="menu-item has-submenu">
-            <a class="menu-link" href="page-sellers-cards.html">
-              <i class="icon material-icons md-store"></i>
-              <span class="text">Sellers</span>
-            </a>
-            <div class="submenu">
-              <a href="page-sellers-cards.html">Sellers cards</a>
-              <a href="page-sellers-list.html">Sellers list</a>
-              <a href="page-seller-detail.html">Seller profile</a>
-            </div>
-          </li>
-          <li class="menu-item has-submenu">
+          </li> -->
+
+          <!-- <li class="menu-item has-submenu">
             <a class="menu-link" href="page-form-product-1.html">
               <i class="icon material-icons md-add_box"></i>
               <span class="text">Add product</span>
@@ -90,69 +171,41 @@
               <a href="page-form-product-3.html">Add product 3</a>
               <a href="page-form-product-4.html">Add product 4</a>
             </div>
-          </li>
-          <li class="menu-item has-submenu">
-            <a class="menu-link" href="page-transactions-1.html">
-              <i class="icon material-icons md-monetization_on"></i>
-              <span class="text">Transactions</span>
-            </a>
-            <div class="submenu">
-              <a href="page-transactions-1.html">Transaction 1</a>
-              <a href="page-transactions-2.html">Transaction 2</a>
-            </div>
-          </li>
-          <li class="menu-item has-submenu">
-            <a class="menu-link" href="#">
-              <i class="icon material-icons md-person"></i>
-              <span class="text">Account</span>
-            </a>
-            <div class="submenu">
-              <a href="page-account-login.html">User login</a>
-              <a href="page-account-register.html">User registration</a>
-              <a href="page-error-404.html">Error 404</a>
-            </div>
-          </li>
+          </li> -->
           <li class="menu-item">
+            <a class="menu-link" href="userList">
+              <i class="icon material-icons md-person"></i>
+              <span class="text">Users</span>
+            </a>
+          </li>
+
+          <!-- <li class="menu-item">
             <a class="menu-link" href="page-reviews.html">
               <i class="icon material-icons md-comment"></i>
               <span class="text">Reviews</span>
             </a>
-          </li>
+          </li> -->
           <li class="menu-item">
-            <a class="menu-link" href="page-brands.html">
+            <a class="menu-link" href="brand">
               <i class="icon material-icons md-stars"></i>
               <span class="text">Brands</span>
             </a>
           </li>
           <li class="menu-item">
-            <a class="menu-link" disabled href="#">
-              <i class="icon material-icons md-pie_chart"></i>
-              <span class="text">Statistics</span>
+            <a class="menu-link" href="catagory">
+              <i class="icon material-icons md-stars"></i>
+              <span class="text">Catagory</span>
             </a>
           </li>
         </ul>
-        <hr />
-        <ul class="menu-aside">
-          <li class="menu-item has-submenu">
-            <a class="menu-link" href="#">
-              <i class="icon material-icons md-settings"></i>
-              <span class="text">Settings</span>
-            </a>
-            <div class="submenu">
-              <a href="page-settings-1.html">Setting sample 1</a>
-              <a href="page-settings-2.html">Setting sample 2</a>
-            </div>
-          </li>
-          <li class="menu-item">
-            <a class="menu-link" href="page-blank.html">
-              <i class="icon material-icons md-local_offer"></i>
-              <span class="text"> Starter page </span>
-            </a>
-          </li>
-        </ul>
-        <br />
-        <br />
       </nav>
+      <ul class="menu-aside">
+        <li class="menu-item ">
+          <a class="menu-link" href="orders">
+            <i class="icon material-icons md-home"></i>
+            <span class="text">Orders</span>
+          </a>
+        </li>
     </aside>
     <main class="main-wrap">
       <header class="main-header navbar">
@@ -283,6 +336,9 @@
           </ul>
         </div>
       </header>
+      
+      
+      
       <section class="content-main">
         <div class="content-header">
           <div>
@@ -298,169 +354,131 @@
           </div>
         </div>
         <div class="card">
-          <div class="card-body">
+          
             <div class="row">
               <div class="col-md-3" style="width: 2000px">
                 <form
                 id="productForm"
                 method="post"
                 action="/admin/editProduct/<%= product._id %>"
-                enctype="multipart/form-data">
-              
-                  <div class="mb-4">
-                    <label for="product_name" class="form-label"
-                      >Product title</label
-                    >
+                enctype="multipart/form-data"
+                onsubmit="return validateForm()"
+            >
+            
+                <div class="mb-4">
+                    <label for="product_name" class="form-label">Product title</label>
                     <input
-                      type="text"
-                      placeholder="Type here"
-                      name="product_title"
-                      class="form-control"
-                      id="product_name"
-                      ,
-                      value="<%= product.product_title %>"
-                      
+                        type="text"
+                        placeholder="Type here"
+                        name="product_title"
+                        class="form-control"
+                        id="product_name"
+                        value="<%= product.product_title %>"
                     />
-                  </div>
-                  <div class="mb-4">
+                </div>
+            
+                <div class="mb-4">
                     <label class="form-label">Full description</label>
-                    <input
-                    type="textarea"
-                    placeholder="Type here"
-                    name="full_description"
-                    class="form-control"
-                    id="product_description"
-                    ,
-                    value="<%= product.full_description  %>"
-                    
-                  />
-                    <!-- <textarea
-                      placeholder="Type here"
-                      class="form-control"
-                      rows="4"
-                      name="full_description"
-                      
-                    >
-                    <%# product.full_description %></textarea
-                    > -->
-                  </div>
-                  <div class="row">
-                    <div class="col-lg-4">
-                      <div class="mb-4">
+                    <textarea
+                        placeholder="Type here"
+                        name="full_description"
+                        class="form-control"
+                        id="product_description"
+                    > <%= product.full_description %> </textarea>
+                </div>
+            
+                <div class="row mb-4">
+                    <div class="col-lg-6">
                         <label class="form-label">Price</label>
-                        <div class="row gx-2">
-                          <input
+                        <input
                             placeholder="$"
                             type="text"
                             class="form-control"
                             name="price"
                             value="<%= product.price %>"
                             id="price"
-                          />
-                        </div>
-                      </div>
+                        />
+                        <span id="priceError" class="text-danger" style="display: none;">Price cannot be less than 0.</span>
                     </div>
-
-                    <div class="col-lg-4">
-                      <div class="mb-4">
-                        <label class="form-label">Category</label>
-                      
-                        <select class="form-select" name="category" id="product_category">
-                          <% if(category && category.length>0){%>
-                            <% category.forEach(cat => { %>
-                              <option 
-                                value="<%= cat._id %>" 
-                                <%= product.category._id.equals(cat._id) ? 'selected' : '' %> >
-                                <%= cat.name %>
-                              </option>
-                            <% }) %>
-                            <%}else{ %>
-                              <option>No categories available</option>
-                              <% } %>
-                             </select>
-                            </div>
-                           </div>
-
-                    <div class="col-lg-4">
-                      <label class="form-label">Brand</label>
-                       
-                      <select class="form-select" name="brand" id="product_brand">
-                        <% brand.forEach(brand => { %>
-                          <option 
-                            value="<%= brand._id %>" 
-                            <%= product.brand._id.equals(brand._id) ? 'selected' : '' %> >
-                            <%= brand.name %>
-                          </option>
-                        <% }) %>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div class="row">
-                    <!-- Stock Input -->
-                    <div class="col-lg-4">
-                      <div class="mb-4">
+            
+                    <div class="col-lg-6">
                         <label class="form-label">Stock</label>
-                        <div class="row gx-2">
-                          <input
+                        <input
                             placeholder="Stock"
                             type="text"
                             class="form-control"
                             name="stock"
                             id="stock"
                             value="<%= product.stock %>"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Size Input -->
-                    <div class="col-lg-4">
-                      <div class="mb-4">
-                        <label class="form-label">Size</label>
-                        <div class="row gx-2">
-                          <input
-                            placeholder="Size"
-                            type="text"
-                            class="form-control"
-                            name="size"
-                            value="<%= product.size %>"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="card mb-4">
-                    <div class="card-body">
-                        <div>
-                            <label class="form-label">Images</label>
-                            <input class="form-control" type="file" name="image_url" id="images"  onchange="addSingleFile(event)" onchange="handleFiles(event)" multiple>
-                            <div id="imagePreview" class="mt-3"></div>
-
-                            <div id="cropModal" style="display: none">
-                              <img id="croppingImage" style="max-width: 100%" />
-                              <button type="button" id="cropButton" onclick="cropImage()">
-                                Crop Image
-                              </button>
-                            </div>
+                        />
+                        <span id="stockError" class="text-danger" style="display: none;">Stock cannot be less than 0.</span>
                     </div>
                 </div>
-              </div>
-                  </div>
+            
+                <div class="row mb-4">
+                    <div class="col-lg-6">
+                        <label class="form-label">Category</label>
+                        <select class="form-select" name="category" id="product_category">
+                            <% if (category && category.length > 0) { %>
+                                <% category.forEach(cat => { %>
+                                    <option 
+                                        value="<%= cat._id %>" 
+                                        <%= product.category._id.equals(cat._id) ? 'selected' : '' %> >
+                                        <%= cat.name %>
+                                    </option>
+                                <% }) %>
+                            <% } else { %>
+                                <option>No categories available</option>
+                            <% } %>
+                        </select>
+                    </div>
+            
+                    <div class="col-lg-6">
+                        <label class="form-label">Brand</label>
+                        <select class="form-select" name="brand" id="product_brand">
+                            <% brand.forEach(brand => { %>
+                                <option 
+                                    value="<%= brand._id %>" 
+                                    <%= product.brand._id.equals(brand._id) ? 'selected' : '' %> >
+                                    <%= brand.name %>
+                                </option>
+                            <% }) %>
+                        </select>
+                    </div>
                 </div>
-                  <button
-                      type="submit"
-                      style="background: #088178; border: #088178; color: white"
-                    >
-                      done
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+            
+                <div class="mb-4">
+                    <div class="input-upload">
+                        <input class="form-control" id="product_image" type="file" name="image_url" accept="image/*" multiple onchange="handleFiles(event)" />
+                        <span id="imageError" class="text-danger"></span>
+                    </div>
+                    <div id="imagePreview" style="width: 108px; display: flex;" class="mt-3">
+                        <% if (product.image_url) { %>
+                            <% for(let i = 0; i < product.image_url.length; i++) { %>
+                                <img style="margin-left: 33px; cursor: pointer;" src="/uploads/<%= product.image_url[i] %>" alt="Product Image" onclick="previewExistingImage('/uploads/<%= product.image_url[i] %>', this)" />
+                                <button type="button" onclick="deleteImage('<%= product._id %>', '<%= product.image_url[i] %>')">Delete</button>
+                            <% }} else { %>
+                                <p>No image available</p>
+                            <% } %>
+                    </div>
+                </div>
+            
+                <button type="submit" class="btn btn-primary">Edit Product</button>
+            
+                <!-- Crop Modal -->
+                <div id="cropModal" style="display: none;">
+                    <img id="croppingImage" />
+                    <button type="button" id="cropButton" onclick="cropImage()">Crop Image</button>
+                </div>
+                <div id="overlay" style="display: none;"></div>
+            
+            </form>
+</div>
+</div>
+</div>
+</section>
+
+             
       <footer class="main-footer font-xs">
         <div class="row pb-30 pt-15">
           <div class="col-sm-6">
@@ -476,245 +494,188 @@
       </footer>
     </main>
 
-     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
-    <script>
-      let cropper;
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+ <script>
+  let cropper;
 let currentFile;
 let currentImgElement;
-let filesArray = []; // To keep track of all selected files
+let filesArray = []; 
+let existingImagesArray = [];
 let croppedFileIndex;
 
 
-
-function addSingleFile(event) {
-   const fileInput = document.getElementById('image');
-   const imagePreviewContainer = document.getElementById("imagePreview");
-
-   const file = event.target.files[0]; // Single file input
-   if (file) {
-       filesArray.push(file); // Add the selected file to the array
-       const reader = new FileReader();
-
-       reader.onload = (e) => {
-           currentFile = file;
-           const imgContainer = document.createElement("div");
-           imgContainer.style.display = "inline-block";
-           imgContainer.style.position = "relative";
-           imgContainer.style.marginRight = "10px";
-
-           const img = document.createElement("img");
-           img.src = e.target.result;
-           img.style.width = "100px";
-           img.style.cursor = "pointer";
-           img.onclick = () => openCropper(e.target.result, img, filesArray.length - 1); // Pass the index of the image for cropping
-
-           const removeButton = document.createElement("button");
-           removeButton.textContent = "X";
-           removeButton.style.position = "absolute";
-           removeButton.style.top = "0";
-           removeButton.style.right = "0";
-           removeButton.style.backgroundColor = "red";
-           removeButton.style.color = "white";
-           removeButton.style.border = "none";
-           removeButton.style.cursor = "pointer";
-           removeButton.onclick = () => removeImage(filesArray.length - 1); // Remove image by index
-
-           imgContainer.appendChild(img);
-           imgContainer.appendChild(removeButton);
-           imagePreviewContainer.appendChild(imgContainer);
-
-           // Reset the input field to allow adding new files one by one
-           fileInput.value = ""; // Reset file input for new selection
-       };
-
-       reader.readAsDataURL(file);
-   }
-}
-
-
 function handleFiles(event) {
-          const imagePreviewContainer = document.getElementById("imagePreview");
-          imagePreviewContainer.innerHTML = "";
+    const imagePreviewContainer = document.getElementById("imagePreview");
+    const existingImages = imagePreviewContainer.querySelectorAll('img');
 
-          const files = event.target.files;
-          filesArray = Array.from(files); // Store the selected files in an array
+  
+    existingImages.forEach(img => {
+        img.style.border = '';
+    });
 
-          if (files) {
-              Array.from(files).forEach((file, index) => {
-                  const reader = new FileReader();
+    const files = event.target.files;
+    const newFilesArray = Array.from(files); 
 
-                  reader.onload = (e) => {
-                      currentFile = file;
-                      const img = document.createElement("img");
-                      img.src = e.target.result;
-                      img.style.width = "100px";
-                      img.style.marginRight = "10px";
-                      img.style.cursor = "pointer";
-                      img.onclick = () => openCropper(e.target.result, img, index); // Pass index to identify file in array
-                      imagePreviewContainer.appendChild(img);
-                  };
+    newFilesArray.forEach((file, index) => {
+        const reader = new FileReader();
 
-                  reader.readAsDataURL(file);
-              });
-          }
-      }
+        reader.onload = (e) => {
+            currentFile = file;
+            const img = document.createElement("img");
+            img.src = e.target.result;
+            img.style.width = "100px";
+            img.style.marginRight = "10px";
+            img.style.cursor = "pointer";
+            img.onclick = () => openCropper(e.target.result, img, index);
+            imagePreviewContainer.appendChild(img);
+        };
 
-function removeImage(index) {
-   filesArray.splice(index, 1); // Remove the file from the array
-   const dataTransfer = new DataTransfer();
-
-   filesArray.forEach((file) => {
-       dataTransfer.items.add(file); // Rebuild the FileList without the removed file
-   });
-
-   const fileInput = document.getElementById('images');
-   fileInput.files = dataTransfer.files; // Update the file input with the new files list
-
-   // Re-render the preview
-   refreshImagePreview();
-}
-
-function refreshImagePreview() {
-   const imagePreviewContainer = document.getElementById("imagePreview");
-   imagePreviewContainer.innerHTML = ""; // Clear the existing preview
-
-   filesArray.forEach((file, index) => {
-       const reader = new FileReader();
-       reader.onload = (e) => {
-           const imgContainer = document.createElement("div");
-           imgContainer.style.display = "inline-block";
-           imgContainer.style.position = "relative";
-           imgContainer.style.marginRight = "10px";
-
-           const img = document.createElement("img");
-           img.src = e.target.result;
-           img.style.width = "100px";
-           img.style.cursor = "pointer";
-           img.onclick = () => openCropper(e.target.result, img, index); // Handle cropping
-
-           const removeButton = document.createElement("button");
-           removeButton.textContent = "Remove";
-           removeButton.style.position = "absolute";
-           removeButton.style.top = "0";
-           removeButton.style.right = "0";
-           removeButton.style.backgroundColor = "red";
-           removeButton.style.color = "white";
-           removeButton.style.border = "none";
-           removeButton.style.cursor = "pointer";
-           removeButton.onclick = () => removeImage(index); // Remove by index
-
-           imgContainer.appendChild(img);
-           imgContainer.appendChild(removeButton);
-           imagePreviewContainer.appendChild(imgContainer);
-       };
-       reader.readAsDataURL(file);
-   });
-}
-
-
-// function openCropper(imageSrc, imgElement, index) {
-//           const cropModal = document.getElementById("cropModal");
-//           const croppingImage = document.getElementById("croppingImage");
-
-//           currentImgElement = imgElement;
-//           croppedFileIndex = index; // Store index of file being cropped
-
-//           croppingImage.src = imageSrc;
-//           cropModal.style.display = "block";
-
-//           if (cropper) {
-//               cropper.destroy();
-//           }
-
-//           cropper = new Cropper(croppingImage, {
-//               aspectRatio: 1,
-//               viewMode: 2,
-//           });
-//       }
-
-
-//        function cropImage() {
-//            const canvas = cropper.getCroppedCanvas();
-
-//            canvas.toBlob((blob) => {
-//                const croppedFile = new File([blob], currentFile.name, { type: 'image/png' });
-
-//                filesArray[croppedFileIndex] = croppedFile; // Replace the original file with the cropped one
-
-//                // Now, reassign all files (including cropped) to the input field
-//                const dataTransfer = new DataTransfer();
-
-//                filesArray.forEach((file) => {
-//                    dataTransfer.items.add(file); // Add all files (cropped and uncropped)
-//                });
-
-//                const fileInput = document.getElementById('images');
-//                fileInput.files = dataTransfer.files; // Update the file input with all files
-
-//                // Update the preview with cropped image
-//                currentImgElement.src = URL.createObjectURL(croppedFile);
-
-//                // Close the crop modal
-//                document.getElementById("cropModal").style.display = "none";
-
-//                // Destroy the cropper to clean up
-//                cropper.destroy();
-//                cropper = null;
-//            }, 'image/png');
-//        }
-
-function openCropper(imageSrc, imgElement, index) {
-          const cropModal = document.getElementById("cropModal");
-          const croppingImage = document.getElementById("croppingImage");
-
-          currentImgElement = imgElement;
-          croppedFileIndex = index; // Store index of file being cropped
-
-          croppingImage.src = imageSrc;
-          cropModal.style.display = "block";
-
-          if (cropper) {
-              cropper.destroy();
-          }
-
-          cropper = new Cropper(croppingImage, {
-              aspectRatio: 1,
-              viewMode: 2,
-          });
-      }
-
-      function cropImage() {
-          const canvas = cropper.getCroppedCanvas();
-
-          canvas.toBlob((blob) => {
-              const croppedFile = new File([blob], currentFile.name, { type: 'image/png' });
-
-              filesArray[croppedFileIndex] = croppedFile; // Replace the original file with the cropped one
-
-              // Now, reassign all files (including cropped) to the input field
-              const dataTransfer = new DataTransfer();
-
-              filesArray.forEach((file) => {
-                  dataTransfer.items.add(file); // Add all files (cropped and uncropped)
-              });
-
-              const fileInput = document.getElementById('images');
-              fileInput.files = dataTransfer.files; // Update the file input with all files
-
-              // Update the preview with cropped image
-              currentImgElement.src = URL.createObjectURL(croppedFile);
-
-              // Close the crop modal
-              document.getElementById("cropModal").style.display = "none";
-
-              // Destroy the cropper to clean up
-              cropper.destroy();
-              cropper = null;
-          }, 'image/png');
-      }
-   </script>
+        reader.readAsDataURL(file);
+    });
 
    
+    filesArray.push(...newFilesArray);
+}
+
+
+function openCropper(imageSrc, imgElement, index) {
+    const cropModal = document.getElementById("cropModal");
+    const croppingImage = document.getElementById("croppingImage");
+    const overlay = document.getElementById("overlay");
+
+    currentImgElement = imgElement;
+    croppedFileIndex = index;
+
+    croppingImage.src = imageSrc;
+    cropModal.style.display = "block";
+    overlay.style.display = "block";
+
+    if (cropper) {
+        cropper.destroy();
+    }
+
+    cropper = new Cropper(croppingImage, {
+        viewMode: 1,
+        dragMode: 'move',
+        autoCropArea: 0.8,
+        responsive: true,
+    });
+}
+
+
+function cropImage() {
+    const canvas = cropper.getCroppedCanvas();
+
+    canvas.toBlob((blob) => {
+        const croppedFile = new File([blob], currentFile.name, { type: 'image/png' });
+
+       
+        filesArray[croppedFileIndex] = croppedFile;
+
+        const dataTransfer = new DataTransfer();
+   
+        existingImagesArray.forEach((image) => {
+            dataTransfer.items.add(image); 
+        });
+        
+        filesArray.forEach((file) => {
+            dataTransfer.items.add(file);
+        });
+
+        const fileInput = document.getElementById('product_image');
+        fileInput.files = dataTransfer.files; 
+
+        currentImgElement.src = URL.createObjectURL(croppedFile); 
+
+        document.getElementById("cropModal").style.display = "none";
+        document.getElementById("overlay").style.display = "none";
+
+        cropper.destroy();
+        cropper = null;
+    }, 'image/png');
+}
+
+function previewExistingImage(imageSrc, imgElement) {
+ 
+    openCropper(imageSrc, imgElement, null);
+}
+function initializeExistingImages(existingImages) {
+    existingImagesArray = existingImages; 
+        const imagePreviewContainer = document.getElementById("imagePreview");
+
+    existingImagesArray.forEach((image) => {
+        const img = document.createElement("img");
+        img.src = image; 
+        img.style.width = "100px";
+        img.style.marginRight = "10px";
+        img.onclick = () => previewExistingImage(image, img);
+        imagePreviewContainer.appendChild(img);
+    });
+}
+
+</script>
+
+<script>
+    // Validation function
+    function validateForm() {
+        // Get the values from the form
+        const price = parseFloat(document.getElementById("price").value);
+        const stock = parseInt(document.getElementById("stock").value);
+
+        // Error flags
+        let isValid = true;
+
+        // Check for price validation
+        if (price < 0 || isNaN(price)) {
+            document.getElementById("priceError").style.display = 'inline';
+            isValid = false;
+        } else {
+            document.getElementById("priceError").style.display = 'none';
+        }
+
+        // Check for stock validation
+        if (stock < 0 || isNaN(stock)) {
+            document.getElementById("stockError").style.display = 'inline';
+            isValid = false;
+        } else {
+            document.getElementById("stockError").style.display = 'none';
+        }
+
+        // Return true if everything is valid, false if not
+        return isValid;
+    }
+</script>
+<!-- Include SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+<script>
+
+function deleteImage(productId, filename) {
+
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "Do you want to delete this image?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Redirect to delete route if confirmed
+            window.location.href = `/admin/deleteProductImage/${productId}/${filename}`;
+        } else {
+            console.log("User canceled the deletion.");
+        }
+    });
+}
+</script>
+
+
+
     <script src="http://localhost:3700/admin/assets/js/vendors/jquery-3.6.0.min.js"></script>
     <script src="http://localhost:3700/admin/assets/js/vendors/bootstrap.bundle.min.js"></script>
     <script src="http://localhost:3700/admin/assets/js/vendors/select2.min.js"></script>
@@ -725,7 +686,7 @@ function openCropper(imageSrc, imgElement, index) {
       src="http://localhost:3700/admin/assets/js/main.js"
       type="text/javascript"
     ></script>
-
+  
   </body>
 
   <!-- Mirrored from wp.alithemes.com/html/evara/evara-backend/page-categories.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 01 Aug 2021 15:33:21 GMT -->

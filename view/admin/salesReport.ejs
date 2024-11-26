@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- Mirrored from wp.alithemes.com/html/evara/evara-backend/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 01 Aug 2021 15:32:35 GMT -->
+  <head>
+    <meta charset="utf-8" />
+    <title>Dashboard</title>
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta property="og:title" content="" />
+    <meta property="og:type" content="" />
+    <meta property="og:url" content="" />
+    <meta property="og:image" content="" />
+    <!-- Favicon -->
+    <link
+      rel="shortcut icon"
+      type="image/x-icon"
+      href="assets/imgs/theme/favicon1.svg"
+    />
+
+    <!-- Template CSS -->
+    <link href="assets/css/main.css" rel="stylesheet" type="text/css" />
+    <style>
+
+      /* pagination */
+
+      .pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.page-link {
+  margin: 0 5px;
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  text-decoration: none;
+  color: rgb(18, 99, 59);
+}
+
+.page-link.active {
+  background-color: rgb(18, 99, 59);
+  color: white;
+  border-color: rgb(18, 99, 59);}
+
+.page-link:hover {
+  background-color: #0056b3;
+  color: white;
+}
+
+.page-dots {
+  margin: 0 5px;
+  color: #777;
+  font-size: 16px;
+}
+
+      /* Styling for the table */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        border: 1px solid #ddd;
+      }
+      table,
+      th,
+      td {
+        border: 1px solid #ddd;
+      }
+      th,
+      td {
+        padding: 12px;
+        text-align: left;
+      }
+      th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+      }
+      tr:nth-child(even) {
+        background-color: #f2f2f2;
+      }
+      /* Styling for the title */
+      h2.content-title {
+        font-size: 24px;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+
+ 
+  <body>
+    <div class="screen-overlay"></div>
+    <aside class="navbar-aside" id="offcanvas_aside" style="width: 338px !important">
+      <div class="aside-top">
+        <a href="dashboard" class="brand-wrap">
+          <img src="assets/imgs/theme/logo1.svg" class="logo" alt="Evara Dashboard" style="width: 50px; height: auto" />
+        </a>
+        <div>
+          <button class="btn btn-icon btn-aside-minimize">
+            <i class="material-icons">menu_open</i>
+          </button>
+        </div>
+      </div>
+      <nav>
+        <ul class="menu-aside">
+          <% const menuItems = [ 
+            { link: 'dashboard', text: 'Dashboard' },
+            { link: 'productsList', text: 'Products' },
+            { link: 'userList', text: 'Users' },
+            { link: 'brand', text: 'Brands' },
+            { link: 'catagory', text: 'Category' },
+            { link: 'offer', text: 'Offers' },
+            { link: 'salesReport', text: 'Sales Report' },
+            { link: 'coupons', text: 'Coupons' },
+            { link: 'orders', text: 'Orders' }
+          ]; %>
+          <% menuItems.forEach(item => { %>
+            <li class="menu-item <%= item.active ? 'active' : '' %>">
+              <a class="menu-link" href="<%= item.link %>">
+                <span class="text"><%= item.text %></span>
+              </a>
+            </li>
+          <% }); %>
+        </ul>
+      </nav>
+    </aside>
+    
+    <main class="main-wrap">
+      <header style="background-color: #ffffff;" class="main-header navbar">
+          <div class="col-search">
+          </div>
+          <div class="col-nav">
+              <button class="btn btn-icon btn-mobile me-auto" data-trigger="#offcanvas_aside"> <i
+                      class="material-icons md-apps"></i> </button>
+              <a class="dropdown-item text-danger" href="/admin-logout"><i
+                      class="material-icons md-exit_to_app"></i>Logout</a>
+          </div>
+      </header>
+      <section class="content-main">
+          <div class="content-header">
+              <div>
+                  <h2 class="content-title" id="heading">Sales Report</h2>
+              </div>
+              <div>
+                  <button onclick="downloadPdf('Sales Report')" class="btn btn-dark">Download PDF</button>
+                  <button onclick="downloadExcel()" class="btn btn-dark">Download Excel</button>
+              </div>
+          </div>
+
+          <div class="card mb-4">
+              <header class="card-header">
+                  <div class="row gx-3">
+                    
+                      <div class=row>
+                        <form action="/admin/salesReport" method="get">
+                          <label for="filter">Filter by:</label>
+                          <select name="filter" id="filter" style="
+                          width: 128px;
+                          height: 34px;">
+                            <option value="daily" <%= filter === "daily" ? "selected" : "" %>>Daily</option>
+                            <option value="weekly" <%= filter === "weekly" ? "selected" : "" %>>Weekly</option>
+                            <option value="monthly" <%= filter === "monthly" ? "selected" : "" %>>Monthly</option>
+                            <option value="yearly" <%= filter === "yearly" ? "selected" : "" %>>Yearly</option>
+                            <option value="custom" <%= filter === "custom" ? "selected" : "" %>>Custom</option>
+                          </select>
+                        
+                          <label for="startDate" >Start Date:</label>
+                          <input type="date" style="
+                          width: 128px;
+                          height: 34px;" name="startDate" id="startDate" value="<%= startDate || '' %>" />
+                        
+                          <label for="endDate">End Date:</label>
+                          <input type="date"  style="
+                          width: 128px;
+                          height: 34px;" name="endDate" id="endDate" value="<%= endDate || '' %>" />
+                    
+                          <button  style="
+                          width: 128px; margin-left: 12px;
+                          height: 34px; color: white;background-color: black;" type="submit">Apply Filter</button>
+                        </form>
+                        
+                        
+                      </div>
+                  </div>
+              </header>
+              <div class="card-body">
+                  <div class="table-responsive">
+                      <table class="table table-hover">
+                          <% if(orders.length!=0){ %><!-- card-header end// -->
+                              <thead>
+                                  <tr class="text-dark">
+                                      <th>Order ID</th>
+                                      <th>Email</th>
+                                      <th>Date</th>
+                                      <th>Paid</th>
+                                      <th>Method</th>
+                                  </tr>
+                              </thead>
+                              <tbody class="text-dark">
+                                  <% orders.forEach(order=>{ %>
+                                      <tr>
+                                          <td>
+                                              <%= order._id %>
+                                          </td>
+                                          <td>
+                                              <%= order.userId.email %>
+                                          </td>
+                                          <td>
+                                            <%= new Date(order.createdAt).toLocaleDateString() %>
+                                              <%= console.log(order.createdAt,"date") %>
+
+                                          </td>
+                                         
+                                          <td>
+                                              <%= order.totalPrice %>
+                                          </td>
+                                          <td>
+                                              <%= order.paymentMethod %>
+                                          </td>
+                                      </tr>
+                                      <% }) %>
+                              </tbody>
+                              <% }else{ %>
+                                  <p>no orders found</p>
+                                  <% } %> <!-- card-body end// -->
+                      </table> <!-- table-responsive.// -->
+                  </div>
+              </div>
+          </div> <!-- card end// -->
+          <div class="pagination">
+            <% if (totalPages > 1) { %>
+              <% const maxPagesToShow = 5; %> <!-- Change this value to control visible page links -->
+              <% let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2)); %>
+              <% let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1); %>
+              <% if (endPage - startPage + 1 < maxPagesToShow) { %>
+                <% startPage = Math.max(1, endPage - maxPagesToShow + 1); %>
+              <% } %>
+          
+              <% if (currentPage > 1) { %>
+                <a href="?page=<%= currentPage - 1 %>&limit=<%= limit %>" class="page-link">Previous</a>
+              <% } %>
+          
+              <% if (startPage > 1) { %>
+                <a href="?page=1&limit=<%= limit %>" class="page-link">1</a>
+                <% if (startPage > 2) { %>
+                  <span class="page-dots">...</span>
+                <% } %>
+              <% } %>
+          
+              <% for (let i = startPage; i <= endPage; i++) { %>
+                <a
+                  href="?page=<%= i %>&limit=<%= limit %>"
+                  class="page-link <%= currentPage === i ? 'active' : '' %>"
+                >
+                  <%= i %>
+                </a>
+              <% } %>
+          
+              <% if (endPage < totalPages) { %>
+                <% if (endPage < totalPages - 1) { %>
+                  <span class="page-dots">...</span>
+                <% } %>
+                <a href="?page=<%= totalPages %>&limit=<%= limit %>" class="page-link"><%= totalPages %></a>
+              <% } %>
+          
+              <% if (currentPage < totalPages) { %>
+                <a href="?page=<%= currentPage + 1 %>&limit=<%= limit %>" class="page-link">Next</a>
+              <% } %>
+            <% } %>
+          </div>
+          
+      </section>
+
+      
+
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+      <script
+          src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+      <script>
+          const downloadPdf = async () => {
+              try {
+                  console.log("downloading PDF");
+
+                  const { jsPDF } = window.jspdf;
+
+                  const doc = new jsPDF();
+
+                  const table = document.querySelector('table');
+
+                  const headingText = document.getElementById('heading').innerText;
+
+                  doc.setFontSize(22);
+                  doc.text(headingText, 20, 20);
+
+                  doc.autoTable({ html: table, startY: 30 });
+
+                  doc.save('sales-report.pdf');
+              } catch (error) {
+                  console.error(error);
+              }
+          };
+
+          const downloadExcel = () => {
+              try {
+                  console.log("downloading excel");
+
+                  const table = document.querySelector('table');
+
+                  const ws = XLSX.utils.table_to_sheet(table);
+
+                  const wb = XLSX.utils.book_new();
+
+                  XLSX.utils.book_append_sheet(wb, ws, 'Sales Report');
+
+                  XLSX.writeFile(wb, 'sales-report.xlsx');
+              } catch (error) {
+                  console.error("Error downloading Excel:", error);
+              }
+          };
+      </script>    </main>
+    <script src="assets/js/vendors/jquery-3.6.0.min.js"></script>
+    <script src="assets/js/vendors/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/vendors/select2.min.js"></script>
+    <script src="assets/js/vendors/perfect-scrollbar.js"></script>
+    <script src="assets/js/vendors/jquery.fullscreen.min.js"></script>
+    <!-- Main Script -->
+    <script src="assets/js/main.js" type="text/javascript"></script>
+    </body>
+    
+    
+    <!-- Mirrored from wp.alithemes.com/html/evara/evara-backend/page-orders-1.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 01 Aug 2021 15:33:22 GMT -->
+    </html>

@@ -1,0 +1,256 @@
+<%- include('header.ejs') %>
+<style>
+  :root {
+  --primary-color: #818162; /* Muted olive green */
+  --secondary-color: #f6f6e6; /* Light beige */
+  --accent-color: #000000; /* Black for strong contrasts */
+  
+  --background-color: #f6f6e6; /* Soft beige background */
+  --text-color: #000000; /* Black text for readability */
+  
+  --card-background: #ffffff; /* White card for clean design */
+  --border-color: #818162; /* Border matching primary color */
+  
+  --success-color: #818162; /* Using olive green for success */
+  --danger-color: #ff6b6b; /* Red for danger */
+}
+
+/* Body styles */
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Card styles */
+.card {
+  background-color: var(--card-background);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 16px;
+  color: var(--text-color);
+}
+
+/* Button styles */
+button {
+  background-color: var(--primary-color);
+  color: var(--secondary-color);
+  border: none;
+  padding: 10px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: var(--accent-color);
+  color: var(--primary-color);
+}
+
+/* Alert styles */
+.alert {
+  padding: 15px;
+  margin: 10px 0;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--success-color);
+  color: var(--secondary-color);
+}
+
+.alert-danger {
+  background-color: var(--danger-color);
+}
+
+
+
+
+
+
+
+
+
+
+  body {
+    font-family: 'Lato', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    transition: all 0.3s ease;
+  }
+
+  .container {
+    max-width: 1000px;
+    margin: 3rem auto;
+    padding: 2rem;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  .account-section {
+    background-color: var(--card-background);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    transition: all 0.3s ease;
+  }
+
+  .account-section:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  }
+
+  .wallet-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .wallet-balance {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--secondary-color);
+    transition: color 0.3s ease;
+  }
+
+  .wallet-balance:hover {
+    color: var(--primary-color);
+  }
+
+  .table-container {
+    background-color: var(--card-background);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .table th, .table td {
+    padding: 1.2rem;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .table th {
+    background-color: var(--primary-color);
+    color: #ffffff;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+  }
+
+  .table tbody tr {
+    transition: background-color 0.3s ease;
+  }
+
+  .table tbody tr:hover {
+    background-color: rgba(91, 192, 190, 0.1);
+  }
+
+  .badge {
+    padding: 0.5em 1em;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+  }
+
+  .badge-danger {
+    background-color: var(--danger-color);
+    color: #ffffff;
+  }
+
+  .badge-success {
+    background-color: var(--success-color);
+    color: #ffffff;
+  }
+
+  .badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  @media (max-width: 768px) {
+    .container {
+      padding: 1rem;
+    }
+
+    .wallet-info {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .wallet-balance {
+      margin-top: 1rem;
+    }
+
+    .table th, .table td {
+      padding: 1rem 0.75rem;
+    }
+  }
+</style>
+
+<div class="container">
+  <div class="account-content">
+    <!-- Account Details Section -->
+    <section id="account-details" class="account-section">
+      <h2 style="color: rgb(63,60,60);">Your Wallet</h2>
+      <div class="wallet-info">
+        <p><strong>Welcome,</strong> <%= wallet.userId.name %></p>
+        <p class="wallet-balance" style="color: rgb(77, 150, 77);">$<%= wallet.balance.toFixed(2) %></p>
+      </div>
+    </section>
+
+    <!-- Transaction History Table -->
+    <div class="table-container">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Type</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% transactions.forEach(transaction => { %>
+          <tr>
+            <td><%= transaction.date %></td>
+            <td>$<%= transaction.amount.toFixed(2) %></td>
+            <td>
+              <% if (transaction.status === "Debited") { %>
+              <span class="badge badge-danger"><%= transaction.status %></span>
+              <% } else { %>
+              <span style="background-color: rgb(77, 150, 77);" class="badge badge-success"><%= transaction.status %></span>
+              <% } %>
+            </td>
+            <td><%= transaction.type %></td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>

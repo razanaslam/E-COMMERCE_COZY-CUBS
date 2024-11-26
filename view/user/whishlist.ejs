@@ -1,0 +1,216 @@
+<%- include('header.ejs') %>
+<style>
+  
+  body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f6f6e6;
+      color: #333;
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+  }
+  .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+  }
+  h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5rem;
+      color: #2c3e50;
+      text-align: center;
+      margin-bottom: 2rem;
+  }
+  .wishlist-table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #fff;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  }
+  .wishlist-table th, .wishlist-table td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid #e0e0e0;
+  }
+  .wishlist-table th {
+      background-color: #f8f8f8;
+      font-weight: 500;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+      color: #2c3e50;
+  }
+  .wishlist-table img {
+      max-width: 80px;
+      height: auto;
+      border-radius: 4px;
+  }
+  .remove-btn, .add-to-cart-btn {
+      background-color: #3498db;
+      color: #fff;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+  }
+  .remove-btn:hover, .add-to-cart-btn:hover {
+      background-color: #2980b9;
+  }
+  .remove-btn {
+      background-color: #e74c3c;
+  }
+  .remove-btn:hover {
+      background-color: #c0392b;
+  }
+  .stock-status {
+      font-weight: 500;
+  }
+  .in-stock {
+      color: #27ae60;
+  }
+  .out-of-stock {
+      color: #e74c3c;
+  }
+  h1 {
+      font-family: 'Playfair Display', serif !important;
+      font-size: 2.5rem;
+      color: #2c3e50;
+      text-align: center;
+      margin-bottom: 2rem;
+  }
+  .wishl
+</style>
+
+<div class="container">
+  <h1>My Wishlist</h1>
+  <table class="wishlist-table">
+      <thead>
+          <tr>
+              <th  style="background-color: #ccccbb  !important;">Product</th>
+              <th  style="background-color: #ccccbb  !important;">Price</th>
+              <th  style="background-color: #ccccbb  !important;">Stock Status</th>
+              <th  style="background-color: #ccccbb  !important;">Actions</th>
+              <th  style="background-color: #ccccbb  !important;"></th>
+          </tr>
+         
+      </thead>
+     
+      <tbody>
+      
+          <% wishlist.items.forEach((item) => { %>
+              <tr>
+                  <td style="background-color: #e6e6dc !important;">
+                      <img src="/uploads/<%= item.product.image_url[0] %>" alt="<%= item.product.product_title %>">
+                      <%= item.product.product_title %>
+                  </td >
+                  <td style="background-color: #e6e6dc !important;">$<%= item.product.price %></td>
+                  <td style="background-color: #e6e6dc !important;">
+                      <span class="stock-status <%= item.product.stock !== 0 ? 'in-stock' : 'out-of-stock' %>">
+                          <%= item.product.stock !== 0 ? 'In Stock' : 'Out of Stock' %>
+                      </span>
+                  </td>
+                  <td style="background-color: #e6e6dc;">
+  <div class="product-details-cart">
+    <button 
+      class="btn-add-to-cart"  style="
+    width: 99px !important;
+    height: 34px !important;
+    border-radius: 7px !important;
+    background-color: #e6e6dc !important;
+    border-color: black !important;
+"
+      onclick="addToCart('<%= item.product._id %>')">
+      Add to Cart
+    </button>
+  </div>
+</td>
+
+                  <td style="background-color: #e6e6dc !important;" class="wishlist-remove">
+                    <a
+                      href="/whishlist/delete/<%= item.product._id  %>"
+                      ><i class="dlicon ui-1_simple-remove"></i
+                    ></a>
+                  </td>
+                  
+                  
+                  
+              </tr>
+          <% }) %>
+      </tbody>
+  </table>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+
+<script>
+  
+
+
+  async function addToCart(product_id, qty = 1) {
+    try {
+      const response = await fetch(`/addToCart?id=${product_id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ qty }),
+      });
+
+      if (!response.ok) {
+        if (response.status === 409) {
+          const data = await response.json();
+          throw new Error(data.message); // Specific error from the server
+        }
+        throw new Error(`HTTP error! Status: ${response.status}`); // Generic error
+      }
+
+      const data = await response.json();
+
+      // Show success message using SweetAlert
+      Swal.fire({
+        icon: 'success',
+        title: ' Product is Successfully Added!',
+        text: data.message,
+        showCancelButton: true,
+        confirmButtonText: 'Go to Cart',
+        cancelButtonText: 'Continue Shopping',
+
+
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = '/cart'; // Redirect to cart page
+        }
+      });
+    } catch (error) {
+      if (error.message === "Product already in cart") {
+        // Show "Already in Cart" alert
+        Swal.fire({
+          icon: 'info',
+          title: 'Product Already in Cart',
+          text: 'This product is already in your cart. Would you like to view your cart?',
+          showCancelButton: true,
+          confirmButtonText: 'Go to Cart',
+          cancelButtonText: 'Cancel',
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = '/cart'; // Redirect to cart page
+          }
+        });
+      } else {
+        // Generic error alert
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: error.message || 'Something went wrong!',
+          confirmButtonText: 'Try Again',
+        });
+      }
+    }
+  }
+</script>
+
+
+</body>
+</html>
+

@@ -1,0 +1,53 @@
+<%- include('headers.ejs') %>
+    <main class="main-wrap">
+      <header style="background-color: #ffffff;" class="main-header navbar">
+        <div class="col-search">
+        </div>
+        <div class="col-nav">
+            <button class="btn btn-icon btn-mobile me-auto" data-trigger="#offcanvas_aside"> <i
+                    class="material-icons md-apps"></i> </button>
+            <a class="dropdown-item text-danger" href="/admin/logout"><i
+                    class="material-icons md-exit_to_app"></i>Logout</a>
+        </div>
+    </header>
+      <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-8">Order Details</h1>
+        <div class="grid md:grid-cols-3 gap-6 mb-8">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Customer</h2>
+            </div>
+            <div class="card-content">
+              <p class="font-bold"><%= order.billingDetails?.fullName %></p>
+              <p><%= order.billingDetails?.email %></p>
+              <p><%= order.billingDetails?.number %></p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Order Info</h2>
+            </div>
+            <div class="card-content">
+              <p>Shipping: Falcon Saga</p>
+              <p>Pay Method: <%= order.paymentMethod %></p>
+              <p>Payment Status: <%= order.paymentStatus %></p>
+              <% if (order.paymentStatus === "Failed") { %>
+              <button class="btn btn-destructive mt-2">Retry Payment</button>
+              <% } %>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Delivery Address</h2>
+            </div>
+            <div class="card-content">
+              <p>City: <%= order.billingDetails?.city %></p>
+              <p>Country: <%= order.billingDetails?.state %></p>
+              <p>Po Box: <%= order.billingDetails?.postalCode %></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

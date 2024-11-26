@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Dashboard</title>
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta property="og:title" content="" />
+    <meta property="og:type" content="" />
+    <meta property="og:url" content="" />
+    <meta property="og:image" content="" />
+    <!-- Favicon -->
+    <link
+      rel="shortcut icon"
+      type="image/x-icon"
+      href="assets/imgs/theme/favicon1.svg"
+    />
+    <!-- Template CSS -->
+    <link href="assets/css/main.css" rel="stylesheet" type="text/css" />
+    <!-- Material Icons -->
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <style>
+      .navbar-aside {
+        width: 250px;
+        height: 100vh;
+        position: fixed;
+        left: 0;
+        top: 0;
+        background: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+      }
+      .aside-top {
+        padding: 1rem;
+        border-bottom: 1px solid #eee;
+      }
+      .brand-wrap {
+        display: flex;
+        align-items: center;
+      }
+      .menu-aside {
+        padding: 0;
+        list-style: none;
+      }
+      .menu-item {
+        border-bottom: 1px solid #eee;
+      }
+      .menu-link {
+        display: flex;
+        align-items: center;
+        padding: 10px 1rem;
+        color: #333;
+        text-decoration: none;
+        transition: background-color 0.3s;
+      }
+      .menu-link:hover,
+      .menu-item.active .menu-link {
+        background-color: #f8f9fa;
+      }
+      .menu-link i {
+        margin-right: 10px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="screen-overlay"></div>
+    <aside
+      class="navbar-aside"
+      id="offcanvas_aside"
+      style="width: 338px !important"
+    >
+      <div class="aside-top">
+        <a href="dashboard" class="brand-wrap">
+          <img
+            src="assets/imgs/theme/logo1.svg"
+            class="logo"
+            alt="Evara Dashboard"
+            style="width: 50px; height: auto"
+          />
+        </a>
+        <div>
+          <button class="btn btn-icon btn-aside-minimize">
+            <i class="material-icons">menu_open</i>
+          </button>
+        </div>
+      </div>
+      <nav>
+        <ul class="menu-aside">
+          <% const menuItems = [ { link: 'dashboard', icon: 'dashboard', text:
+          'Dashboard' }, { link: 'productsList', icon: 'inventory_2', text:
+          'Products' }, { link: 'userList', icon: 'people', text: 'Users' }, {
+          link: 'brand', icon: 'branding_watermark', text: 'Brands' }, { link:
+          'catagory', icon: 'category', text: 'Category' }, { link: 'offer',
+          icon: 'local_offer', text: 'Offers' }, { link: 'salesReport', icon:
+          'bar_chart', text: 'Sales Report' }, { link: 'coupons', icon:
+          'loyalty', text: 'Coupons' }, { link: 'orders', icon: 'shopping_cart',
+          text: 'Orders' } ]; %> <% menuItems.forEach(item => { %>
+          <li class="menu-item <%= item.active ? 'active' : '' %>">
+            <a class="menu-link" href="<%= item.link %>">
+              <i class="material-icons"><%= item.icon %></i>
+              <span class="text"><%= item.text %></span>
+            </a>
+          </li>
+          <% }); %>
+        </ul>
+      </nav>
+    </aside>
+  </body>
+</html>

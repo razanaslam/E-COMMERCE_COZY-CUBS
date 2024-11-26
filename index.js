@@ -3,6 +3,7 @@ const path = require("path");
 const session = require("express-session");
 const flash = require("connect-flash");
 const app = express();
+const sharp = require("sharp");
 const mongoose = require("mongoose");
 const userRoute = require("./route/userRoute");
 const adminRoute = require("./route/adminRoute");
@@ -35,7 +36,7 @@ app.use(flash());
 app.use((req, res, next) => {
   res.locals.passMatch = req.flash("passMatch");
   res.locals.emailExist = req.flash("emailExist");
-  res.locals.messages = req.flash();
+  // res.locals.messages = req.flash();
   next();
 });
 app.use(express.urlencoded({ extended: true }));
@@ -80,7 +81,9 @@ app.set("views", ["./view/user", "./view/admin"]);
 
 app.use("/", userRoute);
 app.use("/admin", adminRoute);
-// app.use("");
+app.use("/*", (req, res) => {
+  res.render("404");
+});
 const PORT = process.env.PORT || 3700;
 app.listen(PORT, (err) => {
   if (err) {

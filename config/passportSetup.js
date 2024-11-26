@@ -13,7 +13,7 @@ passport.use(
       callbackURL: process.env.CALLBACK_URL,
     },
 
-    async (accessToken, refreshToken, profile, done) => {
+    async (profile, done) => {
       try {
         // console.log(profile);
 

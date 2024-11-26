@@ -4,7 +4,12 @@ const session = require("express-session");
 adminRoute.use(express.urlencoded({ extended: true }));
 const adminController = require("../controller/adminController");
 const { isAdmin } = require("../middleware/adminAuth");
-const { logout } = require("../controller/userController");
+const {
+  logout,
+  loadOrderDetails,
+  loadOrderPlaced,
+} = require("../controller/userController");
+const userRoute = require("./userRoute");
 // const upload = require("../config/multer");??
 // const fileUpload = require("express-fileupload");
 // adminRoute.use(fileUpload());
@@ -40,9 +45,14 @@ adminRoute.post(
   adminController.upload,
   adminController.editProduct
 );
+adminRoute.get(
+  "/deleteProductImage/:id/:filename",
+  adminController.deleteProductImage
+);
 adminRoute.post("/listProduct/:id", adminController.listProduct);
 adminRoute.post("/unlistProduct/:id", adminController.unlistProduct);
 adminRoute.post("/deleteProduct/:id", adminController.deleteProduct);
+adminRoute.post("/isNew/:id", adminController.isNew);
 // adminRoute.post(
 //   "/addProduct",
 //   upload.array("product_image", 3),
@@ -76,7 +86,51 @@ adminRoute.get("/userList", isAdmin, adminController.loadUser);
 adminRoute.post("/blockUser/:id", adminController.blockUser);
 adminRoute.post("/unblockUser/:id", adminController.unblockUser);
 
+//orders
+
+adminRoute.get("/orders", isAdmin, adminController.loadOrder);
+adminRoute.get(
+  "/adminOrderDetails/:id",
+  isAdmin,
+  adminController.loadadminOrderDetails
+);
+// adminRoute.post("/adminCancelOrder/:id", adminController.adminCancelOrder);
+
+adminRoute.post(
+  "/updateOrderStatus/:orderId",
+  isAdmin,
+  adminController.adminUpdateOrderStatus
+);
+adminRoute.post(
+  "/orders/return-approval/:orderId",
+  adminController.verifyReturn
+);
+
+//coupons
+adminRoute.get("/coupons", isAdmin, adminController.loadCoupons);
+adminRoute.get("/addCoupons", isAdmin, adminController.loadAddCoupons);
+adminRoute.post("/addCoupons", adminController.addCoupons);
+adminRoute.post("/deleteCoupons/:id", adminController.deleteCoupons);
+adminRoute.post("/listCoupons/:id", adminController.listCoupons);
+adminRoute.post("/unlistCoupons/:id", adminController.unlistCoupons);
+
+//offers
+adminRoute.get("/offer", isAdmin, adminController.loadOffers);
+adminRoute.get("/addoffer", isAdmin, adminController.loadAddOffer);
+adminRoute.post("/addoffer", isAdmin, adminController.createOffers);
+// adminRoute.post("/offer/list-offer/:id", isAdmin, adminController.listOffer);
+adminRoute.post(
+  "/list_unlist_offers/:id/toggle-list",
+  isAdmin,
+  adminController.offerListUnlist
+);
+adminRoute.post("/deleteOffer/:id", adminController.deleteOffer);
+
+//salesreport
+adminRoute.get("/salesReport", isAdmin, adminController.loadSalesReport);
+
 //logout
 
 adminRoute.get("/logout", adminController.logout);
+
 module.exports = adminRoute;

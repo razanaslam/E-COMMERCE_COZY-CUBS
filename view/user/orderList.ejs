@@ -1,0 +1,658 @@
+<%- include('header.ejs') %>
+    <link
+      rel="shortcut icon"
+      type="image/x-icon"
+      href="assets/images/favicon.png"
+    />
+    <style>
+        h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5rem;
+      color: #2c3e50;
+      text-align: center;
+      margin-bottom: 2rem;
+  }
+  
+        .dashboard-content {
+            width: 100%;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    
+        .card-header h5 {
+            font-weight: 600;
+            color: #333;
+        }
+    
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+    
+        .table thead th {
+            background-color: #ec7070;
+            color: #fff;
+            font-weight: 600;
+            text-align: center;
+            padding: 12px;
+            border-top: none;
+        }
+    
+        .table tbody td {
+            padding: 12px;
+            text-align: center;
+            vertical-align: middle;
+            border-bottom: 1px solid #e9ecef;
+        }
+    
+        .table tbody tr:hover {
+            background-color: #f1f3f5;
+            transition: background-color 0.3s ease;
+        }
+    
+        .badge {
+            font-size: 0.875em;
+            padding: 0.4em 0.8em;
+            border-radius: 8px;
+            text-transform: capitalize;
+        }
+    
+        .alert-danger {
+            background-color: #ff4d4d;
+            color: #fff;
+        }
+    
+        .alert-success {
+            background-color: #28a745;
+            color: #fff;
+        }
+    
+        .alert-primary {
+            background-color: #007bff;
+            color: #fff;
+        }
+    
+        .alert-warning {
+            background-color: #ffc107;
+            color: #212529;
+        }
+    
+        .btn-sm.font-sm {
+            font-size: 0.875em;
+            padding: 8px 12px;
+            color: #ffffff;
+            background-color: #fc4f4f;
+            border: 1px solid #fc4f4f;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+    
+        .btn-sm.font-sm:hover {
+            background-color: #007bff;
+            color: #fff;
+        }
+    
+        .text-end {
+            text-align: right !important;
+        }
+    </style>
+    
+
+      
+        
+        
+
+<!-- <script>
+    // Confirmation for order cancellation
+    function cancelVerify(orderId) {
+        const confirmCancel = confirm("Do you want to cancel the order?");
+        if (confirmCancel) {
+            // Call function to proceed with cancellation
+            cancelOrder(orderId);
+        }
+    }
+
+    async function cancelOrder(orderId) {
+        try {
+            const response = await fetch(`/updateOrderStatus/${orderId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status: 'Cancelled' })
+            });
+            const result = await response.json();
+            if (result.success) {
+                // Reload the page to show the updated order status
+                window.location.reload();
+            } else {
+                alert("Failed to update status. Please try again.");
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert("An error occurred while updating status.");
+        }
+    }
+
+    // Confirmation for returning an order with a reason
+    function returnOrderWithReason(orderId) {
+        const confirmReturn = confirm("Do you want to return this order?");
+        if (confirmReturn) {
+            // Here you could include a form to capture the reason, then proceed to call the backend API
+            returnOrder(orderId);
+        }
+    }
+
+    async function returnOrder(orderId) {
+        try {
+            const response = await fetch(`/updateOrderStatus/${orderId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status: 'Returned' })
+            });
+            const result = await response.json();
+            if (result.success) {
+                window.location.reload();
+            } else {
+                alert("Failed to update status. Please try again.");
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert("An error occurred while updating status.");
+        }
+    }
+</script> -->
+   
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    // SweetAlert2 for order cancellation confirmation
+function cancelVerify(orderId) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "Do you want to cancel the order?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, cancel it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            cancelOrder(orderId); // Call the cancellation function
+        }
+    });
+}
+
+async function cancelOrder(orderId) {
+    try {
+        const response = await fetch(`/updateOrderStatus/${orderId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ status: 'Cancelled' })
+        });
+        const result = await response.json();
+        if (result.success) {
+            Swal.fire({
+                title: 'Cancelled!',
+                text: 'The order has been cancelled successfully.',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                window.location.reload();
+            });
+        } else {
+            Swal.fire({
+                title: 'Failed!',
+                text: 'Failed to cancel the order. Please try again.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            title: 'Error!',
+            text: 'An error occurred while processing your request.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+    }
+}
+
+// SweetAlert2 for returning an order with a reason
+function returnOrderWithReason(orderId) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "Do you want to return this order?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ffc107',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, return it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            returnOrder(orderId); // Call the return function
+        }
+    });
+}
+
+async function returnOrder(orderId) {
+    try {
+        const response = await fetch(`/updateOrderStatus/${orderId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ status: 'Returned' })
+        });
+        const result = await response.json();
+        if (result.success) {
+            Swal.fire({
+                title: 'Returned!',
+                text: 'The order has been returned successfully.',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                window.location.reload();
+            });
+        } else {
+            Swal.fire({
+                title: 'Failed!',
+                text: 'Failed to return the order. Please try again.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            title: 'Error!',
+            text: 'An error occurred while processing your request.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+    }
+}
+
+</script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/vendor/modernizr-3.11.7.min.js"></script>
+    <!-- jquery -->
+    <script src="assets/js/vendor/jquery-v3.6.0.min.js"></script>
+    <!-- Popper JS -->
+    <script src="assets/js/vendor/popper.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="assets/js/vendor/bootstrap.min.js"></script>
+    <script src="assets/js/plugins/owl-carousel.js"></script>
+    <script src="assets/js/plugins/slick.js"></script>
+    <script src="assets/js/plugins/jarallax.min.js"></script>
+    <script src="assets/js/plugins/countdown.js"></script>
+    <script src="assets/js/plugins/magnific-popup.js"></script>
+    <script src="assets/js/plugins/instafeed.js"></script>
+    <script src="assets/js/plugins/tilt.js"></script>
+    <script src="assets/js/plugins/images-loaded.js"></script>
+    <script src="assets/js/plugins/isotope.js"></script>
+    <script src="assets/js/plugins/scrolloverflow-fullpage.js"></script>
+    <script src="assets/js/plugins/fullpage.js"></script>
+    <script src="assets/js/plugins/jquery-ui.js"></script>
+    <script src="assets/js/plugins/jquery-ui-touch-punch.js"></script>
+    <script src="assets/js/plugins/easyzoom.js"></script>
+    <script src="assets/js/plugins/resizesensor.js"></script>
+    <script src="assets/js/plugins/sticky-sidebar.js"></script>
+    <script src="assets/js/plugins/scrollup.js"></script>
+    <script src="assets/js/plugins/select2.min.js"></script>
+    <script src="assets/js/plugins/cookie.js"></script>
+    <script src="assets/js/plugins/bpopup.js"></script>
+    <script src="assets/js/plugins/wow.js"></script>
+    <script src="assets/js/plugins/ajax-mail.js"></script>
+    <!-- Main JS -->
+    <script src="assets/js/main.js"></script>
+  </body>
+
+  <!-- Mirrored from template.hasthemes.com/toro/toro/my-account.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 09 Feb 2024 11:20:00 GMT -->
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<style>
+  .dashboard-content {
+      width: 100%;
+      padding: 20px;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .card-header h5 {
+      font-weight: 600;
+      color: #333;
+  }
+
+  .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+  }
+
+  .table thead th {
+      background-color: #ec7070;
+      color: #fff;
+      font-weight: 600;
+      text-align: center;
+      padding: 12px;
+      border-top: none;
+  }
+
+  .table tbody td {
+      padding: 12px;
+      text-align: center;
+      vertical-align: middle;
+      border-bottom: 1px solid #e9ecef;
+  }
+
+  .table tbody tr:hover {
+      background-color: #f1f3f5;
+      transition: background-color 0.3s ease;
+  }
+
+  .badge {
+      font-size: 0.875em;
+      padding: 0.4em 0.8em;
+      border-radius: 8px;
+      text-transform: capitalize;
+  }
+
+  .alert-danger {
+      background-color: #ff4d4d;
+      color: #fff;
+  }
+
+  .alert-success {
+      background-color: #28a745;
+      color: #fff;
+  }
+
+  .alert-primary {
+      background-color: #007bff;
+      color: #fff;
+  }
+
+  .alert-warning {
+      background-color: #ffc107;
+      color: #212529;
+  }
+
+  .btn-sm.font-sm {
+      font-size: 0.875em;
+      padding: 8px 12px;
+      color: #ffffff;
+      background-color: #fc4f4f;
+      border: 1px solid #fc4f4f;
+      border-radius: 5px;
+      transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .btn-sm.font-sm:hover {
+      background-color: #d9d9b1;
+      color: #fff;
+  }
+
+  .text-end {
+      text-align: right !important;
+  }
+</style>
+
+<style>
+  body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f6f6e6;
+    color: #333;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+  }
+  .dashboard-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 2rem;
+  }
+  .dashboard-title {
+    font-family: 'Playfair Display', serif !important;
+    font-size: 2.5rem;
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  .dashboard-menu {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+  }
+  .dashboard-item {
+    background-color: #fffff3;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .dashboard-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+  .dashboard-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem;
+    text-decoration: none;
+    color: #333;
+  }
+  .dashboard-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+  .dashboard-text {
+    font-size: 1.1rem;
+    font-weight: 500;
+    text-align: center;
+  }
+  .active {
+    background-color:  transparent;
+    color: #ffffff;
+  }
+  .active .dashboard-icon,
+  .active .dashboard-text {
+    color: #ffffff;
+  }
+</style>
+<br><br>
+<h1>My Orders</h1>
+<br>
+<div class="col-md-9" style="width: 100%; max-width: 1200px; margin: 0 auto; padding: 20px;">
+  <div class="tab-content dashboard-content" style="width: 100%; overflow-x: auto; background-color: #f6f6e6;">
+      <div class="tab-pane fade active show" id="orders" role="tabpanel" aria-labelledby="orders-tab">
+          <div class="card" style="border: 1px solid #e0e0e0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+              <div class="card-header" style="background-color: #f8f9fa; padding: 15px; border-bottom: 1px solid #e0e0e0; background-color: #d9d9b1;">
+                  <h5 class="mb-0" style="margin: 0; font-size: 18px; color: #333;">Your Orders</h5>
+              </div>
+              <% if (order.length === 0) { %>
+                  <p style="padding: 20px; margin: 0; color: #666;">You have no orders, please order something...</p>
+              <% } else { %>
+                  <div class="card-body" style="padding: 20px;">
+                      <div class="table-responsive" style="overflow-x: auto;">
+                          <table style="width: 100%; border-collapse: collapse; min-width: 600px;">
+                              <thead>
+                                  <tr style=" background-color: #d9d9b1; ">
+                                      <th style="padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; color: #000 !important;">#ID</th>
+                                      <th style="padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; color: #000 !important;">Name</th>
+                                      <th style="padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; color: #000 !important;">Email</th>
+                                      <th style="padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; color: #000 !important;">Total</th>
+                                      <th style="padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; color: #000 !important;">Status</th>
+                                      <th style="padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; color: #000 !important;">Date</th>
+                                      <th style="padding: 12px; text-align: right; border-bottom: 2px solid #dee2e6; color: #000 !important;">Action</th>
+                                  </tr>
+                              </thead>
+                              <tbody>
+                                <% order.forEach(order => { %>
+                                      <tr style="border-bottom: 1px solid #dee2e6; color: #000 !important;">
+                                        <td style="padding: 12px; text-align: left;"><%= order?._id %></td>
+                                        <td style="padding: 12px; text-align: left;"><b><%= order?.billingDetails?.fullName %></b></td>
+                                        <td style="padding: 12px; text-align: left;"><%= order?.billingDetails?.email %></td>
+                                        <td style="padding: 12px; text-align: left;"><%= order.totalPrice %></td>
+                                          <td style="padding: 12px; text-align: left;">
+                                              <span style="
+                                                  padding: 5px 10px;
+                                                  border-radius: 4px;
+                                                  font-size: 12px;
+                                                  font-weight: bold;
+                                                  color: #fff;
+                                                  background-color: 
+                                                     <%= order.status === 'Cancelled' ? '#dc3545' : 
+                                                          order.status === 'Shipped' || order.status === 'Delivered' ? '#28a745' : 
+                                                          order.status === 'Returned' ? '#007bff' : 
+                                                          order.paymentStatus === 'Failed' ? '#dc3545' : '#ffc107' %>;
+                                              ">
+                                                  <%= order.status %>
+                                              </span>
+                                          </td>
+                                          <td style="padding: 12px; text-align: left;">
+                                            <% if (order.createdAt) { %>
+                                              <%= new Date(order.createdAt).toLocaleDateString("en-IN") %>
+                                            <% } else { %>
+                                              Not Available
+                                            <% } %>
+                                          </td>
+                                          <td style="padding: 12px; text-align: right;">
+                                              <a href="/orderDetails/<%= order._id %>" style="display: inline-block; padding: 6px 12px; margin: 2px; background-color: #ffffff; color: #000000; text-decoration: none; border-radius: 4px; font-size: 14px;">Details</a>
+                                              <% if (order.paymentStatus === 'Failed') { %>
+                                                <a href="/checkout?orderId=<%= order._id %>" style="display: inline-block; padding: 6px 12px; margin: 2px; background-color: #28a745; color: #fff; text-decoration: none; border-radius: 4px; font-size: 14px;">Retry</a>
+                                            <% } else { %>
+                                                <% if (order.status === 'Pending' || order.status === 'Shipped') {  %>
+                                                    <button onclick="cancelVerify('<%= order._id %>')" style="display: inline-block; padding: 6px 12px; margin: 2px; background-color: #dc3545; color: #fff; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; padding-right: 30px;">  Cancel </button>
+                                                <% } else if (order.status === 'Delivered') { %>
+                                                    <button onclick="returnOrderWithReason('<%= order._id %>')" style="display: inline-block; padding: 6px 12px; margin: 2px; background-color: #ffc107; color: #000; border: none; border-radius: 4px; font-size: 14px; cursor: pointer;">Return</button>
+                                                <% } else { %>
+                                                    <button disabled style="display: inline-block; padding: 6px 12px; margin: 2px; background-color: white; color: #dc3545; border: none; border-radius: 4px; font-size: 14px; cursor: pointer;">Cancelled</button>
+                                                <% } %>
+                                            <% } %>
+                                            
+                                          </td>
+                                      </tr>
+                                  <% }) %>
+                              </tbody>
+                          </table>
+                      </div>
+                  </div>
+              <% } %>
+          </div>
+      </div>
+  </div>
+</div>
+
+<style>
+    @media (max-width: 768px) {
+        .card-header h5 {
+            font-size: 16px !important;
+        }
+        table {
+            font-size: 14px !important;
+        }
+        td, th {
+            padding: 8px !important;
+        }
+        .btn {
+            padding: 4px 8px !important;
+            font-size: 12px !important;
+        }
+    }
+</style>
+<div class="pagination-area" style="margin-top: 30px; margin-bottom: 50px;">
+    <nav aria-label="Page navigation example">
+      <ul class="pagination" style="display: flex; justify-content: center; list-style-type: none; padding: 0; margin: 0;">
+        <!-- Previous Page Link -->
+        <% if (currentPage > 1) { %>
+          <li class="page-item" style="margin: 0 5px;">
+            <a class="page-link" href="?page=<%= currentPage - 1 %>&limit=10" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px;background-color: #c3c3ac; border: 1px solid #e0e0e0; border-radius: 50%; color: #333; text-decoration: none; transition: all 0.3s ease;">
+              <i class="material-icons md-chevron_left" style="font-size: 20px;">&#xe5cb;</i>
+            </a>
+          </li>
+        <% } %>
+  
+        <!-- Page Number Links -->
+        <% for (let i = 1; i <= totalPages; i++) { %>
+          <li class="page-item <%= i === currentPage ? 'active' : '' %>" style="margin: 0 5px;">
+            <a class="page-link" href="?page=<%= i %>&limit=10" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px;background-color: #c3c3ac !important; border: 1px solid ; border-radius: 50%; color: <%= i === currentPage ? '#fff' : '#333' %>; background-color: <%= i === currentPage ? '#007bff' : 'transparent' %>; text-decoration: none; transition: all 0.3s ease;">
+              <%= i %>
+            </a>
+          </li>
+        <% } %>
+  
+        <!-- Next Page Link -->
+        <% if (currentPage < totalPages) { %>
+          <li class="page-item" style="margin: 0 5px;">
+            <a class="page-link" href="?page=<%= currentPage + 1 %>&limit=10" style="display: flex; align-items: center; justify-content: center; width: 40px;background-color: #c3c3ac; height: 40px; border: 1px solid #e0e0e0; border-radius: 50%; color: #333; text-decoration: none; transition: all 0.3s ease;">
+              <i class="material-icons md-chevron_right" style="font-size: 20px;">&#xe5cc;</i>
+            </a>
+          </li>
+        <% } %>
+      </ul>
+    </nav>
+  </div>
+  
+  <style>
+    @media (max-width: 768px) {
+      .pagination .page-link {
+        width: 35px;
+        height: 35px;
+        font-size: 14px;
+      }
+      .pagination .material-icons {
+        font-size: 18px;
+      }
+    }
+    .pagination .page-link:hover {
+      background-color: #f0f0f0;
+      border-color: #007bff;
+      color: #007bff;
+    }
+    .pagination .active .page-link:hover {
+      background-color: transparent;
+    }
+  </style>
+<br><br><br><br>
+
+
+<!-- Add your wishlist content here -->
+
+
+  
+</body></html>

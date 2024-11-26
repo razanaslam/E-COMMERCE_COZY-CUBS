@@ -11,6 +11,60 @@
     <meta property="og:type" content="" />
     <meta property="og:url" content="" />
     <meta property="og:image" content="" />
+    <style>
+      /* Basic Reset */
+* {
+    box-sizing: border-box;
+}
+
+form {
+    max-width: 800px; /* Limit the width of the form */
+    margin: auto; /* Center the form */
+}
+
+/* Style for labels */
+.form-label {
+    font-weight: bold; /* Make labels bold */
+}
+
+/* Style for input fields and selects */
+.form-control, .form-select {
+    width: 100%; /* Make inputs full width */
+    padding: 10px; /* Add padding for better touch area */
+    font-size: 1.1rem; /* Increase font size for readability */
+}
+
+/* Style for textarea */
+textarea.form-control {
+    resize: vertical; /* Allow vertical resizing */
+}
+
+/* Style for buttons */
+.btn {
+    padding: 10px 20px; /* Increase button padding */
+    font-size: 1.1rem; /* Increase button font size */
+}
+
+/* Ensure rows are well spaced */
+.row {
+    margin-bottom: 20px; /* Space between rows */
+}
+
+/* Text danger color */
+.text-danger {
+    font-size: 0.9rem; /* Slightly smaller error message font */
+}
+
+/* Card styles (if needed) */
+.card {
+    margin-bottom: 20px; /* Space between cards */
+}
+
+/* Input upload styles */
+.input-upload {
+    position: relative; /* Positioning for better control */
+}
+    </style>
     <!-- Favicon -->
     <link
       rel="shortcut icon"
@@ -20,6 +74,52 @@
 
     <!-- Template CSS -->
     <link href="assets/css/main.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" />
+    <style>
+      /* General styling */
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #ffffff;
+      }
+  
+      .card-body {
+        max-width: 500px;
+        margin: 20px auto;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+      }
+  
+      /* Crop modal styling */
+      #cropModal {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: white;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        z-index: 10;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+      }
+  
+      #croppingImage {
+        max-width: 100%;
+      }
+  
+      .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 5;
+      }
+    </style>
     <style>
       /* Styling for the table */
       table {
@@ -331,122 +431,74 @@
               <div class="card-header">
                 <h4>Basic</h4>
               </div>
-              <div class="card-body"> 
-                <form id="productForm" method="post" action="/admin/addProduct" enctype="multipart/form-data" onsubmit="return validateForm()">
-                  <div class="mb-4">
-                    <label for="product_name" class="form-label">Product title</label>
-                    <input
-                      type="text"
-                      placeholder="Type here"
-                      name="product_title"
-                      class="form-control"
-                      id="product_name"
-                    />
-                    <span id="productTitleError" class="text-danger"></span> 
-                  </div>
-                
-                  <div class="mb-4">
-                    <label class="form-label">Full description</label>
-                    <textarea
-                      placeholder="Type here"
-                      class="form-control"
-                      rows="4"
-                      name="full_description"
-                    ></textarea>
-                    <span id="descriptionError" class="text-danger"></span> 
-                  </div>
-                
-                  <div class="row">
-                    <div class="col-lg-4">
-                      <div class="mb-4">
-                        <label class="form-label">Price</label>
-                        <input
-                          placeholder="$"
-                          type="number"
-                          class="form-control"
-                          name="price"
-                          min="0.01"
-                          step="0.01"
-                        />
-                        <span id="priceError" class="text-danger"></span> 
-                      </div>
-                    </div>
-                
-                    <div class="col-lg-4">
-                      <div class="mb-4">
-                        <label class="form-label">Category</label>
-                        <select class="form-select" name="category">
-                          <% category.forEach(category => { %>
-                          <option value="<%= category._id %>"><%= category.name %></option>
-                          <% }) %>
-                        </select>
-                        <span id="categoryError" class="text-danger"></span> 
-                      </div>
-                    </div>
-                
-                    <div class="col-lg-4">
-                      <label class="form-label">Brand</label>
-                      <select class="form-select" name="brand">
-                        <% brand.forEach(brand => { %>
-                        <option value="<%= brand._id %>"><%= brand.name %></option>
-                        <% }) %>
-                      </select>
-                      <span id="brandError" class="text-danger"></span> 
-                    </div>
-                  </div>
-                
-                  <div class="row">
-                    <div class="col-lg-4">
-                      <div class="mb-4">
-                        <label class="form-label">Stock</label>
-                        <input
-                          placeholder="Stock"
-                          type="number"
-                          class="form-control"
-                          name="stock"
-                          min="1"
-                        />
-                        <span id="stockError" class="text-danger"></span> 
-                      </div>
-                    </div>
-                
-                    <div class="col-lg-4">
-                      <div class="mb-4">
-                        <label class="form-label">Size</label>
-                        <input
-                          placeholder="Size"
-                          type="text"
-                          class="form-control"
-                          name="size"
-                        />
-                        <span id="sizeError" class="text-danger"></span> 
-                      </div>
-                    </div>
-                  </div>
-                
-                  <div class="card mb-4">
-                    <div class="card-body">
-                        <div class="input-upload">
-                            <input class="form-control" id="product_image" type="file" name="image_url" accept="image/*" onchange="handleFiles(event)" />
-                            <span id="imageError" class="text-danger"></span>
-                        </div>
-                        <div id="imagePreview" class="mt-3"></div>
-                
-                        <!-- Crop Modal -->
-                        <div id="cropModal">
-                            <img id="croppingImage" />
-                            <button type="button" id="cropButton" onclick="cropImage()">Crop Image</button>
-                        </div>
-                    </div>
+             
+              
+              <form id="productForm" name="productForm" method="post" action="/admin/addProduct" enctype="multipart/form-data" onsubmit="return validateForm()">
+                <div class="mb-4">
+                  <label for="product_name" class="form-label">Product title</label>
+                  <input type="text" placeholder="Type here" name="product_title" class="form-control" id="product_name" />
+                  <span id="productTitleError" class="text-danger"></span>
                 </div>
-                
-                
-                  <button type="submit" class="btn btn-primary">Add Product</button>
-                </form>
-                
-                         
-              </div>              
-        </div>
+              
+                <div class="mb-4">
+                  <label class="form-label">Full description</label>
+                  <textarea placeholder="Type here" class="form-control" rows="4" name="full_description"></textarea>
+                  <span id="descriptionError" class="text-danger"></span>
+                </div>
+              
+                <div class="row mb-4">
+                  <div class="col-lg-6">
+                    <label class="form-label">Price</label>
+                    <input placeholder="$" type="number" class="form-control" name="price"  />
+                    <span id="priceError" class="text-danger"></span>
+                  </div>
+              
+                  <div class="col-lg-6">
+                    <label class="form-label">Stock</label>
+                    <input placeholder="Stock" type="text" class="form-control" name="stock"  />
+                    <span id="stockError" class="text-danger"></span>
+                  </div>
+                </div>
+              
+                <div class="row mb-4">
+                  <div class="col-lg-6">
+                    <label class="form-label">Category</label>
+                    <select class="form-select" name="category">
+                      <% category.forEach(category => { %>
+                        <option value="<%= category._id %>"><%= category.name %></option>
+                      <% }) %>
+                    </select>
+                    <span id="categoryError" class="text-danger"></span>
+                  </div>
+              
+                  <div class="col-lg-6">
+                    <label class="form-label">Brand</label>
+                    <select class="form-select" name="brand">
+                      <% brand.forEach(brand => { %>
+                        <option value="<%= brand._id %>"><%= brand.name %></option>
+                      <% }) %>
+                    </select>
+                    <span id="brandError" class="text-danger"></span>
+                  </div>
+                </div>
+              
+                <div class="mb-4">
+                  <div class="input-upload">
+                    <input class="form-control" id="product_image" type="file" name="image_url" accept="image/*" multiple onchange="handleFiles(event)" />
+                    <span id="imageError" class="text-danger"></span>
+                  </div>
+                  <div id="imagePreview" class="mt-3"></div>
+                </div>
+              
+                <button type="submit" class="btn btn-primary">Add Product</button>
+              
+                <div id="cropModal" style="display:none;">
+                  <img id="croppingImage" />
+                  <button type="button" id="cropButton" onclick="cropImage()">Crop Image</button>
+                </div>
+                <div class="overlay" id="overlay" style="display:none;"></div>
+              </form>
+              
       </section>
       <!-- content-main end// -->
       <footer class="main-footer font-xs">
@@ -495,97 +547,115 @@
   });
      </script> -->
      <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
-
      <script>
-         let cropper;
-         let currentFile;
-         let currentImgElement;
-         let filesArray = [];
-         let croppedFileIndex;
-     
-         function handleFiles(event) {
-             const imagePreviewContainer = document.getElementById("imagePreview");
-             imagePreviewContainer.innerHTML = "";
-     
-             const files = event.target.files;
-             filesArray = Array.from(files);
-     
-             if (files) {
-                 Array.from(files).forEach((file, index) => {
-                     const reader = new FileReader();
-     
-                     reader.onload = (e) => {
-                         currentFile = file;
-                         const img = document.createElement("img");
-                         img.src = e.target.result;
-                         img.style.width = "100px";
-                         img.style.marginRight = "10px";
-                         img.style.cursor = "pointer";
-                         img.onclick = () => openCropper(e.target.result, img, index);
-                         imagePreviewContainer.appendChild(img);
-                     };
-     
-                     reader.readAsDataURL(file);
-                 });
-             }
+       let cropper;
+       let currentFile;
+       let currentImgElement;
+       let filesArray = [];
+       let croppedFileIndex;
+   
+       function handleFiles(event) {
+         const imagePreviewContainer = document.getElementById("imagePreview");
+         imagePreviewContainer.innerHTML = "";
+   
+         const files = event.target.files;
+         filesArray = Array.from(files);
+   
+         filesArray.forEach((file, index) => {
+           const reader = new FileReader();
+   
+           reader.onload = (e) => {
+             currentFile = file;
+             const img = document.createElement("img");
+             img.src = e.target.result;
+             img.style.width = "100px";
+             img.style.marginRight = "10px";
+             img.style.cursor = "pointer";
+             img.onclick = () => openCropper(e.target.result, img, index);
+             imagePreviewContainer.appendChild(img);
+           };
+   
+           reader.readAsDataURL(file);
+         });
+       }
+   
+       function openCropper(imageSrc, imgElement, index) {
+         const cropModal = document.getElementById("cropModal");
+         const croppingImage = document.getElementById("croppingImage");
+         const overlay = document.getElementById("overlay");
+   
+         currentImgElement = imgElement;
+         croppedFileIndex = index;
+   
+         croppingImage.src = imageSrc;
+         cropModal.style.display = "block";
+         overlay.style.display = "block";
+   
+         if (cropper) {
+           cropper.destroy();
          }
-     
-         function openCropper(imageSrc, imgElement, index) {
-             const cropModal = document.getElementById("cropModal");
-             const croppingImage = document.getElementById("croppingImage");
-     
-             currentImgElement = imgElement;
-             croppedFileIndex = index;
-     
-             croppingImage.src = imageSrc;
-             cropModal.style.display = "block";
-     
-             if (cropper) {
-                 cropper.destroy();
-             }
-     
-             cropper = new Cropper(croppingImage, {
-                 viewMode: 1, // Disable zooming, more control over the cropping
-                 dragMode: 'move', // Users can move the image freely
-                 autoCropArea: 0.8, // Pre-select 80% of the image for cropping
-                 responsive: true
-             });
-         }
-     
-         function cropImage() {
-             const canvas = cropper.getCroppedCanvas();
-     
-             canvas.toBlob((blob) => {
-                 const croppedFile = new File([blob], currentFile.name, { type: 'image/png' });
-     
-                 filesArray[croppedFileIndex] = croppedFile;
-     
-                 const dataTransfer = new DataTransfer();
-                 filesArray.forEach((file) => {
-                     dataTransfer.items.add(file);
-                 });
-     
-                 const fileInput = document.getElementById('product_image');
-                 fileInput.files = dataTransfer.files;
-     
-                 currentImgElement.src = URL.createObjectURL(croppedFile);
-     
-                 document.getElementById("cropModal").style.display = "none";
-     
-                 cropper.destroy();
-                 cropper = null;
-             }, 'image/png');
-         }
+   
+         cropper = new Cropper(croppingImage, {
+           viewMode: 1,
+           dragMode: 'move',
+           autoCropArea: 0.8,
+           responsive: true,
+         });
+       }
+   
+       function cropImage() {
+         const canvas = cropper.getCroppedCanvas();
+   
+         canvas.toBlob((blob) => {
+           const croppedFile = new File([blob], currentFile.name, { type: 'image/png' });
+   
+           filesArray[croppedFileIndex] = croppedFile;
+   
+           const dataTransfer = new DataTransfer();
+           filesArray.forEach((file) => {
+             dataTransfer.items.add(file);
+           });
+   
+           const fileInput = document.getElementById('product_image');
+           fileInput.files = dataTransfer.files;
+   
+           currentImgElement.src = URL.createObjectURL(croppedFile);
+   
+           document.getElementById("cropModal").style.display = "none";
+           document.getElementById("overlay").style.display = "none";
+   
+           cropper.destroy();
+           cropper = null;
+         }, 'image/png');
+       }
      </script>
+     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+     <!-- <script>
+      <% if (error) { %>
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: '<%= error %>',
+          confirmButtonColor: '#d33'
+        });
+      <% } %>
+    
+      <% if (success) { %>
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: '<%= success %>',
+          confirmButtonColor: '#3085d6'
+        });
+      <% } %>
+    </script> -->
    <script>
     function validateForm() {
-      // Clear previous error messages
       document.getElementById('productTitleError').innerHTML = '';
       document.getElementById('priceError').innerHTML = '';
       document.getElementById('categoryError').innerHTML = '';
       document.getElementById('brandError').innerHTML = '';
       document.getElementById('stockError').innerHTML = '';
-      document.getElementById('sizeError').innerHTML = '';
       document.getElementById('imageError').innerHTML = '';
   
       let isValid = true;
@@ -595,46 +665,33 @@
       const category = document.forms["productForm"]["category"].value;
       const brand = document.forms["productForm"]["brand"].value;
       const stock = document.forms["productForm"]["stock"].value;
-      const size = document.forms["productForm"]["size"].value;
       const image = document.forms["productForm"]["image_url"].files.length;
   
-      // Product title validation
       if (!productTitle) {
         document.getElementById('productTitleError').innerHTML = 'Product title is required.';
         isValid = false;
       }
   
-      // Price validation
       if (!price || price <= 0) {
         document.getElementById('priceError').innerHTML = 'Please enter a valid price.';
         isValid = false;
       }
   
-      // Category validation
       if (!category) {
         document.getElementById('categoryError').innerHTML = 'Please select a category.';
         isValid = false;
       }
   
-      // Brand validation
       if (!brand) {
         document.getElementById('brandError').innerHTML = 'Please select a brand.';
         isValid = false;
       }
   
-      // Stock validation
       if (!stock || stock <= 0) {
         document.getElementById('stockError').innerHTML = 'Please enter a valid stock quantity.';
         isValid = false;
       }
   
-      // Size validation
-      if (!size) {
-        document.getElementById('sizeError').innerHTML = 'Size is required.';
-        isValid = false;
-      }
-  
-      // Image validation
       if (image === 0) {
         document.getElementById('imageError').innerHTML = 'Please upload an image.';
         isValid = false;

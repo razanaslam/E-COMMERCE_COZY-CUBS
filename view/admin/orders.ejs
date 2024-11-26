@@ -1,0 +1,321 @@
+<%- include('headers.ejs') %>
+<style>.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.page-link {
+  margin: 0 5px;
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  text-decoration: none;
+  color: #088178;
+}
+
+.page-link.active {
+  background-color: #088178;
+  color: white;
+  border-color: #088178;
+}
+
+.page-link:hover {
+  background-color: #088178;
+  color: white;
+}
+
+.page-dots {
+  margin: 0 5px;
+  color: #777;
+  font-size: 16px;
+}
+</style>
+    <main class="main-wrap">
+      <header style="background-color: #ffffff;" class="main-header navbar">
+        <div class="col-search">
+        </div>
+        <div class="col-nav">
+            <button class="btn btn-icon btn-mobile me-auto" data-trigger="#offcanvas_aside"> <i
+                    class="material-icons md-apps"></i> </button>
+            <a class="dropdown-item text-danger" href="/admin/logout"><i
+                    class="material-icons md-exit_to_app"></i>Logout</a>
+        </div>
+    </header>
+
+      <section class="content-main">
+        <div class="content-header">
+          <div>
+            <h2 class="content-title card-title">Order List</h2>
+            <p>Lorem ipsum dolor sit amet.</p>
+          </div>
+        </div>
+
+        <div class="card mb-4">
+          <header class="card-header">
+            <div class="row gx-3">
+              <div class="col-lg-4 col-md-6 me-auto">
+                <input
+                  style="background-color: #ffffff; color: rgb(0, 0, 0)"
+                  type="text"
+                  placeholder="Search..."
+                  class="form-control"
+                />
+              </div>
+              <div class="col-lg-2 col-6 col-md-3">
+                <select class="form-select">
+                  <option>Status</option>
+                  <option>Active</option>
+                  <option>Disabled</option>
+                  <option>Show all</option>
+                </select>
+              </div>
+              <div class="col-lg-2 col-6 col-md-3">
+                <select class="form-select">
+                  <option>Show 20</option>
+                  <option>Show 30</option>
+                  <option>Show 40</option>
+                </select>
+              </div>
+            </div>
+          </header>
+
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead style="background-color: #ffffff; color: rgb(0, 0, 0)">
+                  <tr>
+                    <th>#ID</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Total</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Date</th>
+                    <th scope="col" class="text-end">Action</th>
+                  </tr>
+                </thead>
+                <tbody style="background-color: #ffffff; color: rgb(0, 0, 0)">
+                  <% order.forEach(order => { %>
+                  <tr>
+                    <td><%= order?._id %></td>
+                    <td><b><%= order?.billingDetails?.fullName %></b></td>
+                    <td><%= order?.billingDetails?.email %></td>
+                    <td><%= order.totalPrice %></td>
+                    <td>
+                      <span
+                        class="badge rounded-pill alert-<%= order.status === 'Pending' ? 'warning' : order.status === 'Shipped' || order.status === 'Delivered' ? 'success' : order.status === 'Cancelled' ? 'danger' : 'primary' %> text-<%= order.status === 'Pending' ? 'warning' : order.status === 'Shipped' || order.status === 'Delivered' ? 'success' : order.status === 'Cancelled' ? 'danger' : 'primary' %>"
+                      >
+                        <%= order.status %>
+                      </span>
+                      <% if (order.paymentStatus === 'Failed') { %>
+                      <span class="badge rounded-pill alert-danger text-danger"
+                        >Payment Failed</span
+                      >
+                      <% } else if(order.returnStatus === 'Pending') { %>
+                      <p style="color: red">Return requested</p>
+                      <% } %>
+                    </td>
+                    <td>
+                      <% if (order.createdAt) { %> <%= new
+                      Date(order.createdAt).toLocaleDateString('en-IN') %> <% }
+                      else { %>
+                      <span>Not Available</span>
+                      <% } %>
+                    </td>
+                    <td class="text-end">
+  <select
+    id="status-select-<%= order._id %>"
+    class="form-select"
+    onchange="handleStatusChange('<%= order._id %>')"
+    data-current-status="<%= order.status %>"
+  >
+    <option value="Pending" <%= order.status === 'Pending' ? 'selected' : '' %>>Pending</option>
+    <option value="Shipped" <%= order.status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+    <option value="Processing" <%= order.status === 'Processing' ? 'selected' : '' %>>Processing</option>
+    <option value="Delivered" <%= order.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+    <option value="Cancelled" <%= order.status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+  </select>
+  <a
+    href="/admin/adminOrderDetails/<%= order._id %>"
+    class="btn btn-sm btn-primary"
+    style="margin-top: 10px;"
+  >
+    Details
+  </a>
+</td>
+
+
+
+                  </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="pagination">
+  <% if (totalPages > 1) { %>
+    <% const maxPagesToShow = 5; %> <!-- Change this value to control visible page links -->
+    <% let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2)); %>
+    <% let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1); %>
+    <% if (endPage - startPage + 1 < maxPagesToShow) { %>
+      <% startPage = Math.max(1, endPage - maxPagesToShow + 1); %>
+    <% } %>
+
+    <% if (currentPage > 1) { %>
+      <a href="?page=<%= currentPage - 1 %>&limit=<%= limit %>" class="page-link">Previous</a>
+    <% } %>
+
+    <% if (startPage > 1) { %>
+      <a href="?page=1&limit=<%= limit %>" class="page-link">1</a>
+      <% if (startPage > 2) { %>
+        <span class="page-dots">...</span>
+      <% } %>
+    <% } %>
+
+    <% for (let i = startPage; i <= endPage; i++) { %>
+      <a
+        href="?page=<%= i %>&limit=<%= limit %>"
+        class="page-link <%= currentPage === i ? 'active' : '' %>"
+      >
+        <%= i %>
+      </a>
+    <% } %>
+
+    <% if (endPage < totalPages) { %>
+      <% if (endPage < totalPages - 1) { %>
+        <span class="page-dots">...</span>
+      <% } %>
+      <a href="?page=<%= totalPages %>&limit=<%= limit %>" class="page-link"><%= totalPages %></a>
+    <% } %>
+
+    <% if (currentPage < totalPages) { %>
+      <a href="?page=<%= currentPage + 1 %>&limit=<%= limit %>" class="page-link">Next</a>
+    <% } %>
+  <% } %>
+</div>
+
+      </section>
+
+      <footer class="main-footer font-xs">
+        <div class="row pb-30 pt-15">
+          <div class="col-sm-6">
+            <script
+              data-cfasync="false"
+              src="../../../cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"
+            ></script>
+            <script>
+              document.write(new Date().getFullYear());
+            </script>
+            ©, Evara - HTML Ecommerce Template .
+          </div>
+          <div class="col-sm-6">
+            <div class="text-sm-end"></div>
+          </div>
+        </div>
+      </footer>
+    </main>
+
+    <style>
+      .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+        gap: 8px;
+      }
+
+      .page-link {
+        display: inline-block;
+        padding: 8px 12px;
+        background-color: #f0f0f0;
+        color: #333;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        text-decoration: none;
+      }
+
+      .page-link.active {
+        background-color: #088178;
+        color: white;
+      }
+
+      .page-link:hover {
+        background-color: #e0e0e0;
+      }
+    </style>
+    <script>
+      // Function to handle status change
+function handleStatusChange(orderId) {
+  const selectElement = document.getElementById(`status-select-${orderId}`);
+  const newStatus = selectElement.value;
+  const currentStatus = selectElement.getAttribute("data-current-status");
+
+  // Prevent changes from 'Cancelled' state
+  if (currentStatus === "Cancelled") {
+    alert("You cannot change the status of a cancelled order.");
+    selectElement.value = currentStatus; // Reset to the current status
+    return;
+  }
+
+  // Restrict available options based on the selected status
+  updateAvailableOptions(selectElement, newStatus);
+
+  // Proceed with the status update via the API
+  fetch(`/admin/updateOrderStatus/${orderId}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      status: newStatus,
+    }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        alert("Order status updated successfully.");
+        location.reload(); // Reload to reflect the updated status
+      } else {
+        alert(data.message || "Failed to update order status.");
+      }
+    })
+    .catch((error) => {
+      console.error("Error updating order status:", error);
+      alert("An error occurred while updating the status.");
+    });
+}
+
+// Function to update available options dynamically
+function updateAvailableOptions(selectElement, newStatus) {
+  // Clear current options
+  while (selectElement.options.length > 0) {
+    selectElement.remove(0);
+  }
+
+  // Define valid status transitions
+  const statusTransitions = {
+    Pending: ["Processing", "Cancelled"],
+    Processing: ["Shipped", "Cancelled"],
+    Shipped: ["Delivered"],
+    Delivered: [],
+    Cancelled: [], 
+  };
+
+  // Add options based on the new status
+  const options = statusTransitions[newStatus] || [];
+  options.unshift(newStatus); 
+
+  options.forEach((status) => {
+    const option = document.createElement("option");
+    option.value = status;
+    option.text = status;
+    option.selected = status === newStatus; 
+    selectElement.appendChild(option);
+  });
+}
+
+
+    </script>
+  </body>
+</html>

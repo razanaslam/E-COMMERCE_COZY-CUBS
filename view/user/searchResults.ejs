@@ -1,0 +1,32 @@
+<html>
+  <head> </head>
+  <body>
+    <h1>Search Results</h1>
+
+    <div>
+      <% if (searchResults.length === 0) { %>
+      <p>No products found.</p>
+      <% } else { %>
+      <ul>
+        <% searchResults.forEach((item) => { %>
+          <a href="/product-details/<%= item._id %>">
+        <li>
+        
+          <img
+          
+            src="/uploads/<%= item.image_url[0] %>"
+            alt="<%= item.product_title %>"
+            width="100"
+          />
+          <h2><%= item.product_title %></h2>
+          <p><%= item.full_description %></p>
+          <p>Price: $<%= item.price %></p>
+          <p>Brand: <%= item.brand.name %></p>
+          <p>Category: <%= item.category.name %></p>
+        </li>
+        <% }); %>
+      </ul>
+      <% } %>
+    </div>
+  </body>
+</html>
