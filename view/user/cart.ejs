@@ -118,7 +118,22 @@
     </div>
     
       <div class="col-lg-4">
-    
+    <% if(cartItems.length === 0){ %>
+      <div class="col-lg-4">
+        <div class="grand-total-wrap" style="margin-top: 5rem; text-align: right;width: 340px; background-color: #e6e6dc;">
+            <h4 style="text-align: start; font-weight: 500 !important; color: #333 !important; font-size: 31px !important;">Cart totals</h4>
+            <div class="grand-total-content">
+                <p style="text-align: start; color: #4c4a4a !important; font-size: 18px !important;">Subtotal: <span id="subtotal">$<%= subtotal.toFixed(2) %></span></p>
+                <p style="text-align: start; color: #4c4a4a !important; font-size: 18px !important;">Total: <span id="total">$<%= subtotal.toFixed(2) %></span></p>
+            </div>
+            <div class="grand-btn" style="margin-top: 1rem;">
+                <a id="checkout-link" href="javascript:void(0);" style="background-color: #ccccbb; color: #494948; padding: 0.5rem 1rem; text-decoration: none; border-radius: 4px; height: 52px; font-size: 19px;">Proceed to checkout</a>
+            </div>
+        </div>
+    </div>
+  
+ 
+<% }else{ %>    
     <div class="grand-total-wrap" style="margin-top: 5rem; text-align: right; background-color: #e6e6dc;">
         <h4 style="text-align: start;     font-weight: 500 !important; color: #333 !important;
         font-size: 31px !important;
@@ -131,9 +146,16 @@
             <a href="checkout" style="background-color: #ccccbb; color: #494948; padding: 0.5rem 1rem; text-decoration: none; border-radius: 4px; height: 52px; font-size: 19px ; ">Proceed to checkout</a>
         </div>
     </div>
+    <% } %>
     </div>
   </div>
 </div>
+
+
+
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
 
 <script>
   function addToCart(product_id, qty = 1) {
@@ -282,5 +304,34 @@
 
   // Call the function after page load
   window.onload = checkOverlap;
+
+
+
+        // Example cart (replace with your actual data logic)
+        const cart = []; // Empty cart
+    
+        // Handle checkout click
+        const checkoutLink = document.getElementById("checkout-link");
+        checkoutLink.addEventListener("click", () => {
+            // Check if the cart is empty
+            if (cart.length === 0) {
+                Swal.fire({
+                    toast: true,
+                    icon: 'error',
+                    title: 'Your cart is empty!',
+                     position: 'center' ,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                      
+                });
+            } else {
+                // Redirect to the checkout page
+                window.location.href = "checkout";
+            }
+        });
+
+    
 </script>
 </body></html>

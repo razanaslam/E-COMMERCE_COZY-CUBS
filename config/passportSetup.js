@@ -1,10 +1,10 @@
+// Importing required modules
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const User = require("../model/userModel");
 require("dotenv").config();
 
 // Configuring the Google strategy
-// console.log(process.env.CLIENT_ID);
 passport.use(
   new GoogleStrategy(
     {
@@ -12,11 +12,8 @@ passport.use(
       clientSecret: process.env.CLIENT_SECRET,
       callbackURL: process.env.CALLBACK_URL,
     },
-
-    async (profile, done) => {
+    async (accessToken, refreshToken, profile, done) => {
       try {
-        // console.log(profile);
-
         // Check if the user already exists in the database
         let user = await User.findOne({ email: profile.emails[0].value });
         if (user) {
@@ -44,6 +41,10 @@ passport.serializeUser((user, done) => done(null, user.id));
 
 // Deserializing the user (retrieving the user from the session by their ID)
 passport.deserializeUser(async (id, done) => {
-  const user = await User.findById(id);
-  done(null, user);
+  try {
+    const user = await User.findById(id);
+    done(null, user);
+  } catch (error) {
+    done(error, null);
+  }
 });

@@ -1,36 +1,5 @@
 <%- include('headers.ejs') %>
-<style>.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 20px;
-}
 
-.page-link {
-  margin: 0 5px;
-  padding: 10px 15px;
-  border: 1px solid #ddd;
-  text-decoration: none;
-  color: #088178;
-}
-
-.page-link.active {
-  background-color: #088178;
-  color: white;
-  border-color: #088178;
-}
-
-.page-link:hover {
-  background-color: #088178;
-  color: white;
-}
-
-.page-dots {
-  margin: 0 5px;
-  color: #777;
-  font-size: 16px;
-}
-</style>
     <main class="main-wrap">
       <header style="background-color: #ffffff;" class="main-header navbar">
         <div class="col-search">
@@ -85,7 +54,7 @@
               <table class="table table-hover">
                 <thead style="background-color: #ffffff; color: rgb(0, 0, 0)">
                   <tr>
-                    <th>#ID</th>
+                    <th>N0</th>
                     <th scope="col">Name</th>
                     <th scope="col">Email</th>
                     <th scope="col">Total</th>
@@ -95,9 +64,9 @@
                   </tr>
                 </thead>
                 <tbody style="background-color: #ffffff; color: rgb(0, 0, 0)">
-                  <% order.forEach(order => { %>
+                  <%let counter=1; order.forEach(order => { %>
                   <tr>
-                    <td><%= order?._id %></td>
+                    <td><%= counter ++ %></td>
                     <td><b><%= order?.billingDetails?.fullName %></b></td>
                     <td><%= order?.billingDetails?.email %></td>
                     <td><%= order.totalPrice %></td>
@@ -155,47 +124,15 @@
         </div>
 
         <div class="pagination">
-  <% if (totalPages > 1) { %>
-    <% const maxPagesToShow = 5; %> <!-- Change this value to control visible page links -->
-    <% let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2)); %>
-    <% let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1); %>
-    <% if (endPage - startPage + 1 < maxPagesToShow) { %>
-      <% startPage = Math.max(1, endPage - maxPagesToShow + 1); %>
-    <% } %>
-
-    <% if (currentPage > 1) { %>
-      <a href="?page=<%= currentPage - 1 %>&limit=<%= limit %>" class="page-link">Previous</a>
-    <% } %>
-
-    <% if (startPage > 1) { %>
-      <a href="?page=1&limit=<%= limit %>" class="page-link">1</a>
-      <% if (startPage > 2) { %>
-        <span class="page-dots">...</span>
-      <% } %>
-    <% } %>
-
-    <% for (let i = startPage; i <= endPage; i++) { %>
-      <a
-        href="?page=<%= i %>&limit=<%= limit %>"
-        class="page-link <%= currentPage === i ? 'active' : '' %>"
-      >
-        <%= i %>
-      </a>
-    <% } %>
-
-    <% if (endPage < totalPages) { %>
-      <% if (endPage < totalPages - 1) { %>
-        <span class="page-dots">...</span>
-      <% } %>
-      <a href="?page=<%= totalPages %>&limit=<%= limit %>" class="page-link"><%= totalPages %></a>
-    <% } %>
-
-    <% if (currentPage < totalPages) { %>
-      <a href="?page=<%= currentPage + 1 %>&limit=<%= limit %>" class="page-link">Next</a>
-    <% } %>
-  <% } %>
-</div>
-
+          <% for (let i = 1; i <= totalPages; i++) { %>
+          <a
+            href="?page=<%= i %>"
+            class="page-link <%= currentPage === i ? 'active' : '' %>"
+          >
+            <%= i %>
+          </a>
+          <% } %>
+        </div>
       </section>
 
       <footer class="main-footer font-xs">
@@ -236,7 +173,7 @@
       }
 
       .page-link.active {
-        background-color: #088178;
+        background-color: #007bff;
         color: white;
       }
 
@@ -245,77 +182,114 @@
       }
     </style>
     <script>
-      // Function to handle status change
-function handleStatusChange(orderId) {
-  const selectElement = document.getElementById(`status-select-${orderId}`);
-  const newStatus = selectElement.value;
-  const currentStatus = selectElement.getAttribute("data-current-status");
+  // Function to handle status change
+  function handleStatusChange(orderId) {
+    const selectElement = document.getElementById(`status-select-${orderId}`);
+    const newStatus = selectElement.value;
+    const currentStatus = selectElement.getAttribute("data-current-status");
 
-  // Prevent changes from 'Cancelled' state
-  if (currentStatus === "Cancelled") {
-    alert("You cannot change the status of a cancelled order.");
-    selectElement.value = currentStatus; // Reset to the current status
-    return;
-  }
+    // Prevent changes from 'Cancelled' or 'Delivered' state
+    if (currentStatus === "Cancelled" || currentStatus === "Delivered") {
+      Swal.fire({
+        icon: "warning",
+        title: "Action not allowed",
+        text: `You cannot change the status of a ${currentStatus.toLowerCase()} order.`,
+      });
+      selectElement.value = currentStatus; // Reset to the current status
+      return;
+    }
 
-  // Restrict available options based on the selected status
-  updateAvailableOptions(selectElement, newStatus);
+    // Restrict available options based on the selected status
+    updateAvailableOptions(selectElement, newStatus);
 
-  // Proceed with the status update via the API
-  fetch(`/admin/updateOrderStatus/${orderId}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      status: newStatus,
-    }),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.success) {
-        alert("Order status updated successfully.");
-        location.reload(); // Reload to reflect the updated status
+    // Confirm the status update
+    Swal.fire({
+      title: "Are you sure?",
+      text: `You are about to change the status to "${newStatus}".`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, update it!",
+      cancelButtonText: "Cancel",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Proceed with the status update via the API
+        fetch(`/admin/updateOrderStatus/${orderId}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            status: newStatus,
+          }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              Swal.fire({
+                icon: "success",
+                title: "Updated!",
+                text: "Order status updated successfully.",
+              }).then(() => {
+                location.reload(); // Reload to reflect the updated status
+              });
+            } else {
+              Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: data.message || "Failed to update order status.",
+              });
+              selectElement.value = currentStatus; // Reset to the current status
+            }
+          })
+          .catch((error) => {
+            console.error("Error updating order status:", error);
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: "An error occurred while updating the status.",
+            });
+            selectElement.value = currentStatus; // Reset to the current status
+          });
       } else {
-        alert(data.message || "Failed to update order status.");
+        // Reset dropdown to the previous status if the user cancels
+        selectElement.value = currentStatus;
       }
-    })
-    .catch((error) => {
-      console.error("Error updating order status:", error);
-      alert("An error occurred while updating the status.");
     });
-}
-
-// Function to update available options dynamically
-function updateAvailableOptions(selectElement, newStatus) {
-  // Clear current options
-  while (selectElement.options.length > 0) {
-    selectElement.remove(0);
   }
 
-  // Define valid status transitions
-  const statusTransitions = {
-    Pending: ["Processing", "Cancelled"],
-    Processing: ["Shipped", "Cancelled"],
-    Shipped: ["Delivered"],
-    Delivered: [],
-    Cancelled: [], 
-  };
+  // Function to update available options dynamically
+  function updateAvailableOptions(selectElement, newStatus) {
+    // Clear current options
+    while (selectElement.options.length > 0) {
+      selectElement.remove(0);
+    }
 
-  // Add options based on the new status
-  const options = statusTransitions[newStatus] || [];
-  options.unshift(newStatus); 
+    // Define valid status transitions
+    const statusTransitions = {
+      Pending: ["Processing", "Cancelled"],
+      Processing: ["Shipped", "Cancelled"],
+      Shipped: ["Delivered"],
+      Delivered: [],
+      Cancelled: [],
+    };
 
-  options.forEach((status) => {
-    const option = document.createElement("option");
-    option.value = status;
-    option.text = status;
-    option.selected = status === newStatus; 
-    selectElement.appendChild(option);
-  });
-}
+    // Add options based on the new status
+    const options = statusTransitions[newStatus] || [];
+    options.unshift(newStatus);
 
+    options.forEach((status) => {
+      const option = document.createElement("option");
+      option.value = status;
+      option.text = status;
+      option.selected = status === newStatus;
+      selectElement.appendChild(option);
+    });
+  }
+</script>
 
-    </script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
   </body>
 </html>

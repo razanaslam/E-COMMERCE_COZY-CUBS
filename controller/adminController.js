@@ -17,6 +17,9 @@ const offerModel = require("../model/offer");
 const catagory = require("../model/catagory");
 const addressModel = require("../model/address");
 const dayjs = require("dayjs");
+const PDFDocument = require("pdfkit");
+const ExcelJS = require("exceljs");
+const moment = require("moment");
 //---------------------------------------------------------------multer----------------------------------------------------------
 
 let storage = multer.diskStorage({
@@ -73,9 +76,134 @@ const adminLogin = async (req, res) => {
 
 const loadDashboard = async (req, res) => {
   try {
-    res.render("dashboard");
+    const { timeRange, startDate, endDate } = req.query;
+    let startDateTime, endDateTime;
+
+    switch (timeRange) {
+      case "weekly":
+        startDateTime = moment().startOf("week");
+        endDateTime = moment().endOf("week");
+        break;
+      case "monthly":
+        startDateTime = moment().startOf("month");
+        endDateTime = moment().endOf("month");
+        break;
+      case "yearly":
+        startDateTime = moment().startOf("year");
+        endDateTime = moment().endOf("year");
+        break;
+      case "custom":
+        startDateTime = moment(startDate);
+        endDateTime = moment(endDate);
+        break;
+      default:
+        startDateTime = moment().startOf("day");
+        endDateTime = moment().endOf("day");
+    }
+
+    // Order status distribution
+    const orderStatusDistribution = await orderModel.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: startDateTime.toDate(),
+            $lte: endDateTime.toDate(),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "$status",
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    // Top 10 categories
+    const topCategories = await orderModel.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: startDateTime.toDate(),
+            $lte: endDateTime.toDate(),
+          },
+        },
+      },
+      { $unwind: "$items" },
+      {
+        $lookup: {
+          from: "products",
+          localField: "items.product",
+          foreignField: "_id",
+          as: "productInfo",
+        },
+      },
+      { $unwind: "$productInfo" },
+      {
+        $lookup: {
+          from: "categories",
+          localField: "productInfo.category",
+          foreignField: "_id",
+          as: "categoryInfo",
+        },
+      },
+      { $unwind: "$categoryInfo" },
+      {
+        $group: {
+          _id: "$categoryInfo._id",
+          name: { $first: "$categoryInfo.name" },
+          totalSales: { $sum: "$items.quantity" },
+        },
+      },
+      { $sort: { totalSales: -1 } },
+      { $limit: 10 },
+    ]);
+
+    // Top 10 products
+    const topProducts = await orderModel.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: startDateTime.toDate(),
+            $lte: endDateTime.toDate(),
+          },
+        },
+      },
+      { $unwind: "$items" },
+      {
+        $lookup: {
+          from: "products",
+          localField: "items.product",
+          foreignField: "_id",
+          as: "productInfo",
+        },
+      },
+      { $unwind: "$productInfo" },
+      {
+        $group: {
+          _id: "$productInfo._id",
+          name: { $first: "$productInfo.product_title" },
+          totalSales: { $sum: "$items.quantity" },
+        },
+      },
+      { $sort: { totalSales: -1 } },
+      { $limit: 10 },
+    ]);
+    console.log(topProducts);
+
+    res.render("dashboard", {
+      orderStatusDistribution: JSON.stringify(orderStatusDistribution),
+      topCategories: JSON.stringify(topCategories),
+      topProducts: JSON.stringify(topProducts),
+      timeRange,
+      startDate: startDateTime.format("YYYY-MM-DD"),
+      endDate: endDateTime.format("YYYY-MM-DD"),
+    });
   } catch (error) {
-    console.log(error);
+    console.error("Error in loadDashboard:", error);
+    res.status(500).render("error", {
+      message: "An error occurred while loading the dashboard",
+    });
   }
 };
 
@@ -193,7 +321,6 @@ const loadEditProduct = async (req, res) => {
       return res.status(404).send("Category or brand data not found");
     }
 
-    // Ensure product is valid before passing to the view
     if (!product) {
       return res.status(404).send("Product not found");
     }
@@ -771,6 +898,11 @@ const adminUpdateOrderStatus = async (req, res) => {
       });
       await transaction.save();
     }
+    if (status === "Delivered") {
+      if (order.paymentStatus !== "Paid") {
+        order.paymentStatus = "Paid";
+      }
+    }
 
     order.status = status;
     await order.save();
@@ -1205,7 +1337,7 @@ const deleteOffer = async (req, res) => {
 const loadSalesReport = async (req, res) => {
   try {
     const { filter = "all", startDate, endDate, page = 1 } = req.query;
-    const limit = 12;
+    const limit = 5;
     const skip = (page - 1) * limit;
 
     let filterOptions = {};
@@ -1284,6 +1416,497 @@ const loadSalesReport = async (req, res) => {
   } catch (error) {
     console.error("Error:", error);
     res.status(500).send("Internal Server Error");
+  }
+};
+// const downloadSalesReportPDF = async (req, res) => {
+//   try {
+//     const { filter = "all", startDate, endDate } = req.query;
+
+//     // Generate the filter options
+//     let filterOptions = {};
+//     const today = dayjs().startOf("day");
+
+//     if (filter === "daily") {
+//       filterOptions.createdAt = {
+//         $gte: today.toDate(),
+//         $lte: today.endOf("day").toDate(),
+//       };
+//     } else if (filter === "weekly") {
+//       const lastWeek = today.subtract(7, "days");
+//       filterOptions.createdAt = {
+//         $gte: lastWeek.toDate(),
+//         $lte: today.endOf("day").toDate(),
+//       };
+//     } else if (filter === "monthly") {
+//       const lastMonth = today.subtract(1, "month");
+//       filterOptions.createdAt = {
+//         $gte: lastMonth.toDate(),
+//         $lte: today.endOf("day").toDate(),
+//       };
+//     } else if (filter === "custom" && startDate && endDate) {
+//       const parsedStartDate = dayjs(startDate).startOf("day");
+//       const parsedEndDate = dayjs(endDate).endOf("day");
+//       filterOptions.createdAt = {
+//         $gte: parsedStartDate.toDate(),
+//         $lte: parsedEndDate.toDate(),
+//       };
+//     }
+
+//     // Fetch data from the database
+//     const orders = await orderModel
+//       .find(filterOptions)
+//       .populate("userId", "email")
+//       .populate("items.product", "name")
+//       .populate("billingDetails", "address");
+
+//     // Setup PDF document
+//     const doc = new PDFDocument({ margin: 50, size: "A4" });
+//     res.setHeader(
+//       "Content-Disposition",
+//       "attachment; filename=sales-report.pdf"
+//     );
+//     res.setHeader("Content-Type", "application/pdf");
+
+//     // Helper function to draw table cell
+//     const drawTableCell = (x, y, width, height, text, isHeader = false) => {
+//       doc.rect(x, y, width, height).stroke();
+//       doc
+//         .font(isHeader ? "Helvetica-Bold" : "Helvetica")
+//         .fontSize(isHeader ? 12 : 10)
+//         .fillColor(isHeader ? "#ffffff" : "#000000")
+//         .text(text, x + 5, y + 5, {
+//           width: width - 10,
+//           height: height - 10,
+//           align: isHeader ? "center" : "left",
+//           valign: "center",
+//         });
+//     };
+
+//     // Add title
+//     doc
+//       .fontSize(24)
+//       .font("Helvetica-Bold")
+//       .fillColor("#333333")
+//       .text("Sales Report", { align: "center" })
+//       .moveDown(1);
+
+//     // Add filter information
+//     doc
+//       .fontSize(12)
+//       .font("Helvetica")
+//       .fillColor("#666666")
+//       .text(`Filter: ${filter}`, { align: "center" })
+//       .moveDown(0.5);
+
+//     if (filter === "custom" && startDate && endDate) {
+//       doc
+//         .text(`Date Range: ${startDate} to ${endDate}`, { align: "center" })
+//         .moveDown(1);
+//     } else {
+//       doc.moveDown(1);
+//     }
+
+//     // Table settings
+//     const tableTop = 180;
+//     const tableLeft = 50;
+//     const colWidths = [100, 200, 100, 100];
+//     const rowHeight = 30;
+//     const headers = ["Order ID", "Customer", "Total Amount", "Date"];
+
+//     // Draw table header
+//     doc.fillColor("#4a90e2");
+//     headers.forEach((header, i) => {
+//       let x =
+//         tableLeft +
+//         colWidths.slice(0, i).reduce((sum, width) => sum + width, 0);
+//       drawTableCell(x, tableTop, colWidths[i], rowHeight, header, true);
+//     });
+
+//     // Render table rows
+//     let currentTop = tableTop + rowHeight;
+//     const itemsPerPage = 10;
+//     let rowCount = 0;
+
+//     orders.forEach((order, index) => {
+//       if (rowCount >= itemsPerPage) {
+//         doc.addPage();
+//         currentTop = 50;
+//         rowCount = 0;
+
+//         // Re-add headers on new page
+//         doc.fillColor("#4a90e2");
+//         headers.forEach((header, i) => {
+//           let x =
+//             tableLeft +
+//             colWidths.slice(0, i).reduce((sum, width) => sum + width, 0);
+//           drawTableCell(x, currentTop, colWidths[i], rowHeight, header, true);
+//         });
+//         currentTop += rowHeight;
+//       }
+
+//       doc.fillColor("#000000");
+
+//       // Order ID
+//       drawTableCell(
+//         tableLeft,
+//         currentTop,
+//         colWidths[0],
+//         rowHeight,
+//         order._id.toString().slice(-6)
+//       );
+
+//       // Customer
+//       drawTableCell(
+//         tableLeft + colWidths[0],
+//         currentTop,
+//         colWidths[1],
+//         rowHeight,
+//         order.userId.email || "N/A"
+//       );
+
+//       // Total Amount
+//       drawTableCell(
+//         tableLeft + colWidths[0] + colWidths[1],
+//         currentTop,
+//         colWidths[2],
+//         rowHeight,
+//         `$${order.totalPrice.toFixed(2) || "0.00"}`,
+//         false
+//       );
+
+//       // Date
+//       drawTableCell(
+//         tableLeft + colWidths[0] + colWidths[1] + colWidths[2],
+//         currentTop,
+//         colWidths[3],
+//         rowHeight,
+//         dayjs(order.createdAt).format("DD/MM/YYYY")
+//       );
+
+//       currentTop += rowHeight;
+//       rowCount++;
+//     });
+
+//     // Add total sales
+//     const totalSales = orders.reduce(
+//       (sum, order) => sum + (order.totalPrice || 0),
+//       0
+//     );
+//     doc
+//       .font("Helvetica-Bold")
+//       .fontSize(14)
+//       .fillColor("#333333")
+//       .text(
+//         `Total Sales: $${totalSales.toFixed(2)}`,
+//         tableLeft,
+//         currentTop + 20,
+//         {
+//           width: colWidths.reduce((sum, width) => sum + width, 0),
+//           align: "right",
+//         }
+//       );
+
+//     // End the document
+//     doc.pipe(res);
+//     doc.end();
+//   } catch (error) {
+//     console.error("Error generating PDF:", error);
+//     res.status(500).send("Failed to generate PDF report.");
+//   }
+// };
+
+const downloadSalesReportPDF = async (req, res) => {
+  try {
+    const { filter = "all", startDate, endDate } = req.query;
+
+    // Generate the filter options
+    let filterOptions = {};
+    const today = dayjs().startOf("day");
+
+    if (filter === "daily") {
+      filterOptions.createdAt = {
+        $gte: today.toDate(),
+        $lte: today.endOf("day").toDate(),
+      };
+    } else if (filter === "weekly") {
+      const lastWeek = today.subtract(7, "days");
+      filterOptions.createdAt = {
+        $gte: lastWeek.toDate(),
+        $lte: today.endOf("day").toDate(),
+      };
+    } else if (filter === "monthly") {
+      const lastMonth = today.subtract(1, "month");
+      filterOptions.createdAt = {
+        $gte: lastMonth.toDate(),
+        $lte: today.endOf("day").toDate(),
+      };
+    } else if (filter === "custom" && startDate && endDate) {
+      const parsedStartDate = dayjs(startDate).startOf("day");
+      const parsedEndDate = dayjs(endDate).endOf("day");
+      filterOptions.createdAt = {
+        $gte: parsedStartDate.toDate(),
+        $lte: parsedEndDate.toDate(),
+      };
+    }
+
+    // Fetch data from the database
+    const orders = await orderModel
+      .find(filterOptions)
+      .populate("userId", "email")
+      .populate("items.product", "name")
+      .populate("billingDetails", "address")
+      .sort({ createdAt: -1 }); // Sort by creation date, newest first
+
+    // Setup PDF document
+    const doc = new PDFDocument({ margin: 50, size: "A4" });
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=sales-report.pdf"
+    );
+    res.setHeader("Content-Type", "application/pdf");
+
+    // Helper function to draw table cell
+    const drawTableCell = (
+      x,
+      y,
+      width,
+      height,
+      text,
+      isHeader = false,
+      align = "left"
+    ) => {
+      doc.rect(x, y, width, height).stroke();
+      doc
+        .font(isHeader ? "Helvetica-Bold" : "Helvetica")
+        .fontSize(isHeader ? 12 : 10)
+        .fillColor("#000000")
+        .text(text, x + 5, y + 5, {
+          width: width - 10,
+          height: height - 10,
+          align: isHeader ? "center" : align,
+          valign: "center",
+        });
+    };
+
+    // Add title and heading
+    doc
+      .fontSize(24)
+      .font("Helvetica-Bold")
+      .fillColor("#333333")
+      .text("Sales Report", { align: "center" })
+      .moveDown(0.5);
+
+    // Add filter information
+    doc
+      .fontSize(12)
+      .font("Helvetica")
+      .fillColor("#666666")
+      .text(`Filter: ${filter}`, { align: "center" })
+      .moveDown(0.5);
+
+    if (filter === "custom" && startDate && endDate) {
+      doc
+        .text(`Date Range: ${startDate} to ${endDate}`, { align: "center" })
+        .moveDown(0.5);
+    }
+
+    // Add report generation date
+    doc
+      .fontSize(10)
+      .text(`Report generated on: ${dayjs().format("DD/MM/YYYY HH:mm")}`, {
+        align: "center",
+      })
+      .moveDown(1);
+
+    // Table settings
+    const tableTop = 180;
+    const tableLeft = 50;
+    const colWidths = [40, 200, 110, 110];
+    const rowHeight = 30;
+    const headers = ["No.", "Customer", "Total Amount", "Date"];
+
+    // Draw table header
+    doc.fillColor("#e6f2ff");
+    headers.forEach((header, i) => {
+      let x =
+        tableLeft +
+        colWidths.slice(0, i).reduce((sum, width) => sum + width, 0);
+      drawTableCell(x, tableTop, colWidths[i], rowHeight, header, true);
+    });
+
+    // Render table rows
+    let currentTop = tableTop + rowHeight;
+    const itemsPerPage = 10;
+    let rowCount = 0;
+
+    orders.forEach((order, index) => {
+      if (rowCount >= itemsPerPage) {
+        doc.addPage();
+        currentTop = 50;
+        rowCount = 0;
+
+        // Re-add headers on new page
+        doc.fillColor("#e6f2ff");
+        headers.forEach((header, i) => {
+          let x =
+            tableLeft +
+            colWidths.slice(0, i).reduce((sum, width) => sum + width, 0);
+          drawTableCell(x, currentTop, colWidths[i], rowHeight, header, true);
+        });
+        currentTop += rowHeight;
+      }
+
+      doc.fillColor("#ffffff");
+
+      // No.
+      drawTableCell(
+        tableLeft,
+        currentTop,
+        colWidths[0],
+        rowHeight,
+        (index + 1).toString(),
+        false,
+        "center"
+      );
+
+      // Customer
+      drawTableCell(
+        tableLeft + colWidths[0],
+        currentTop,
+        colWidths[1],
+        rowHeight,
+        order.userId.email || "N/A"
+      );
+
+      // Total Amount
+      drawTableCell(
+        tableLeft + colWidths[0] + colWidths[1],
+        currentTop,
+        colWidths[2],
+        rowHeight,
+        `$${order.totalPrice.toFixed(2) || "0.00"}`,
+        false,
+        "right"
+      );
+
+      // Date
+      drawTableCell(
+        tableLeft + colWidths[0] + colWidths[1] + colWidths[2],
+        currentTop,
+        colWidths[3],
+        rowHeight,
+        dayjs(order.createdAt).format("DD/MM/YYYY"),
+        false,
+        "center"
+      );
+
+      currentTop += rowHeight;
+      rowCount++;
+    });
+
+    // Add total sales
+    const totalSales = orders.reduce(
+      (sum, order) => sum + (order.totalPrice || 0),
+      0
+    );
+    doc
+      .font("Helvetica-Bold")
+      .fontSize(14)
+      .fillColor("#333333")
+      .text(
+        `Total Sales: $${totalSales.toFixed(2)}`,
+        tableLeft,
+        currentTop + 20,
+        {
+          width: colWidths.reduce((sum, width) => sum + width, 0),
+          align: "right",
+        }
+      );
+
+    // End the document
+    doc.pipe(res);
+    doc.end();
+  } catch (error) {
+    console.error("Error generating PDF:", error);
+    res.status(500).send("Failed to generate PDF report.");
+  }
+};
+
+const downloadSalesReportExcel = async (req, res) => {
+  try {
+    const { filter = "all", startDate, endDate } = req.query;
+
+    // Generate the filter options
+    let filterOptions = {};
+    const today = dayjs().startOf("day");
+
+    if (filter === "daily") {
+      filterOptions.createdAt = {
+        $gte: today.toDate(),
+        $lte: today.endOf("day").toDate(),
+      };
+    } else if (filter === "weekly") {
+      const lastWeek = today.subtract(7, "days");
+      filterOptions.createdAt = {
+        $gte: lastWeek.toDate(),
+        $lte: today.endOf("day").toDate(),
+      };
+    } else if (filter === "monthly") {
+      const lastMonth = today.subtract(1, "month");
+      filterOptions.createdAt = {
+        $gte: lastMonth.toDate(),
+        $lte: today.endOf("day").toDate(),
+      };
+    } else if (filter === "custom" && startDate && endDate) {
+      const parsedStartDate = dayjs(startDate).startOf("day");
+      const parsedEndDate = dayjs(endDate).endOf("day");
+      filterOptions.createdAt = {
+        $gte: parsedStartDate.toDate(),
+        $lte: parsedEndDate.toDate(),
+      };
+    }
+
+    // Fetch data from the database
+    const orders = await orderModel
+      .find(filterOptions)
+      .populate("userId", "email")
+      .populate("items.product", "name")
+      .populate("billingDetails", "address");
+
+    // Generate Excel content (use a library like `exceljs`)
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Sales Report");
+
+    worksheet.columns = [
+      { header: "No", key: "_id", width: 30 },
+      { header: "Customer", key: "email", width: 30 },
+      { header: "Total Amount", key: "totalAmount", width: 15 },
+      { header: "Date", key: "createdAt", width: 20 },
+    ];
+    let count = 1;
+    orders.forEach((order) => {
+      worksheet.addRow({
+        _id: count++,
+        email: order.userId.email,
+        totalAmount: order.totalPrice,
+        createdAt: order.createdAt,
+      });
+    });
+
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=sales-report.xlsx"
+    );
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+
+    await workbook.xlsx.write(res);
+    res.end();
+  } catch (error) {
+    console.error("Error generating Excel:", error);
+    res.status(500).send("Failed to generate Excel report.");
   }
 };
 
@@ -1413,6 +2036,8 @@ module.exports = {
   deleteOffer,
   loadSalesReport,
   NotFoundPage,
+  downloadSalesReportPDF,
+  downloadSalesReportExcel,
 };
 
 // const user = async (req, res) => {

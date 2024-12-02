@@ -111,6 +111,21 @@
                   </td>
                   <td style="background-color: #e6e6dc;">
   <div class="product-details-cart">
+    <% if(item.product.stock === 0) { %>
+    <button 
+      class="btn-add-to-cart"  
+      style="
+        width: 99px !important;
+        height: 34px !important;
+        border-radius: 7px !important;
+        background-color: #e6e6dc !important;
+        border-color: black !important;
+      " 
+     
+      onclick="showOutOfStockAlert()">
+      Add to Cart
+    </button>
+                        <% }else{ %>
     <button 
       class="btn-add-to-cart"  style="
     width: 99px !important;
@@ -122,8 +137,13 @@
       onclick="addToCart('<%= item.product._id %>')">
       Add to Cart
     </button>
+    
+    <% } %>
   </div>
+
 </td>
+
+
 
                   <td style="background-color: #e6e6dc !important;" class="wishlist-remove">
                     <a
@@ -142,6 +162,24 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
+<script>
+  // Function to display an alert when stock is 0
+  function showOutOfStockAlert() {
+    Swal.fire({
+      icon: 'error',  // Type of alert
+      title: 'Out of Stock',
+      text: 'This product is currently out of stock. Please check back later.',
+      confirmButtonText: 'OK',
+      confirmButtonColor: '#dc3545' // Optional: Styling the button
+    });
+  }
+  
+  // Example addToCart function
+  function addToCart(productId) {
+    // Your existing addToCart logic
+    console.log(`Adding product ${productId} to cart.`);
+  }
+</script>
 
 <script>
   

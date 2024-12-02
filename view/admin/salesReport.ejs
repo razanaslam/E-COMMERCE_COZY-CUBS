@@ -1,25 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-  <!-- Mirrored from wp.alithemes.com/html/evara/evara-backend/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 01 Aug 2021 15:32:35 GMT -->
-  <head>
-    <meta charset="utf-8" />
-    <title>Dashboard</title>
-    <meta http-equiv="x-ua-compatible" content="ie=edge" />
-    <meta name="description" content="" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta property="og:title" content="" />
-    <meta property="og:type" content="" />
-    <meta property="og:url" content="" />
-    <meta property="og:image" content="" />
-    <!-- Favicon -->
-    <link
-      rel="shortcut icon"
-      type="image/x-icon"
-      href="assets/imgs/theme/favicon1.svg"
-    />
-
-    <!-- Template CSS -->
-    <link href="assets/css/main.css" rel="stylesheet" type="text/css" />
+<%- include('headers.ejs') %>
     <style>
 
       /* pagination */
@@ -85,44 +64,6 @@
       }
     </style>
   </head>
-
- 
-  <body>
-    <div class="screen-overlay"></div>
-    <aside class="navbar-aside" id="offcanvas_aside" style="width: 338px !important">
-      <div class="aside-top">
-        <a href="dashboard" class="brand-wrap">
-          <img src="assets/imgs/theme/logo1.svg" class="logo" alt="Evara Dashboard" style="width: 50px; height: auto" />
-        </a>
-        <div>
-          <button class="btn btn-icon btn-aside-minimize">
-            <i class="material-icons">menu_open</i>
-          </button>
-        </div>
-      </div>
-      <nav>
-        <ul class="menu-aside">
-          <% const menuItems = [ 
-            { link: 'dashboard', text: 'Dashboard' },
-            { link: 'productsList', text: 'Products' },
-            { link: 'userList', text: 'Users' },
-            { link: 'brand', text: 'Brands' },
-            { link: 'catagory', text: 'Category' },
-            { link: 'offer', text: 'Offers' },
-            { link: 'salesReport', text: 'Sales Report' },
-            { link: 'coupons', text: 'Coupons' },
-            { link: 'orders', text: 'Orders' }
-          ]; %>
-          <% menuItems.forEach(item => { %>
-            <li class="menu-item <%= item.active ? 'active' : '' %>">
-              <a class="menu-link" href="<%= item.link %>">
-                <span class="text"><%= item.text %></span>
-              </a>
-            </li>
-          <% }); %>
-        </ul>
-      </nav>
-    </aside>
     
     <main class="main-wrap">
       <header style="background-color: #ffffff;" class="main-header navbar">
@@ -140,10 +81,18 @@
               <div>
                   <h2 class="content-title" id="heading">Sales Report</h2>
               </div>
-              <div>
+              <!-- <div>
                   <button onclick="downloadPdf('Sales Report')" class="btn btn-dark">Download PDF</button>
                   <button onclick="downloadExcel()" class="btn btn-dark">Download Excel</button>
+              </div> -->
+              <div>
+                <!-- Button for PDF Download -->
+                <button class="btn btn-dark" onclick="downloadPDF()">Download PDF</button>
+              
+                <!-- Button for Excel Download -->
+                <button class="btn btn-dark" onclick="downloadExcel()">Download Excel</button>
               </div>
+              
           </div>
 
           <div class="card mb-4">
@@ -151,7 +100,7 @@
                   <div class="row gx-3">
                     
                       <div class=row>
-                        <form action="/admin/salesReport" method="get">
+                        <form action="/admin/sales-report" method="get">
                           <label for="filter">Filter by:</label>
                           <select name="filter" id="filter" style="
                           width: 128px;
@@ -183,47 +132,47 @@
                   </div>
               </header>
               <div class="card-body">
-                  <div class="table-responsive">
-                      <table class="table table-hover">
-                          <% if(orders.length!=0){ %><!-- card-header end// -->
-                              <thead>
-                                  <tr class="text-dark">
-                                      <th>Order ID</th>
-                                      <th>Email</th>
-                                      <th>Date</th>
-                                      <th>Paid</th>
-                                      <th>Method</th>
-                                  </tr>
-                              </thead>
-                              <tbody class="text-dark">
-                                  <% orders.forEach(order=>{ %>
-                                      <tr>
-                                          <td>
-                                              <%= order._id %>
-                                          </td>
-                                          <td>
-                                              <%= order.userId.email %>
-                                          </td>
-                                          <td>
-                                            <%= new Date(order.createdAt).toLocaleDateString() %>
-                                              <%= console.log(order.createdAt,"date") %>
-
-                                          </td>
-                                         
-                                          <td>
-                                              <%= order.totalPrice %>
-                                          </td>
-                                          <td>
-                                              <%= order.paymentMethod %>
-                                          </td>
-                                      </tr>
-                                      <% }) %>
-                              </tbody>
-                              <% }else{ %>
-                                  <p>no orders found</p>
-                                  <% } %> <!-- card-body end// -->
-                      </table> <!-- table-responsive.// -->
-                  </div>
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <% if(orders.length != 0){ %>
+                      <!-- card-header end// -->
+                      <thead>
+                        <tr class="text-dark">
+                          <th>No.</th>
+                          <th>Email</th>
+                          <th>Date</th>
+                          <th>Paid</th>
+                          <th>Method</th>
+                        </tr>
+                      </thead>
+                      <tbody class="text-dark">
+                        <% let orderIdCounter = 1; %> <!-- Initialize the counter for Order ID -->
+                        <% orders.forEach(order => { %>
+                          <tr>
+                            <td>
+                              <%= orderIdCounter++ %> <!-- Display incrementing Order ID -->
+                            </td>
+                            <td>
+                              <%= order.userId.email %>
+                            </td>
+                            <td>
+                              <%= new Date(order.createdAt).toLocaleDateString() %>
+                            </td>
+                            <td>
+                              <%= order.totalPrice %>
+                            </td>
+                            <td>
+                              <%= order.paymentMethod %>
+                            </td>
+                          </tr>
+                        <% }) %>
+                      </tbody>
+                    <% } else { %>
+                      <p>No orders found</p>
+                    <% } %> <!-- card-body end// -->
+                  </table> <!-- table-responsive.// -->
+                </div>
+                
               </div>
           </div> <!-- card end// -->
           <div class="pagination">
@@ -277,7 +226,7 @@
           src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-      <script>
+      <!-- <script>
           const downloadPdf = async () => {
               try {
                   console.log("downloading PDF");
@@ -318,8 +267,40 @@
                   console.error("Error downloading Excel:", error);
               }
           };
-      </script>    </main>
-    <script src="assets/js/vendors/jquery-3.6.0.min.js"></script>
+      </script>    </main> -->
+      <script>
+    function downloadPDF() {
+  // Step 1: Get the current query parameters from the URL
+  const params = new URLSearchParams(window.location.search);
+  console.log("Query Parameters:", params.toString());
+
+  // Step 2: Construct the URL for downloading PDF
+  const pdfUrl = `/admin/sales-report/download-pdf?${params.toString()}`;
+
+  // Step 3: Redirect to the constructed URL
+  window.location.href = pdfUrl;
+}
+
+function downloadExcel() {
+  // Step 1: Get the current query parameters from the URL
+  console.log("np");
+  
+  const params = new URLSearchParams(window.location.search);
+console.log("ysc");
+
+  // Step 2: Construct the URL for downloading Excel
+  const excelUrl = `/admin/sales-report/download-excel?${params.toString()}`;
+console.log("ys");
+
+  // Step 3: Redirect to the constructed URL
+  window.location.href = excelUrl;
+}
+
+
+      </script>
+   
+   
+      <script src="assets/js/vendors/jquery-3.6.0.min.js"></script>
     <script src="assets/js/vendors/bootstrap.bundle.min.js"></script>
     <script src="assets/js/vendors/select2.min.js"></script>
     <script src="assets/js/vendors/perfect-scrollbar.js"></script>

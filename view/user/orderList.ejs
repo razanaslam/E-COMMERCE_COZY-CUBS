@@ -175,20 +175,32 @@
     // SweetAlert2 for order cancellation confirmation
 function cancelVerify(orderId) {
     Swal.fire({
-        title: 'Are you sure?',
-        text: "Do you want to cancel the order?",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Yes, cancel it!'
-    }).then((result) => {
+  title: 'Are you sure?',
+  text: "Do you want to cancel the order?",
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonColor: '#d33',
+  cancelButtonColor: '#000', // Black color for the cancel button
+  confirmButtonText: 'Yes, cancel it!',
+  customClass: {
+    icon: 'custom-icon', // Class for the icon
+  },
+})
+
+.then((result) => {
         if (result.isConfirmed) {
             cancelOrder(orderId); // Call the cancellation function
         }
     });
 }
 
+const style = document.createElement('style');
+style.innerHTML = `
+  .swal2-icon.swal2-warning.custom-icon {
+    color: red; border-color:red; /* Red color for the icon */
+  }
+`;
+document.head.appendChild(style);
 async function cancelOrder(orderId) {
     try {
         const response = await fetch(`/updateOrderStatus/${orderId}`, {
@@ -512,7 +524,7 @@ async function returnOrder(orderId) {
                           <table style="width: 100%; border-collapse: collapse; min-width: 600px;">
                               <thead>
                                   <tr style=" background-color: #d9d9b1; ">
-                                      <th style="padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; color: #000 !important;">#ID</th>
+                                      <th style="padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; color: #000 !important;">No</th>
                                       <th style="padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; color: #000 !important;">Name</th>
                                       <th style="padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; color: #000 !important;">Email</th>
                                       <th style="padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; color: #000 !important;">Total</th>
@@ -522,9 +534,10 @@ async function returnOrder(orderId) {
                                   </tr>
                               </thead>
                               <tbody>
-                                <% order.forEach(order => { %>
+                                <% let counter = 1; %>
+                                <%  order.forEach(order => { %>
                                       <tr style="border-bottom: 1px solid #dee2e6; color: #000 !important;">
-                                        <td style="padding: 12px; text-align: left;"><%= order?._id %></td>
+                                        <td style="padding: 12px; text-align: left;"><%= counter++ %></td>
                                         <td style="padding: 12px; text-align: left;"><b><%= order?.billingDetails?.fullName %></b></td>
                                         <td style="padding: 12px; text-align: left;"><%= order?.billingDetails?.email %></td>
                                         <td style="padding: 12px; text-align: left;"><%= order.totalPrice %></td>
@@ -554,8 +567,10 @@ async function returnOrder(orderId) {
                                           <td style="padding: 12px; text-align: right;">
                                               <a href="/orderDetails/<%= order._id %>" style="display: inline-block; padding: 6px 12px; margin: 2px; background-color: #ffffff; color: #000000; text-decoration: none; border-radius: 4px; font-size: 14px;">Details</a>
                                               <% if (order.paymentStatus === 'Failed') { %>
-                                                <a href="/checkout?orderId=<%= order._id %>" style="display: inline-block; padding: 6px 12px; margin: 2px; background-color: #28a745; color: #fff; text-decoration: none; border-radius: 4px; font-size: 14px;">Retry</a>
-                                            <% } else { %>
+                                                <form onsubmit="retryFormSubmit(event, '<%= order._id %>')">
+                                                    <button type="submit" id="retry-payment-button-<%= order._id %>" style="display: inline-block; padding: 6px 12px; margin: 2px; background-color: #2f63f3; color: #fff; border: none; border-radius: 4px; font-size: 14px; cursor: pointer;">Retry </button>
+                                                </form>
+                                            <% }  else { %>
                                                 <% if (order.status === 'Pending' || order.status === 'Shipped') {  %>
                                                     <button onclick="cancelVerify('<%= order._id %>')" style="display: inline-block; padding: 6px 12px; margin: 2px; background-color: #dc3545; color: #fff; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; padding-right: 30px;">  Cancel </button>
                                                 <% } else if (order.status === 'Delivered') { %>
@@ -650,9 +665,303 @@ async function returnOrder(orderId) {
   </style>
 <br><br><br><br>
 
+<!-- <script>
+    document.getElementById("retry-payment-button").onclick = async function (e) {
+    e.preventDefault();
+
+    const retryButton = document.getElementById("retry-payment-button");
+    retryButton.disabled = true;
+    retryButton.innerText = "Processing...";
+
+    try {
+        const orderId = "<%= order._id %>"; // Dynamically injected order ID
+
+        const response = await fetch(`/retry-order/${orderId}`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+        });
+
+        // Check if response is OK (status 200-299)
+        if (!response.ok) {
+            const responseText = await response.text(); // Read the response as text (e.g., HTML or plain error message)
+            throw new Error(responseText || "Failed to fetch retry order details");
+        }
+
+        // Try to parse the response as JSON
+        const { order_id, amount, currency, razorpayOrderId } = await response.json();
+
+        const options = {
+            key: "<%= process.env.RAZORPAY_KEY_ID %>", 
+            amount,
+            currency,
+            name: "CozyCubs",
+            description: "Retry Payment for Order",
+            order_id: razorpayOrderId,
+            handler: async function (response) {
+                try {
+                    const verifyResponse = await fetch("/verify-payment", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_signature: response.razorpay_signature,
+                            order_id,
+                        }),
+                    });
+
+                    const verifyData = await verifyResponse.json();
+
+                    if (verifyData.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Payment Verified!',
+                            text: 'Your payment has been successfully processed.',
+                            confirmButtonText: 'Go to Success Page',
+                        }).then(() => {
+                            window.location.href = "/order-confirmed";
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Payment Verification Failed',
+                            text: 'There was an issue verifying your payment. Please try again later.',
+                        });
+                    }
+                } catch (error) {
+                    console.error("Verification error:", error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Verification Error',
+                        text: 'An error occurred during payment verification. Please try again later.',
+                    });
+                }
+            },
+            prefill: {
+                name: "Customer Name",
+                email: "customer@example.com",
+                contact: "9876543210",
+            },
+            theme: { color: "#528FF0" },
+        };
+
+        const razorpay = new Razorpay(options);
+        razorpay.open();
+    } catch (error) {
+        console.error("Error:", error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Retry Failed',
+            text: error.message || 'An error occurred while retrying the payment. Please try again later.',
+        });
+    } finally {
+        retryButton.disabled = false;
+        retryButton.innerText = "Retry Payment";
+    }
+};
+
+</script> -->
+
+
+
+    <script>
+
+
+    //     async function retryFormSubmit(orderId) {
+    //     e.preventDefault();
+
+    //     const retryButton = document.getElementById("retry-payment-button");
+    //     retryButton.disabled = true;
+    //     retryButton.innerText = "Processing...";
+
+    //     try {
+    //         const response = await fetch(`/retry-order/${orderId}`, {
+    //             method: "GET",
+    //             headers: { "Content-Type": "application/json" },
+    //         });
+
+    //         // Check if response is OK (status 200-299)
+    //         if (!response.ok) {
+    //             const responseText = await response.text(); // Read the response as text (HTML or error message)
+    //             console.log("Server Response:", responseText); // Log the raw server response for debugging
+    //             throw new Error(responseText || "Failed to fetch retry order details");
+    //         }
+
+    //         // Check the content type of the response to ensure it's JSON
+    //         const contentType = response.headers.get("Content-Type");
+    //         if (!contentType || !contentType.includes("application/json")) {
+    //             throw new Error("Expected JSON, but received: " + contentType);
+    //         }
+
+    //         // Try to parse the response as JSON
+    //         const { order_id, amount, currency, razorpayOrderId } = await response.json();
+
+    //         const options = {
+    //             key: "<%= process.env.RAZORPAY_KEY_ID %>", 
+    //             amount,
+    //             currency,
+    //             name: "CozyCubs",
+    //             description: "Retry Payment for Order",
+    //             order_id: razorpayOrderId,
+    //             handler: async function (response) {
+    //                 try {
+    //                     const verifyResponse = await fetch("/verify-payment", {
+    //                         method: "POST",
+    //                         headers: { "Content-Type": "application/json" },
+    //                         body: JSON.stringify({
+    //                             razorpay_payment_id: response.razorpay_payment_id,
+    //                             razorpay_order_id: response.razorpay_order_id,
+    //                             razorpay_signature: response.razorpay_signature,
+    //                             order_id,
+    //                         }),
+    //                     });
+
+    //                     const verifyData = await verifyResponse.json();
+
+    //                     if (verifyData.success) {
+    //                         Swal.fire({
+    //                             icon: 'success',
+    //                             title: 'Payment Verified!',
+    //                             text: 'Your payment has been successfully processed.',
+    //                             confirmButtonText: 'Go to Success Page',
+    //                         }).then(() => {
+    //                             window.location.href = "/order-confirmed";
+    //                         });
+    //                     } else {
+    //                         Swal.fire({
+    //                             icon: 'error',
+    //                             title: 'Payment Verification Failed',
+    //                             text: 'There was an issue verifying your payment. Please try again later.',
+    //                         });
+    //                     }
+    //                 } catch (error) {
+    //                     console.error("Verification error:", error);
+    //                     Swal.fire({
+    //                         icon: 'error',
+    //                         title: 'Verification Error',
+    //                         text: 'An error occurred during payment verification. Please try again later.',
+    //                     });
+    //                 }
+    //             },
+    //             prefill: {
+    //                 name: "Customer Name",
+    //                 email: "customer@example.com",
+    //                 contact: "9876543210",
+    //             },
+    //             theme: { color: "#528FF0" },
+    //         };
+
+    //         const razorpay = new Razorpay(options);
+    //         razorpay.open();
+    //     } catch (error) {
+    //         console.error("Error:", error);
+    //         Swal.fire({
+    //             icon: 'error',
+    //             title: 'Retry Failed',
+    //             text: error.message || 'An error occurred while retrying the payment. Please try again later.',
+    //         });
+    //     } finally {
+    //         retryButton.disabled = false;
+    //         retryButton.innerText = "Retry Payment";
+    //     }
+    // };
+
+    </script>
+
+<script>
+    async function retryFormSubmit(e, orderId) {
+        e.preventDefault();
+
+        const retryButton = document.getElementById(`retry-payment-button-${orderId}`);
+        retryButton.disabled = true;
+        retryButton.innerText = "Processing...";
+
+        try {
+            const response = await fetch(`/retry-order/${orderId}`, {
+                method: "GET",
+                headers: { "Content-Type": "application/json" },
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch retry order details");
+            }
+
+            const { order_id, amount, currency, razorpayOrderId } = await response.json();
+
+            const options = {
+                key: "<%= process.env.RAZORPAY_KEY_ID %>", // Razorpay key
+                amount,
+                currency,
+                name: "CozyCubs",
+                description: "Retry Payment for Order",
+                order_id: razorpayOrderId,
+                handler: async function (response) {
+                    try {
+                        const verifyResponse = await fetch("/verify-payment", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_signature: response.razorpay_signature,
+                                order_id,
+                            }),
+                        });
+
+                        const verifyData = await verifyResponse.json();
+
+                        if (verifyData.success) {
+                            Swal.fire({
+                                icon: "success",
+                                title: "Payment Verified!",
+                                text: "Your payment has been successfully processed.",
+                                confirmButtonText: "Go to Success Page",
+                            }).then(() => {
+                                window.location.href = "/order-confirmed";
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Payment Verification Failed",
+                                text: "There was an issue verifying your payment. Please try again later.",
+                            });
+                        }
+                    } catch (error) {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Verification Error",
+                            text: "An error occurred during payment verification. Please try again later.",
+                        });
+                    }
+                },
+                prefill: {
+                    name: "Customer Name",
+                    email: "customer@example.com",
+                    contact: "9876543210",
+                },
+                theme: { color: "#528FF0" },
+            };
+
+            const razorpay = new Razorpay(options);
+            razorpay.open();
+        } catch (error) {
+            Swal.fire({
+                icon: "error",
+                title: "Retry Failed",
+                text: error.message || "An error occurred while retrying the payment. Please try again later.",
+            });
+        } finally {
+            retryButton.disabled = false;
+            retryButton.innerText = "Retry Payment";
+        }
+    }
+</script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
 
 <!-- Add your wishlist content here -->
 
 
   
-</body></html>
+</body>
+</html>

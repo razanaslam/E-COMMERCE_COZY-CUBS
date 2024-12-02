@@ -127,7 +127,18 @@ adminRoute.post(
 adminRoute.post("/deleteOffer/:id", adminController.deleteOffer);
 
 //salesreport
-adminRoute.get("/salesReport", isAdmin, adminController.loadSalesReport);
+adminRoute.get("/sales-report", isAdmin, adminController.loadSalesReport);
+adminRoute.get(
+  "/sales-report/download-pdf",
+  isAdmin,
+  adminController.downloadSalesReportPDF
+);
+
+adminRoute.get(
+  "/sales-report/download-excel",
+  isAdmin,
+  adminController.downloadSalesReportExcel
+);
 
 //logout
 

@@ -1,4 +1,314 @@
-<%- include('header.ejs') %>
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+  <!-- Mirrored from template.hasthemes.com/toro/toro/index-3.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 09 Feb 2024 11:17:19 GMT -->
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <title>Toro - Minimal eCommerce HTML Template</title>
+    <meta name="robots" content="noindex, follow" />
+    <meta name="description" content="" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <!-- Favicon -->
+    <link
+      rel="shortcut icon"
+      type="image/x-icon"
+      href="assets/images/favicon.png"
+    />
+
+    <!-- All CSS is here
+	============================================ -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap" rel="stylesheet">
+
+
+</style>
+<style>
+  /* Center the text and set the font style */
+.text-center {
+  text-align: center;
+}
+
+.elegant-text {
+  font-family: 'Georgia', 'Times New Roman', serif;  /* Elegant font style */
+  font-size: 18px; /* Adjust size as needed */
+  font-weight: normal;  /* Remove boldness */
+  color: #ffffff; /* White text, adjust to fit your design */
+  letter-spacing: 1px;  /* Add some letter spacing for elegance */
+  line-height: 1.5;  /* Adjust line height for readability */
+  margin-top: 10px;  /* Space between the logo and text */
+}
+
+/* Optional: Add a hover effect for a stylish touch */
+.elegant-text:hover {
+  color: #ffb6c1;  /* Light pink or any color of your choice */
+  transition: color 0.3s ease;
+}
+
+</style>
+<style>
+  /* Adjusting font style */
+.header-area nav ul li a {
+  font-family: 'Playfair Display', serif; /* Elegant and unique font */
+  font-size: 16px; /* Readable size */
+  font-weight: 400; /* Reduced boldness */
+  letter-spacing: 1px; /* Adds spacing between letters */
+  color: #ffffff;
+  text-transform: capitalize; /* Stylish text */
+  margin: 0 15px; /* Adds space between menu items */
+  transition: color 0.3s ease;
+}
+
+.header-area nav ul li a:hover {
+  color: #000000; /* Elegant gold hover effect */
+}
+
+/* Add spacing between menu items */
+.header-area nav ul li {
+  margin-right: 25px; /* Extra spacing between menu items */
+}
+
+/* Adjusting dropdown menu */
+.sub-menu-width li {
+  margin: 10px 0; /* Adds vertical spacing between dropdown items */
+}
+
+.sub-menu-width li a {
+  font-weight: 400; /* Reduced boldness */
+  font-size: 15px; /* Slightly smaller font */
+  color: #ffffff;
+}
+
+/* Adding padding for readability */
+.header-area .header-bottom {
+  padding: 20px 0; /* Vertical padding for better layout */
+}
+
+/* Adjusting logo spacing */
+.logo {
+  margin: 0 auto; /* Center align the logo */
+  padding-bottom: 15px; /* Add space below the logo */
+}
+
+/* Adjust search and cart icons */
+.header-right-flex a {
+  font-size: 20px;
+  margin: 0 10px;
+  color: #ffffff;
+}
+
+.header-right-flex a:hover {
+  color: #000000; /* Gold hover effect */
+}
+
+/* Sidebar adjustments */
+.sidebar-cart-active .cart-content ul li {
+  padding: 10px 0; /* Adds spacing between cart items */
+}
+
+.sidebar-cart-active .cart-content h3 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 500;
+  font-size: 20px; /* Stylish and elegant heading */
+  margin-bottom: 15px;
+}
+
+.cart-checkout-btn a {
+  font-family: 'Playfair Display', serif;
+  font-weight: 500;
+  font-size: 16px;
+  padding: 10px 20px; /* Adds spacing inside buttons */
+  margin: 10px 0; /* Adds spacing between buttons */
+  display: inline-block;
+}
+
+/* Elegant hover effect */
+.cart-checkout-btn a:hover {
+  background-color: #000000; /* Gold background on hover */
+  color: #ffffff;
+}
+
+
+</style>
+<style>
+  /* General styles for the navigation menu */
+  .main-menu ul li {
+    display: inline-block;
+    margin: 0 10px;
+    position: relative;
+  }
+  
+  .main-menu ul li a {
+    color: #333; /* Default text color */
+    text-decoration: none; /* Remove default underline */
+    padding-bottom: 5px; /* Space for underline effect */
+    transition: all 0.3s ease; /* Smooth transition */
+  }
+  
+  /* Hover effect with a custom underline */
+  .main-menu ul li a:hover {
+    color: #000000; /* Text color on hover */
+    border-bottom: 2px solid #000000; /* Underline color */
+  }
+  
+  /* Optional: Add more spacing for the hover underline effect */
+  .main-menu ul li a:hover::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #000000; /* Same underline color */
+    transform: scaleX(1);
+    transition: transform 0.3s ease;
+  }
+  
+  /* Reset styles for no underline initially */
+  .main-menu ul li a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 2px;
+    background-color: transparent; /* Invisible */
+    transform: scaleX(0); /* No underline initially */
+    transition: transform 0.3s ease, background-color 0.3s ease;
+  }
+  </style>
+  
+
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <style>
+    /* SweetAlert2 Custom Styles */
+    .swal2-popup {
+      background-color: #e0e0e0 !important; /* Popup background color */
+      color: #444 !important; /* Text color */
+    }
+    .swal2-confirm {
+      background-color: #000 !important; /* Confirm button black background */
+      color: #fff !important; /* Confirm button white text */
+      border-radius: 5px !important; /* Rounded corners */
+      padding: 10px 20px !important; /* Increased padding */
+    }
+    .swal2-icon.swal2-info {
+      color: #000 !important; /* Icon color (black) */
+      border-color: #000 !important; /* Icon border color (black) */
+    }
+  </style>
+  
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="assets/css/vendor/bootstrap.min.css" />
+    <!-- Icon Font CSS -->
+    <link rel="stylesheet" href="assets/css/vendor/font-awesome.css" />
+    <link rel="stylesheet" href="assets/css/vendor/dlicon.css" />
+    <!-- Others CSS -->
+    <link rel="stylesheet" href="assets/css/plugins/owl-carousel.css" />
+    <link rel="stylesheet" href="assets/css/plugins/slick.css" />
+    <link rel="stylesheet" href="assets/css/plugins/magnific-popup.css" />
+    <link rel="stylesheet" href="assets/css/plugins/jarallax.css" />
+    <link rel="stylesheet" href="assets/css/plugins/easyzoom.css" />
+    <link rel="stylesheet" href="assets/css/plugins/animate.css" />
+    <link rel="stylesheet" href="assets/css/plugins/fullpage.css" />
+    <link rel="stylesheet" href="assets/css/plugins/jquery-ui.css" />
+    <link rel="stylesheet" href="assets/css/plugins/select2.min.css" />
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <style>
+      .btn-viewmore-hover:hover {
+        background-color: palevioletred; 
+        color: #fff; 
+      }
+    </style>
+  </head>
+
+  <body style="width: 100% !important;">
+    <header class="header-area section-padding-1 bg-black-2" style="height: 93px !important; background-color: #000000 !important;">
+      <div class="header-bottom">
+        <div class="container-fluid" style="margin-top: -23px;">
+          <div class="row align-items-center">
+            <!-- <div class="col-xl-5 col-lg-7 position-static">
+              <div class="main-menu menu-lh-1 main-menu-white menu-fw-400 main-menu-padding-2">
+                <nav>
+                  <ul>
+                    <li>
+                      <a class="active" href="home">Home</a>
+                    </li>
+                    <li>
+                      <a href="about-us.html">About Us</a>
+                    </li>
+                    <li>
+                      <a href="/product">Shop</a>
+                    </li>
+                    <li>
+                      <a href="/logout">Logout</a>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
+            </div> -->
+            <div class="col-xl-2 col-lg-2" style="
+    margin-top: -6px;">
+              <div class="logo logo-width text-center">
+                <a href="index.html">
+                  <img style="width: 100px;" src="assets/images/logo/logo-white.png" alt="logo" />
+                </a>
+                <p class="elegant-text" style="width: 220px !important; font-size: 10px !important;font-family: 'Lucida Handwriting',cursive !important;">The Best Destination To Nourish Your Baby</p>
+              </div>
+            </div>
+
+
+
+
+            <div class="col-xl-5 col-lg-7 position-static">
+              <div class="main-menu menu-lh-1 main-menu-white menu-fw-400 main-menu-padding-2">
+                <nav>
+                  <ul style="width: 1051px !important; margin-left: 52px;">
+                    <li><a href="/landing-page">Home</a></li>
+                    <li><a href="/about-us">About Us</a></li>
+                    <li><a href="/product-list">Shop</a></li>
+                    <li><a id="wishlist-link" class="same-style header-wishlist" href="#"><i class="fa fa-heart-o" style="font-size: 18px !important;"></i></a></li>
+                    <li><a id="account-link" class="same-style header-wishlist" href="#"><i class="fa fa-user-o" style="font-size: 18px !important;"></i></a></li>
+                    <li><a id="cart-link" class="same-style cart-wrap" href="#"><i class="dlicon shopping_bag-20" style="font-size: 18px !important;"></i></a></li>
+                    <li><a id="search-link" class="same-style header-search search-active" href="#"><i class="dlicon ui-1_zoom" style="font-size: 18px !important;"></i></a></li>
+                    <li><a id="logout-link" href="/login">Login</a></li>
+                  </ul>
+                </nav>
+              </div>
+            </div>
+<!--             
+            <div class="col-xl-5 col-lg-3">
+              <div class="header-right-wrap header-right-flex header-right-hm3" style="
+              justify-content: space-evenly !important;
+              /* width: 89px; */
+              width: 284px !important;
+              margin-left: 148px !important;
+          ">
+                <a class="same-style header-wishlist" href="wishlist">
+                  <i class="fa fa-heart-o"></i>
+                </a>
+                <a class="same-style header-wishlist" href="/account">
+                  <i class="fa fa-user-o"></i>
+                </a>
+                <a class="same-style cart-wrap" href="#">
+                  <i class="dlicon shopping_bag-20"></i>
+                  <span class="count-style">02</span>
+                </a>
+                <a class="same-style header-search search-active" href="#">
+                  <i class="dlicon ui-1_zoom"></i>
+                </a>
+              </div>
+            </div> -->
+          </div>
+        </div>
+      </div>
+    </header>
+    
 <style>
   body{
    background-color:  #f3f3eb
@@ -333,23 +643,14 @@ input[type="checkbox"]:checked::before {
                           <div class="col-xl-4 col-lg-6 col-md-6 col-sm-6" style="display: flex; justify-content: center;">
                             <div class="product-wrap mb-50" style="width: 333px; display: flex; flex-direction: column;">
                               <div class="product-img default-overlay mb-25">
-                                <a href="/product-details/<%= product[i]._id %>">
+                                <a href="/product-guest-details/<%= product[i]._id %>">
                                   <img class="default-img" src="/uploads/<%= product[i].image_url[0] %>" alt="<%= product[i].product_title %>" />
                                   <img class="hover-img" src="/uploads/<%= product[i].image_url[1] %>" alt="Hover image for <%= product[i].product_title %>" />
                                 </a>
-                                <div class="product-action product-action-position-1">
-                                  
-                                  <a title="Add to Wishlist" href="#">
-                                    <i class="fa fa-heart"></i><span>Add to Wishlist</span>
-                                  </a>
-                                  
-                                  <a title="Add to Cart" href="#">
-                                    <i class="fa fa-shopping-cart"></i><span>Add to Cart</span>
-                                  </a>
-                                </div>
+                               
                               </div>
                               <div class="product-content-2 title-font-width-400 text-center">
-                                <h3><a href="/product-details/<%= product[i]._id %>"><%= product[i].product_title %></a></h3>
+                                <h3><a href="/product-guest-details/<%= product[i]._id %>"><%= product[i].product_title %></a></h3>
                                 <div class="product-price">
                                   <% if (product[i].discountedPrice) { %>
                                     <% console.log("hy");
@@ -1039,7 +1340,7 @@ input[type="checkbox"]:checked::before {
             productItem.innerHTML = `
         <div class="product-wrap mb-50">
           <div class="product-img default-overlay mb-25">
-            <a href="/product-details/${product._id}">
+            <a href="/product-guest-details/${product._id}">
               <img class="default-img" src="/uploads/${product.image_url[0]}" alt="${product.product_title}" />
               <img class="hover-img" src="/uploads/${product.image_url[1]}" alt="Hover image for ${product.product_title}" />
             </a>
@@ -1060,7 +1361,7 @@ input[type="checkbox"]:checked::before {
           </div>
           <div class="product-content-2 title-font-width-400 text-center">
             <h3>
-              <a href="/product-details/${product._id}">${product.product_title}</a>
+              <a href="/product-guest-details/${product._id}">${product.product_title}</a>
             </h3>
             <div class="product-price">
               <span class="new-price">$${product.price}</span>
@@ -1087,6 +1388,42 @@ input[type="checkbox"]:checked::before {
 }
 
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+      // SweetAlert alert function
+      function showAlert(featureName) {
+        Swal.fire({
+          title: "Access Restricted",
+          text: `You need to log in to access ${featureName}. Please log in to continue.`,
+          icon: "info",
+          confirmButtonText: "Go to Login"
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = "/login"; // Redirect to login page if confirmed
+          }
+        });
+      }
+  
+      // Restricted features mapping
+      const restrictedFeatures = {
+        "wishlist-link": "the Wishlist",
+        "account-link": "your Account",
+        "cart-link": "the Shopping Cart",
+        "search-link": "the Search feature"
+      };
+  
+      // Add event listeners to links
+      Object.keys(restrictedFeatures).forEach((id) => {
+        const link = document.getElementById(id);
+        if (link) {
+          link.addEventListener("click", (e) => {
+            e.preventDefault();
+            showAlert(restrictedFeatures[id]); // Pass the feature name to the alert
+          });
+        }
+      });
+    </script>
+  
     <!-- Modernizer JS -->
     <script src="assets/js/vendor/modernizr-3.11.7.min.js"></script>
     <!-- jquery -->

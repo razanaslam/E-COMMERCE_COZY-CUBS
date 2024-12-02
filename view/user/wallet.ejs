@@ -251,6 +251,62 @@ button:hover {
       </table>
     </div>
   </div>
+</style>
+<div class="pagination-area" style="margin-top: 30px; margin-bottom: 50px;">
+  <nav aria-label="Page navigation example">
+    <ul class="pagination" style="display: flex; justify-content: center; list-style-type: none; padding: 0; margin: 0;">
+      <!-- Previous Page Link -->
+      <% if (currentPage > 1) { %>
+        <li class="page-item" style="margin: 0 5px;">
+          <a class="page-link" href="?page=<%= currentPage - 1 %>&limit=<%= limit %>" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background-color: #c3c3ac; border: 1px solid #e0e0e0; border-radius: 50%; color: #333; text-decoration: none; transition: all 0.3s ease;">
+            <i class="material-icons md-chevron_left" style="font-size: 20px;">&#xe5cb;</i>
+          </a>
+        </li>
+      <% } %>
+
+      <!-- Page Number Links -->
+      <% for (let i = 1; i <= totalPages; i++) { %>
+        <li class="page-item <%= i === currentPage ? 'active' : '' %>" style="margin: 0 5px;">
+          <a class="page-link" href="?page=<%= i %>&limit=<%= limit %>" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background-color: <%= i === currentPage ? '#007bff' : '#c3c3ac' %>; border: 1px solid; border-radius: 50%; color: <%= i === currentPage ? '#fff' : '#333' %>; text-decoration: none; transition: all 0.3s ease;">
+            <%= i %>
+          </a>
+        </li>
+      <% } %>
+
+      <!-- Next Page Link -->
+      <% if (currentPage < totalPages) { %>
+        <li class="page-item" style="margin: 0 5px;">
+          <a class="page-link" href="?page=<%= currentPage + 1 %>&limit=<%= limit %>" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background-color: #c3c3ac; border: 1px solid #e0e0e0; border-radius: 50%; color: #333; text-decoration: none; transition: all 0.3s ease;">
+            <i class="material-icons md-chevron_right" style="font-size: 20px;">&#xe5cc;</i>
+          </a>
+        </li>
+      <% } %>
+    </ul>
+  </nav>
+</div>
+
+<style>
+  @media (max-width: 768px) {
+    .pagination .page-link {
+      width: 35px;
+      height: 35px;
+      font-size: 14px;
+    }
+    .pagination .material-icons {
+      font-size: 18px;
+    }
+  }
+  .pagination .page-link:hover {
+    background-color: #f0f0f0;
+    border-color: #007bff;
+    color: #007bff;
+  }
+  .pagination .active .page-link:hover {
+    background-color: transparent;
+  }
+</style>
+
+
 </div>
 </body>
 </html>

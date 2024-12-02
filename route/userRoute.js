@@ -88,9 +88,11 @@ userRoute.post("/checkout/edit", userController.editCheckoutAddress);
 userRoute.post("/placeorder", isUser, userController.orderPlaced);
 userRoute.get("/order-confirmed", isUser, userController.loadOrderPlaced);
 userRoute.get("/myOrders", isUser, userController.loadMyOrders);
+
 userRoute.get(
   "/orderDetails/:orderId",
   isUser,
+  userController.verifyOrderOwnership,
   userController.loadOrderDetails
 );
 // userRoute.post("/updateOrderStatus/:orderId", userController.orderList);
@@ -115,6 +117,22 @@ userRoute.get("/wallet", isUser, userController.loadWallet);
 ///razor pay asdfsda
 userRoute.post("/create-order", userController.createOrder);
 userRoute.post("/verify-payment", userController.verifyPayment);
+// userRoute.post("/OrderCancellation", userController.orderCancellation);
 // userRoute.post("/paymentSuccessfull", userController.paymentSuccess);
+userRoute.post("/cancel-order", userController.cancelRazorpayOrder);
+userRoute.get("/download-invoice/:orderId", userController.downloadInvoice);
+
+// userRoute.get("/retry-order/:orderId", isUser, userController.getRetryOrder);
+userRoute.get("/retry-order/:orderId", userController.retryOrder);
+userRoute.post("/verify-payment", userController.reVerifyPayment);
+
+userRoute.get("/landing-page", isnotUser, userController.loadLandingPage);
+userRoute.get("/product-list", isnotUser, userController.loadGuestProductList);
+userRoute.get(
+  "/product-guest-details/:id",
+  isnotUser,
+  userController.loadGuestProductDetails
+);
+userRoute.get("/about-us", userController.aboutUs);
 
 module.exports = userRoute;

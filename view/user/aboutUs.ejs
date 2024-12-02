@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <title>About Us - CozyCubs</title>
+    <meta name="robots" content="noindex, follow" />
+    <meta
+      name="description"
+      content="CozyCubs - The Best Destination To Nourish Your Baby"
+    />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+
+    <!-- Favicon -->
+    <link
+      rel="shortcut icon"
+      type="image/x-icon"
+      href="assets/images/favicon.png"
+    />
+
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Font Awesome -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="assets/css/vendor/bootstrap.min.css" />
+
+    <!-- Icon Font CSS -->
+    <link rel="stylesheet" href="assets/css/vendor/font-awesome.css" />
+    <link rel="stylesheet" href="assets/css/vendor/dlicon.css" />
+
+    <!-- Others CSS -->
+    <link rel="stylesheet" href="assets/css/plugins/owl-carousel.css" />
+    <link rel="stylesheet" href="assets/css/plugins/slick.css" />
+    <link rel="stylesheet" href="assets/css/plugins/magnific-popup.css" />
+    <link rel="stylesheet" href="assets/css/plugins/jarallax.css" />
+    <link rel="stylesheet" href="assets/css/plugins/easyzoom.css" />
+    <link rel="stylesheet" href="assets/css/plugins/animate.css" />
+    <link rel="stylesheet" href="assets/css/plugins/fullpage.css" />
+    <link rel="stylesheet" href="assets/css/plugins/jquery-ui.css" />
+    <link rel="stylesheet" href="assets/css/plugins/select2.min.css" />
+    <link rel="stylesheet" href="assets/css/style.css" />
+
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+      }
+      .about-content {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 20px;
+      }
+      h1 {
+        color: #4a4a4a;
+        text-align: center;
+        font-family: "Playfair Display", serif;
+      }
+      .contact-info {
+        background-color: #f6f6e6;
+        padding: 15px;
+        border-radius: 5px;
+        margin-top: 20px;
+      }
+      .elegant-text {
+        font-family: "Lucida Handwriting", cursive !important;
+        font-size: 10px !important;
+        color: #f6f6e6;
+        text-align: center;
+        margin-top: 5px;
+      }
+      .header-area {
+        background-color: #000000 !important;
+      }
+      .main-menu ul li a {
+        color: #f6f6e6;
+        font-family: "Playfair Display", serif;
+        font-size: 16px;
+        font-weight: 400;
+        letter-spacing: 1px;
+        margin: 0 15px;
+        transition: color 0.3s ease;
+      }
+      .main-menu ul li a:hover {
+        color: #ffb6c1;
+      }
+    </style>
+  </head>
+
+  <body style="width: 100% !important ; background-color: #f6f6e6 !important">
+    <div class="about-content">
+      <h1>About CozyCubs</h1>
+
+      <p>
+        Welcome to CozyCubs, your trusted partner in providing high-quality baby
+        products for newborns. Founded with a passion for nurturing and caring
+        for the littlest members of our families, CozyCubs has quickly become a
+        go-to destination for parents seeking comfort, safety, and style for
+        their precious bundles of joy.
+      </p>
+
+      <p>
+        At CozyCubs, we understand that bringing a new life into the world is
+        both exciting and challenging. That's why we've dedicated ourselves to
+        curating a selection of premium baby products that make the journey of
+        parenthood a little easier and a lot more enjoyable. From soft, cozy
+        blankets to innovative feeding solutions, our range of products is
+        designed to meet the unique needs of newborns and their parents.
+      </p>
+
+      <p>
+        Our team of experts carefully selects each item in our inventory,
+        ensuring that it meets the highest standards of quality, safety, and
+        functionality. We believe that every baby deserves the best start in
+        life, and we're committed to providing products that contribute to their
+        comfort, health, and happiness.
+      </p>
+
+      <p>
+        As a local business based in the heart of Kochi, we take pride in
+        serving our community and beyond. Our friendly and knowledgeable staff
+        are always ready to assist you in finding the perfect products for your
+        little one, offering personalized recommendations and expert advice.
+      </p>
+
+      <div class="contact-info">
+        <h2>Contact Us</h2>
+        <p>
+          CozyCubs<br />
+          Edapally, Kochi, Kerala, 217231<br />
+          Phone: +91 89893927433<br />
+          Email: support@cozyCubs.com
+        </p>
+      </div>
+    </div>
+
+    <!-- SweetAlert2 for logout confirmation -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+      function confirmLogout() {
+        Swal.fire({
+          title: "Are you sure?",
+          text: "You will be logged out!",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Yes, logout!",
+          cancelButtonText: "Cancel",
+          confirmButtonColor: "black",
+          cancelButtonColor: "black",
+          background: "#f8f9fa",
+          iconColor: "#dc3545",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = "/logout";
+          }
+        });
+      }
+    </script>
+
+    <!-- All JS is here -->
+    <script src="assets/js/vendor/modernizr-3.11.7.min.js"></script>
+    <script src="assets/js/vendor/jquery-3.6.0.min.js"></script>
+    <script src="assets/js/vendor/jquery-migrate-3.3.2.min.js"></script>
+    <script src="assets/js/vendor/popper.min.js"></script>
+    <script src="assets/js/vendor/bootstrap.min.js"></script>
+    <script src="assets/js/plugins/wow.js"></script>
+    <script src="assets/js/plugins/scrollup.js"></script>
+    <script src="assets/js/plugins/aos.js"></script>
+    <script src="assets/js/plugins/magnific-popup.js"></script>
+    <script src="assets/js/plugins/jquery.syotimer.min.js"></script>
+    <script src="assets/js/plugins/swiper.min.js"></script>
+    <script src="assets/js/plugins/imagesloaded.pkgd.min.js"></script>
+    <script src="assets/js/plugins/isotope.pkgd.min.js"></script>
+    <script src="assets/js/plugins/jquery-ui.js"></script>
+    <script src="assets/js/plugins/jquery-ui-touch-punch.js"></script>
+    <script src="assets/js/plugins/jquery.nice-select.min.js"></script>
+    <script src="assets/js/plugins/waypoints.min.js"></script>
+    <script src="assets/js/plugins/counterup.min.js"></script>
+    <script src="assets/js/plugins/select2.min.js"></script>
+    <script src="assets/js/plugins/easyzoom.js"></script>
+    <script src="assets/js/plugins/slinky.min.js"></script>
+    <script src="assets/js/plugins/ajax-mail.js"></script>
+    <!-- Main JS -->
+    <script src="assets/js/main.js"></script>
+  </body>
+</html>
