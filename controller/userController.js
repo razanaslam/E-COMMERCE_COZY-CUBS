@@ -890,6 +890,28 @@ const loadCart = async (req, res) => {
 
     const totalPrice = cart ? cart.totalPrice : [];
     const discount = cart ? cart.discount : [];
+    let stockAdjusted = false;
+    const adjustmentMessages = [];
+
+    if (cart && cartItems.length > 0) {
+      for (const item of cartItems) {
+        if (item.qty > item.product.stock) {
+          stockAdjusted = true;
+          adjustmentMessages.push(
+            `The quantity of ${item.product.name} was adjusted to match available stock.`
+          );
+
+          // Adjust the quantity and total price
+          const difference = item.qty - item.product.stock;
+          item.qty = item.product.stock;
+          cart.totalPrice -= difference * item.price;
+        }
+      }
+
+      if (stockAdjusted) {
+        await cart.save(); // Save changes to the cart if adjustments were made
+      }
+    }
 
     res.render("cart", {
       cart,
@@ -1010,26 +1032,49 @@ const incrementQty = async (req, res) => {
 
   try {
     const cart = await cartModel.findOne({ userId: req.session.user._id });
+
+    if (!cart) {
+      return res.status(404).json({ message: "Cart not found" });
+    }
+
     const item = cart.items.find((i) => i.product.toString() === productId);
 
-    if (item) {
-      const product = await productModel.findById(productId);
-
-      if (item.qty < product.stock) {
-        item.qty += 1;
-        cart.totalPrice += item.price;
-        await cart.save();
-
-        res.json({ newQty: item.qty, newTotal: item.price * item.qty });
-      } else {
-        res.status(400).json({ message: "Stock limit reached" });
-      }
-    } else {
-      res.status(404).json({ message: "Item not found in cart" });
+    if (!item) {
+      return res.status(404).json({ message: "Item not found in cart" });
     }
+
+    const product = await productModel.findById(productId);
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    console.log(product.stock, "stock of pp");
+
+    if (item.qty >= product.stock) {
+      item.qty = product.stock;
+      await cart.save();
+      return res.status(400).json({
+        message:
+          "Quantity exceeds available stock. Adjusted to available stock.",
+        newQty: item.qty,
+        newTotal: cart.totalPrice,
+      });
+    }
+    console.log(cart);
+
+    if (item.qty === 5) {
+      return res.status(400).json({ message: "Limit of 5 units reached" });
+    }
+
+    item.qty += 1;
+    cart.totalPrice += item.price;
+    await cart.save();
+
+    return res.json({ newQty: item.qty, newTotal: cart.totalPrice });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Error updating quantity" });
+    return res.status(500).json({ message: "Error updating quantity" });
   }
 };
 
@@ -1152,6 +1197,22 @@ const loadCheckout = async (req, res) => {
     const cartEmpty = req.flash("cartEmpty");
     const addressSuccess = req.flash("addressSuccess");
     const messages = [];
+    // let stockMismatch = false;
+
+    // for (const item of cartItems) {
+    //   const product = await productModel.findById(item.product._id);
+    //   if (item.qty > product.stock) {
+    //     stockMismatch = true;
+    //     break;
+    //   }
+    // }
+
+    // if (stockMismatch) {
+    //   return res.json({
+    //     error: true,
+    //     message: "One or more items in your cart exceed the available stock.",
+    //   });
+    // }
 
     res.render("checkout", {
       address,
@@ -1328,24 +1389,27 @@ const loadOrderPlaced = async (req, res) => {
 const cancelOrder = async (req, res) => {
   try {
     const orderId = req.params.id;
-    const updatedOrder = await orderModel.findByIdAndUpdate(
-      orderId,
-      { status: "Cancelled" },
-      { new: true }
-    );
+    const updatedOrder = await orderModel.findByIdAndUpdate(orderId);
+    console.log(updatedOrder.totalPrice, "hy total proce");
 
     if (!updatedOrder) {
       return res
         .status(404)
         .json({ success: false, message: "Order not found" });
     }
+    if (updatedOrder.status === "Delivered") {
+      order.status = "Returned";
+    } else {
+      order.status = "Cancelled";
+    }
 
+    await order.save();
     const userId = updatedOrder.userId;
 
-    const totalRefundAmount = updatedOrder.items.reduce((total, item) => {
-      return total + item.price * item.quantity;
-    }, 0);
-
+    // const totalRefundAmount = updatedOrder.items.reduce((total, item) => {
+    //   return total + item.price * item.quantity;
+    // }, 0);
+    const totalRefundAmount = updatedOrder.totalPrice;
     for (const item of updatedOrder.items) {
       await productModel.findByIdAndUpdate(item.product, {
         $inc: { stock: item.quantity },
@@ -1389,11 +1453,12 @@ const cancelOrder = async (req, res) => {
     });
   }
 };
+
 const orderPlaced = async (req, res) => {
   try {
-    console.log("hi");
-
     const { paymentMethod, addressID, couponCode } = req.body;
+    console.log(paymentMethod, addressID, couponCode, "where ?");
+
     const userId = req.session?.user?._id;
 
     const cart = await cartModel.findOne({ userId }).populate("items.product");
@@ -1432,6 +1497,7 @@ const orderPlaced = async (req, res) => {
 
     let couponDiscount = 0;
     let appliedCoupon = null;
+    console.log(couponCode, "couponcode of this");
 
     if (couponCode) {
       const coupon = await couponModel.findOne({
@@ -1440,7 +1506,11 @@ const orderPlaced = async (req, res) => {
         expiryDate: { $gte: new Date() },
         usedBy: { $ne: userId },
       });
-      console.log(coupon);
+      console.log(totalPrice, "total price ");
+      console.log(
+        totalPrice * coupon.discountPercentage,
+        "total price * discount "
+      );
 
       if (!coupon) {
         return res.status(400).json({ message: "Invalid or expired coupon." });
@@ -1455,7 +1525,8 @@ const orderPlaced = async (req, res) => {
       couponDiscount = (totalPrice * coupon.discountPercentage) / 100;
       if (
         coupon.maxDiscountAmount &&
-        couponDiscount > coupon.maxDiscountAmount
+        couponDiscount > coupon.maxDiscountAmount &&
+        coupon.discountPercentage <= 0
       ) {
         couponDiscount = coupon.maxDiscountAmount;
       }
@@ -1463,11 +1534,14 @@ const orderPlaced = async (req, res) => {
       totalPrice -= couponDiscount;
       appliedCoupon = coupon._id;
     }
+    console.log(couponDiscount, "coupon ");
+
+    console.log(totalPrice, "total price of coupon");
 
     const order = new orderModel({
       userId,
       items: orderItems,
-      totalPrice,
+      totalPrice: totalPrice,
       billingDetails: selectedAddress,
       paymentMethod: paymentMethod === "cod" ? "COD" : "wallet",
       status: paymentMethod === "cod" ? "Pending" : "Delivered",
@@ -1484,9 +1558,9 @@ const orderPlaced = async (req, res) => {
 
     await order.save();
 
-    for (const item of cart.items) {
-      await productModel.findByIdAndUpdate(item.product._id, {
-        $inc: { stock: -item.qty },
+    for (const item of orderItems) {
+      await productModel.findByIdAndUpdate(item.product, {
+        $inc: { stock: -item.quantity },
       });
     }
 
@@ -1557,7 +1631,7 @@ const loadMyOrders = async (req, res) => {
     const totalPages = Math.ceil(totalOrders / limit);
 
     const orders = await orderModel
-      .find()
+      .find({ userId: userId })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
@@ -1673,6 +1747,8 @@ const loadUserAc = async (req, res) => {
 
 const loadaccountDetails = async (req, res) => {
   try {
+    console.log("raza");
+
     const id = req.session.user._id;
     const acc = await userModel.findById(id);
     const success = req.flash("success");
@@ -1750,8 +1826,10 @@ const updatePassword = async (req, res) => {
     //   );
     //   return res.redirect("/accountDetails");
     // }
+    console.log(newPassword, "hy password");
 
     const newPass = await bcrypt.hash(newPassword, 10);
+    console.log(newPass, "new password");
 
     const userdata = await userModel.findByIdAndUpdate(
       id,
@@ -2087,9 +2165,6 @@ const getCoupon = async (req, res) => {
     const totalPrice = req.query.totalPrice;
     const userId = req.session.user._id;
     const currentDate = new Date();
-    console.log(totalPrice, "hay");
-    console.log(totalPrice, "hay");
-    console.log(totalPrice, "hay");
 
     const coupons = await couponModel.find({
       minAmount: { $lte: totalPrice },
@@ -2130,7 +2205,7 @@ const applyCoupon = async (req, res) => {
     const discountAmount = totalPrice * (coupon.discountPercentage / 100);
     const newTotal = totalPrice - discountAmount;
     console.log(discountAmount);
-    // coupon.usedBy.push(userId);
+    // await couponModel.findByIdAndUpdate(id, { usedBy: userId });
     await coupon.save();
 
     res.json({
@@ -2177,6 +2252,8 @@ const cancelCoupon = async (req, res) => {
     const { couponCode } = req.body;
 
     const userCart = await cartModel.findOne({ userId });
+    console.log(userCart, "my cart");
+
     if (!userCart) {
       return res.status(404).json({ message: "Cart not found" });
     }
@@ -2186,12 +2263,13 @@ const cancelCoupon = async (req, res) => {
       return res.status(404).json({ message: "Coupon not found" });
     }
 
-    // Remove coupon from cart
     await cartModel.updateOne({ userId }, { $unset: { appliedCoupon: "" } });
-    // Update coupon usage
+
     await couponModel.updateOne({ couponCode }, { $inc: { usageCount: -1 } });
 
-    const totalPrice = userCart.totalPrice; // Update logic if needed
+    const totalPrice = userCart.totalPrice;
+    console.log(totalPrice, "totalprice");
+
     res.json({ totalPrice, message: "Coupon cancelled successfully" });
   } catch (error) {
     console.error("Error cancelling coupon", error);
@@ -3465,7 +3543,6 @@ const downloadInvoice = async (req, res) => {
       doc.moveTo(50, y).lineTo(550, y).stroke("#D3D3D3");
     };
 
-    // Header Section
     // doc.image("path/to/logo.png", 50, 45, { width: 50 });
     doc.fontSize(20).font("Helvetica-Bold").text("CozyCubs", 120, 50);
     doc
@@ -3475,10 +3552,8 @@ const downloadInvoice = async (req, res) => {
     doc.text("Phone: +91 89893927433 | Email: support@cozyCubs.com", 120, 90);
     drawLine(110);
 
-    // Title
     doc.fontSize(16).font("Helvetica-Bold").text("INVOICE", 250, 130);
 
-    // Order & Billing Details - Aligned
     const detailsTop = 150;
     doc.rect(50, detailsTop, 240, 100).fill("#F0F0F0");
     doc
@@ -3525,7 +3600,6 @@ const downloadInvoice = async (req, res) => {
 
     drawLine(260);
 
-    // Product Table
     const tableTop = 280;
     doc.fillColor("black").fontSize(12).font("Helvetica-Bold");
     const headers = ["Product Name", "Qty", "Price", "Total"];
@@ -3537,7 +3611,6 @@ const downloadInvoice = async (req, res) => {
 
     drawLine(tableTop + 15);
 
-    // Table Rows
     let currentY = tableTop + 25;
     doc.fontSize(10).font("Helvetica");
 
@@ -3556,7 +3629,6 @@ const downloadInvoice = async (req, res) => {
 
     drawLine(currentY);
 
-    // Pricing Summary
     currentY += 10;
     doc.fontSize(12).font("Helvetica-Bold").text("Summary:", 350, currentY);
     doc.fontSize(10).font("Helvetica");
@@ -3574,7 +3646,6 @@ const downloadInvoice = async (req, res) => {
         currentY + 45
       );
 
-    // Footer
     const footerY = doc.page.height - 50;
     doc
       .fontSize(10)
@@ -3585,7 +3656,6 @@ const downloadInvoice = async (req, res) => {
         width: doc.page.width - 100,
       });
 
-    // Finalize
     doc.end();
 
     writeStream.on("finish", () => {
@@ -3733,6 +3803,23 @@ const aboutUs = async (req, res) => {
   }
 };
 
+const pagination = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1; // Current page
+    const limit = 10; // Items per page
+    const totalItems = await SomeModel.countDocuments(); // Get total count
+    const totalPages = Math.ceil(totalItems / limit);
+    const items = await SomeModel.find()
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    res.render("your-view", { items, currentPage: page, totalPages });
+  } catch (error) {
+    console.error("Error fetching paginated data:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
 module.exports = {
   loadRegister,
   registerUser,
@@ -3805,4 +3892,5 @@ module.exports = {
   loadGuestProductList,
   loadGuestProductDetails,
   aboutUs,
+  pagination,
 };

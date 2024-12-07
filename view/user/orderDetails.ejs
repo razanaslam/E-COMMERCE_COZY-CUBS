@@ -1,5 +1,93 @@
 <%- include('header.ejs') %>
+<style>
+body {
+  font-family: sans-serif;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+th {
+  background-color: #f2f2f2;
+}
+.table-light .row {
+  margin-right: 0;
+  margin-left: 0;
+}
+.table-light .col-6 {
+  padding-right: 5px;
+  padding-left: 5px;
+}
+</style>
     <style>
+      @media (max-width: 1200px) {
+  .card {
+    width: 90% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+}
+
+@media (max-width: 991px) {
+  .row-cols-lg-3 {
+    flex-direction: column;
+  }
+  .col {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  h1 {
+    font-size: 2rem;
+  }
+  .card-header h5 {
+    font-size: 1.2rem;
+  }
+  .table {
+    font-size: 0.9rem;
+  }
+  .table td, .table th {
+    padding: 0.5rem;
+  }
+  .float-end {
+    float: none !important;
+  }
+  dl.row {
+    display: block;
+  }
+  .col-sm-4, .col-sm-8 {
+    width: 100%;
+    text-align: left;
+  }
+}
+
+@media (max-width: 576px) {
+  .card {
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  h1 {
+    font-size: 1.8rem;
+  }
+  .table {
+    font-size: 0.8rem;
+  }
+  .badge {
+    font-size: 0.7em;
+  }
+  .btn-sm.font-sm {
+    font-size: 0.8em;
+    padding: 6px 10px;
+  }
+}
       
       .dashboard-content {
         width: 100%;
@@ -224,46 +312,35 @@ background-color: #f6f6e6;
               <% }) %>
             </tbody>
             <tr class="table-light">
-              <td colspan="4">
-                <div class="float-end text-center text-md-end">
-                  <dl class="row">
-                    <dt class="col-sm-4">Subtotal:</dt>
-                    <dd class="col-sm-8">
-                      <%= orders.totalPrice.toFixed(2) %>
-                    </dd>
-    
-                    <dt class="col-sm-4">Discount:</dt>
-                    <dd class="col-sm-8">
-                      <%= orders.discount || 0 %>
-                    </dd>
-    
-                    <dt class="col-sm-4">Shipping Cost:</dt>
-                    <dd class="col-sm-8">Free Shipping</dd>
-    
-                    <dt class="col-sm-4">Grand Total:</dt>
-                    <dd class="col-sm-8 h5">
-                      <b><%= orders.totalPrice.toFixed(2) %></b>
-                    </dd>
-    
-                    <dt class="col-sm-4">Status:</dt>
-                    <dd class="col-sm-8">
-                      <span
-                        class="badge rounded-pill alert-<%= orders.status === 'Returned' ? 'primary' : 'success' %> text-<%= orders.status === 'Returned' ? 'primary' : 'success' %>"
-                      >
-                        <%= orders.status %>
-                      </span>
-                    </dd>
-    
-                    <% if (orders.status === 'Returned') { %>
-                    <dt class="col-sm-4">Reason:</dt>
-                    <dd class="col-sm-8 text-muted">
-                      <%= orders.returnReason %>
-                    </dd>
-                    <% } %>
-                  </dl>
-                </div>
+              <td colspan="2" class="text-end"><strong>Subtotal:</strong></td>
+              <td colspan="2" class="text-start"><%= orders.totalPrice.toFixed(2) %></td>
+            </tr>
+            <tr class="table-light">
+              <td colspan="2" class="text-end"><strong>Discount:</strong></td>
+              <td colspan="2" class="text-start"><%= orders.discount || 0 %></td>
+            </tr>
+            <tr class="table-light">
+              <td colspan="2" class="text-end"><strong>Shipping Cost:</strong></td>
+              <td colspan="2" class="text-start">Free Shipping</td>
+            </tr>
+            <tr class="table-light">
+              <td colspan="2" class="text-end"><strong>Grand Total:</strong></td>
+              <td colspan="2" class="text-start"><strong><%= orders.totalPrice.toFixed(2) %></strong></td>
+            </tr>
+            <tr class="table-light">
+              <td colspan="2" class="text-end"><strong>Status:</strong></td>
+              <td colspan="2" class="text-start">
+                <span class="badge rounded-pill text-white alert-<%= 
+    orders.status === 'Pending' ? 'warning' : 
+    orders.status === 'Delivered' ? 'success' : 
+    orders.status === 'Returned' || orders.status === 'Cancelled' ? 'danger' : 
+    'primary' 
+%>">
+    <%= orders.status === 'Pending' ? 'Placed' : orders.status %>
+</span>
               </td>
             </tr>
+            
           </table>
     
          
@@ -283,23 +360,7 @@ background-color: #f6f6e6;
                 </a>
               </div>
             </div>
-            <div class="col-6">
-              <div class="mobile-header-right-wrap">
-                <div class="header-right-wrap header-right-flex">
-                  <div class="same-style cart-wrap">
-                    <a href="#" class="cart-active">
-                      <i class="dlicon shopping_bag-20"></i>
-                      <span class="count-style">02</span>
-                    </a>
-                  </div>
-                  <div class="same-style header-off-canvas">
-                    <a class="header-aside-button" href="#">
-                      <i class="dlicon ui-3_menu-left"></i>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
+           
           </div>
         </div>
       </div>
@@ -333,7 +394,7 @@ background-color: #f6f6e6;
                 </div>
                 <div class="cart-title">
                   <h4><a href="#">Bejewelled velvet sandals</a></h4>
-                  <span> 1 × $49.00 </span>
+                  <span> 1 × ₹49.00 </span>
                 </div>
                 <div class="cart-delete">
                   <a href="#">×</a>
@@ -347,7 +408,7 @@ background-color: #f6f6e6;
                 </div>
                 <div class="cart-title">
                   <h4><a href="#">Contrast faux fur jacket</a></h4>
-                  <span> 1 × $49.00 </span>
+                  <span> 1 × ₹49.00 </span>
                 </div>
                 <div class="cart-delete">
                   <a href="#">×</a>
@@ -355,7 +416,7 @@ background-color: #f6f6e6;
               </li>
             </ul>
             <div class="cart-total">
-              <h4>Subtotal: <span>$170.00</span></h4>
+              <h4>Subtotal: <span>₹170.00</span></h4>
             </div>
             <div class="cart-checkout-btn">
               <a class="btn-hover cart-btn-style" href="cart.html">view cart</a>
@@ -656,7 +717,8 @@ background-color: #f6f6e6;
     <!-- Main JS -->
     <script src="/assets/js/main.js"></script>
   </body>
-
+  <br><br><br><br><br><br>
+  <%- include('footer') %>
   <!-- Mirrored from template.hasthemes.com/toro/toro/my-account.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 09 Feb 2024 11:20:00 GMT -->
 </html>
 

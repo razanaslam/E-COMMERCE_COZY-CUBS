@@ -134,5 +134,6 @@ userRoute.get(
   userController.loadGuestProductDetails
 );
 userRoute.get("/about-us", userController.aboutUs);
+userRoute.get("/pagination", userController.pagination);
 
 module.exports = userRoute;

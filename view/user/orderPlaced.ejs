@@ -8,8 +8,15 @@
       src="https://kit.fontawesome.com/a076d05399.js"
       crossorigin="anonymous"
     ></script>
-  </head>
-  <body>
+    <script
+      src="https://kit.fontawesome.com/a076d05399.js"
+      crossorigin="anonymous"
+    ></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
+
     <style>
       /* General page styling */
       body {
@@ -18,65 +25,76 @@
         justify-content: center;
         height: 100vh;
         margin: 0;
-        font-family: Arial, sans-serif;
-        background-color: #f9f9f9;
-        overflow: hidden;
+        font-family: "Roboto", Arial, sans-serif;
+        background: linear-gradient(135deg, #f6f6ec 0%, #f6f6ec 100%);
+        padding: 10px;
+        box-sizing: border-box;
       }
 
       /* Popup container styling */
       .popup-container {
-        background-color: #fff;
-        padding: 40px;
-        border-radius: 15px;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        background: #ffffff;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
         text-align: center;
         max-width: 400px;
-        width: 90%;
-        position: relative;
-        animation: popup 0.5s ease-out;
+        width: 100%;
+        animation: fadeIn 0.8s ease-out;
       }
 
-      @keyframes popup {
-        0% {
-          transform: scale(0.8);
+      @keyframes fadeIn {
+        from {
           opacity: 0;
+          transform: scale(0.9);
         }
-        100% {
-          transform: scale(1);
+        to {
           opacity: 1;
+          transform: scale(1);
         }
       }
 
       /* Green tick icon */
       .tick-icon {
-        width: 80px;
-        height: 80px;
+        width: 100px;
+        height: 100px;
         margin: 0 auto 20px;
-        border: 4px solid #4caf50;
+        border: 5px solid #4caf50;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        background-color: #e8f5e9;
+        background: linear-gradient(135deg, #e8f5e9, #ffffff);
+        animation: bounce 1s infinite ease-in-out;
+      }
+
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
       }
 
       .tick-icon i {
-        font-size: 40px;
-        color: #4caf50;
+        font-size: 48px;
+        color: #4caf50 !important;
       }
 
       /* Title styling */
       .popup-title {
-        font-size: 24px;
+        font-size: 28px;
         font-weight: bold;
         color: #333;
-        margin-bottom: 15px;
+        margin-bottom: 10px;
       }
 
       /* Order message styling */
       .popup-message {
         font-size: 16px;
-        color: #666;
+        color: #555;
         margin-bottom: 30px;
         line-height: 1.6;
       }
@@ -84,41 +102,92 @@
       /* Buttons styling */
       .popup-buttons {
         display: flex;
-        justify-content: space-between;
-        gap: 10px;
+        gap: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
       }
 
       .popup-button {
         flex: 1;
-        background-color: #4caf50;
+        max-width: 180px;
+        background: #000000;
         color: white;
-        padding: 10px 20px;
+        padding: 12px 20px;
         border: none;
-        border-radius: 5px;
+        border-radius: 25px;
         font-size: 16px;
         cursor: pointer;
-        transition: background-color 0.3s ease;
+        transition: background 0.3s ease, transform 0.2s ease;
         text-decoration: none;
         text-align: center;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
       }
 
       .popup-button:hover {
-        background-color: #43a047;
+        background: #000000;
+        transform: scale(1.05);
       }
 
       .popup-button.secondary {
-        background-color: #2196f3;
+        background: #000000;
       }
 
       .popup-button.secondary:hover {
-        background-color: #1976d2;
+        background: #000000;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .popup-container {
+          padding: 20px;
+        }
+
+        .popup-title {
+          font-size: 24px;
+        }
+
+        .popup-message {
+          font-size: 14px;
+        }
+
+        .popup-button {
+          font-size: 14px;
+          padding: 10px;
+        }
+
+        .tick-icon {
+          width: 80px;
+          height: 80px;
+        }
+
+        .tick-icon i {
+          font-size: 36px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .popup-title {
+          font-size: 20px;
+        }
+
+        .popup-message {
+          font-size: 12px;
+        }
+
+        .popup-button {
+          font-size: 12px;
+          padding: 8px;
+        }
+      }
+      .tick-icon {
+        z-index: 10; /* Bring to the front */
       }
     </style>
-
+  </head>
+  <body>
     <div class="popup-container">
-      <div class="tick-icon">
-        <i class="fas fa-check"></i>
-      </div>
+      <div class="tick-icon"><i class="fas fa-check"></i></div>
+
       <h1 class="popup-title">Order Placed Successfully!</h1>
       <p class="popup-message">
         Thank you for your order! Your order has been placed successfully and is

@@ -15,13 +15,15 @@
     <link
       rel="shortcut icon"
       type="image/x-icon"
-      href="assets/images/favicon.png"
+      href="/assets/images/favicon.png"
     />
 
     <!-- All CSS is here
 	============================================ -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
 </style>
 <style>
@@ -183,21 +185,21 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="assets/css/vendor/bootstrap.min.css" />
+    <link rel="stylesheet" href="/assets/css/vendor/bootstrap.min.css" />
     <!-- Icon Font CSS -->
-    <link rel="stylesheet" href="assets/css/vendor/font-awesome.css" />
-    <link rel="stylesheet" href="assets/css/vendor/dlicon.css" />
+    <link rel="stylesheet" href="/assets/css/vendor/font-awesome.css" />
+    <link rel="stylesheet" href="/assets/css/vendor/dlicon.css" />
     <!-- Others CSS -->
-    <link rel="stylesheet" href="assets/css/plugins/owl-carousel.css" />
-    <link rel="stylesheet" href="assets/css/plugins/slick.css" />
-    <link rel="stylesheet" href="assets/css/plugins/magnific-popup.css" />
-    <link rel="stylesheet" href="assets/css/plugins/jarallax.css" />
-    <link rel="stylesheet" href="assets/css/plugins/easyzoom.css" />
-    <link rel="stylesheet" href="assets/css/plugins/animate.css" />
-    <link rel="stylesheet" href="assets/css/plugins/fullpage.css" />
-    <link rel="stylesheet" href="assets/css/plugins/jquery-ui.css" />
-    <link rel="stylesheet" href="assets/css/plugins/select2.min.css" />
-    <link rel="stylesheet" href="assets/css/style.css" />
+    <link rel="stylesheet" href="/assets/css/plugins/owl-carousel.css" />
+    <link rel="stylesheet" href="/assets/css/plugins/slick.css" />
+    <link rel="stylesheet" href="/assets/css/plugins/magnific-popup.css" />
+    <link rel="stylesheet" href="/assets/css/plugins/jarallax.css" />
+    <link rel="stylesheet" href="/assets/css/plugins/easyzoom.css" />
+    <link rel="stylesheet" href="/assets/css/plugins/animate.css" />
+    <link rel="stylesheet" href="/assets/css/plugins/fullpage.css" />
+    <link rel="stylesheet" href="/assets/css/plugins/jquery-ui.css" />
+    <link rel="stylesheet" href="/assets/css/plugins/select2.min.css" />
+    <link rel="stylesheet" href="/assets/css/style.css" />
     <style>
       .btn-viewmore-hover:hover {
         background-color: palevioletred; 
@@ -217,6 +219,11 @@
         padding: 10px 20px !important; /* Increased padding */
       }
       .swal2-icon.swal2-info {
+        color: #000 !important; /* Icon color (black) */
+        border-color: #000 !important; /* Icon border color (black) */
+        
+      }
+      .swal2-icon.swal2-warning {
         color: #000 !important; /* Icon color (black) */
         border-color: #000 !important; /* Icon border color (black) */
         
@@ -254,7 +261,7 @@
     margin-top: -6px;">
               <div class="logo logo-width text-center">
                 <a href="index.html">
-                  <img style="width: 100px;" src="assets/images/logo/logo-white.png" alt="logo" />
+                  <img style="width: 100px;" src="/assets/images/logo/logo-white.png" alt="logo" />
                 </a>
                 <p class="elegant-text" style="width: 220px !important; font-size: 10px !important;font-family: 'Lucida Handwriting',cursive !important;">The Best Destination To Nourish Your Baby</p>
               </div>
@@ -265,9 +272,9 @@
             <div class="col-xl-5 col-lg-7 position-static">
               <div class="main-menu menu-lh-1 main-menu-white menu-fw-400 main-menu-padding-2">
                 <nav>
-                  <ul style="width: 1051px !important; margin-left: 52px;">
+                   <ul style="width: 960px !important; margin-left: 52px;">
                     <li>
-                      <a href="home">Home</a>
+                      <a href="/home">Home</a>
                     </li>
                     <li>
                       <a href="/about-us">About Us</a>
@@ -277,14 +284,16 @@
                     </li>
                     <li>
                       <a class="same-style header-wishlist" href="/whishlist">
-                        <i class="fa fa-heart-o" style="font-size: 18px !important;"></i>
+                        <i class="fa fa-heart" style="font-size: 18px !important; color: white !important;"></i>
                       </a>
                     </li>
                     <li>
                       <a class="same-style header-wishlist" href="/account">
-                        <i class="fa fa-user-o" style="font-size: 18px !important;"></i>
+                        <i class="fa fa-user" style="font-size: 18px !important;"></i>
                       </a>
                     </li>
+                    
+                    
                     <li>
                       <a class="same-style cart-wrap" href="/cart">
                         <i class="dlicon shopping_bag-20" style="font-size: 18px !important;"></i>
@@ -355,3 +364,75 @@
       }
     </script>
     
+
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+    <!-- Styles -->
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+      }
+  
+      /* Mobile Navigation */
+      .mobile-nav {
+        display: none; /* Hidden by default */
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background-color: #000;
+        padding: 10px 0;
+        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+      }
+  
+      .mobile-nav ul {
+        display: flex;
+        justify-content: space-around;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+  
+      .mobile-nav ul li {
+        text-align: center;
+      }
+  
+      .mobile-nav ul li a {
+        color: #000000;
+        text-decoration: none;
+        font-size: 18px;
+        transition: color 0.3s;
+      }
+  
+      .mobile-nav ul li a:hover {
+        color: #ffb6c1;
+      }
+  
+      .mobile-nav ul li i {
+        display: block;
+        font-size: 24px;
+        margin-bottom: 5px;
+      }
+  
+      /* Mobile-only display (max-width: 768px) */
+      @media (max-width: 768px) {
+        .mobile-nav {
+          display: block; /* Show only on mobile devices */
+        }
+      }
+    </style>
+  </head>
+  <body>
+  
+  <!-- Mobile Navigation -->
+  <nav class="mobile-nav" style="background-color: #f6f6ec;">
+    <ul>
+      <li><a href="/product"><i class="fa fa-shopping-bag"></i><span>Shop</span></a></li>
+            <li><a href="/whishlist"><i class="fa fa-heart"></i><span>Wishlist</span></a></li>
+      <li><a href="/cart"><i class="fa fa-shopping-cart"></i><span>Cart</span></a></li>
+      <li><a href="/account"><i class="fa fa-user"></i><span>User</span></a></li>
+    </ul>
+  </nav>
+  

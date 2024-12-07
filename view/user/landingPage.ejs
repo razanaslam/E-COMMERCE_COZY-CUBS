@@ -15,7 +15,7 @@
     <link
       rel="shortcut icon"
       type="image/x-icon"
-      href="assets/images/favicon.png"
+      href="/assets/images/favicon.png"
     />
 
     <!-- All CSS is here
@@ -204,21 +204,21 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="assets/css/vendor/bootstrap.min.css" />
+    <link rel="stylesheet" href="/assets/css/vendor/bootstrap.min.css" />
     <!-- Icon Font CSS -->
-    <link rel="stylesheet" href="assets/css/vendor/font-awesome.css" />
-    <link rel="stylesheet" href="assets/css/vendor/dlicon.css" />
+    <link rel="stylesheet" href="/assets/css/vendor/font-awesome.css" />
+    <link rel="stylesheet" href="/assets/css/vendor/dlicon.css" />
     <!-- Others CSS -->
-    <link rel="stylesheet" href="assets/css/plugins/owl-carousel.css" />
-    <link rel="stylesheet" href="assets/css/plugins/slick.css" />
-    <link rel="stylesheet" href="assets/css/plugins/magnific-popup.css" />
-    <link rel="stylesheet" href="assets/css/plugins/jarallax.css" />
-    <link rel="stylesheet" href="assets/css/plugins/easyzoom.css" />
-    <link rel="stylesheet" href="assets/css/plugins/animate.css" />
-    <link rel="stylesheet" href="assets/css/plugins/fullpage.css" />
-    <link rel="stylesheet" href="assets/css/plugins/jquery-ui.css" />
-    <link rel="stylesheet" href="assets/css/plugins/select2.min.css" />
-    <link rel="stylesheet" href="assets/css/style.css" />
+    <link rel="stylesheet" href="/assets/css/plugins/owl-carousel.css" />
+    <link rel="stylesheet" href="/assets/css/plugins/slick.css" />
+    <link rel="stylesheet" href="/assets/css/plugins/magnific-popup.css" />
+    <link rel="stylesheet" href="/assets/css/plugins/jarallax.css" />
+    <link rel="stylesheet" href="/assets/css/plugins/easyzoom.css" />
+    <link rel="stylesheet" href="/assets/css/plugins/animate.css" />
+    <link rel="stylesheet" href="/assets/css/plugins/fullpage.css" />
+    <link rel="stylesheet" href="/assets/css/plugins/jquery-ui.css" />
+    <link rel="stylesheet" href="/assets/css/plugins/select2.min.css" />
+    <link rel="stylesheet" href="/assets/css/style.css" />
     <style>
       .btn-viewmore-hover:hover {
         background-color: palevioletred; 
@@ -256,7 +256,7 @@
     margin-top: -6px;">
               <div class="logo logo-width text-center">
                 <a href="index.html">
-                  <img style="width: 100px;" src="assets/images/logo/logo-white.png" alt="logo" />
+                  <img style="width: 100px;" src="/assets/images/logo/logo-white.png" alt="logo" />
                 </a>
                 <p class="elegant-text" style="width: 220px !important; font-size: 10px !important;font-family: 'Lucida Handwriting',cursive !important;">The Best Destination To Nourish Your Baby</p>
               </div>
@@ -334,7 +334,7 @@
               class="single-main-slider slider-animated-1 bg-img slider-height-hm3 align-items-center custom-d-flex res-white-overly-xs"
               data-dot="01"
               style="
-                background-image: url(assets/images/slider/slider-hm3-1.jpg);
+                background-image: url(/assets/images/slider/slider-hm3-1.jpg);
               "
             >
               <div class="row g-0 width-100-percent">
@@ -346,7 +346,7 @@
                     <h1 class="animated">
                       DREAMY-OUTFIT'S FOR <br />INFANTS 
                     </h1>
-                    <h5 class="animated" style="color :#870b0b">$89.99</h5>
+                    <h5 class="animated" style="color :#870b0b">₹89.99</h5>
                     <div class="slider-btn-2">
                       <a class="animated" href="/product-list"
                         >SHOP NOW
@@ -360,7 +360,7 @@
               class="single-main-slider slider-animated-1 bg-img slider-height-hm3 align-items-center custom-d-flex"
               data-dot="02"
               style="
-                background-image: url(assets/images/slider/slider-hm3-2.jpg);
+                background-image: url(/assets/images/slider/slider-hm3-2.jpg);
               "
             >
               <div class="row g-0 width-100-percent">
@@ -368,7 +368,7 @@
                   <div class="main-slider-content-3-2 text-center">
                     <img
                       class="animated"
-                      src="assets/images/slider/slider-hm3-4.png"
+                      src="/assets/images/slider/slider-hm3-4.png"
                       alt=""
                     />
                     <div class="slider-btn-2 slider-btn-2-white">
@@ -415,12 +415,12 @@
                           <a href="/product-guest-details/<%= product._id %>">
                             <img
                               class="default-img"
-                              src="/uploads/<%= product.image_url && product.image_url[0] ? product.image_url[0] : '/assets/images/default-product.jpg' %>"
+                              src="/uploads/<%= product.image_url && product.image_url[0] ? product.image_url[0] : '//assets/images/default-product.jpg' %>"
                               alt="<%= product.product_title %>"
                             />
                             <img
                               class="hover-img"
-                              src="/uploads/<%= product.image_url && product.image_url[1] ? product.image_url[1] : '/assets/images/default-product-hover.jpg' %>"
+                              src="/uploads/<%= product.image_url && product.image_url[1] ? product.image_url[1] : '//assets/images/default-product-hover.jpg' %>"
                               alt="<%= product.product_title %>"
                             />
                           </a>
@@ -430,7 +430,7 @@
                             <a href="/product-guest-details/<%= product._id %>"><%= product.product_title %></a>
                           </h3>
                           <div class="product-price">
-                            <span class="new-price">$<%= product.price %></span>
+                            <span class="new-price">₹<%= product.price %></span>
                           </div>
                         </div>
                       </div>
@@ -453,12 +453,12 @@
                       <a href="product-details.html">
                         <img
                           class="default-img"
-                          src="assets/images/product/product-16.jpg"
+                          src="/assets/images/product/product-16.jpg"
                           alt=""
                         />
                         <img
                           class="hover-img"
-                          src="assets/images/product/product-16-2.jpg"
+                          src="/assets/images/product/product-16-2.jpg"
                           alt=""
                         />
                       </a>
@@ -492,7 +492,7 @@
                         >
                       </h3>
                       <div class="product-price">
-                        <span class="new-price">$28.00</span>
+                        <span class="new-price">₹28.00</span>
                       </div>
                     </div>
                   </div>
@@ -503,12 +503,12 @@
                       <a href="product-details.html">
                         <img
                           class="default-img"
-                          src="assets/images/product/product-15.jpg"
+                          src="/assets/images/product/product-15.jpg"
                           alt=""
                         />
                         <img
                           class="hover-img"
-                          src="assets/images/product/product-15-2.jpg"
+                          src="/assets/images/product/product-15-2.jpg"
                           alt=""
                         />
                       </a>
@@ -540,7 +540,7 @@
                         <a href="product-details.html">News strappy sandals</a>
                       </h3>
                       <div class="product-price">
-                        <span class="new-price">$26.00</span>
+                        <span class="new-price">₹26.00</span>
                       </div>
                     </div>
                   </div>
@@ -551,12 +551,12 @@
                       <a href="product-details.html">
                         <img
                           class="default-img"
-                          src="assets/images/product/product-14.jpg"
+                          src="/assets/images/product/product-14.jpg"
                           alt=""
                         />
                         <img
                           class="hover-img"
-                          src="assets/images/product/product-14-2.jpg"
+                          src="/assets/images/product/product-14-2.jpg"
                           alt=""
                         />
                       </a>
@@ -588,7 +588,7 @@
                         <a href="product-details.html">Check bermuda shorts</a>
                       </h3>
                       <div class="product-price">
-                        <span class="new-price">$39.00</span>
+                        <span class="new-price">₹39.00</span>
                       </div>
                     </div>
                   </div>
@@ -599,12 +599,12 @@
                       <a href="product-details.html">
                         <img
                           class="default-img"
-                          src="assets/images/product/product-13.jpg"
+                          src="/assets/images/product/product-13.jpg"
                           alt=""
                         />
                         <img
                           class="hover-img"
-                          src="assets/images/product/product-13-2.jpg"
+                          src="/assets/images/product/product-13-2.jpg"
                           alt=""
                         />
                         <span
@@ -642,8 +642,8 @@
                         >
                       </h3>
                       <div class="product-price">
-                        <span class="old-price">$80.00</span>
-                        <span class="new-price">$55.00</span>
+                        <span class="old-price">₹80.00</span>
+                        <span class="new-price">₹55.00</span>
                       </div>
                     </div>
                   </div>
@@ -654,12 +654,12 @@
                       <a href="product-details.html">
                         <img
                           class="default-img"
-                          src="assets/images/product/product-12.jpg"
+                          src="/assets/images/product/product-12.jpg"
                           alt=""
                         />
                         <img
                           class="hover-img"
-                          src="assets/images/product/product-12-2.jpg"
+                          src="/assets/images/product/product-12-2.jpg"
                           alt=""
                         />
                       </a>
@@ -693,7 +693,7 @@
                         >
                       </h3>
                       <div class="product-price">
-                        <span class="new-price">$49.00</span>
+                        <span class="new-price">₹49.00</span>
                       </div>
                     </div>
                   </div>
@@ -704,12 +704,12 @@
                       <a href="product-details.html">
                         <img
                           class="default-img"
-                          src="assets/images/product/product-11.jpg"
+                          src="/assets/images/product/product-11.jpg"
                           alt=""
                         />
                         <img
                           class="hover-img"
-                          src="assets/images/product/product-11-2.jpg"
+                          src="/assets/images/product/product-11-2.jpg"
                           alt=""
                         />
                       </a>
@@ -743,7 +743,7 @@
                         >
                       </h3>
                       <div class="product-price">
-                        <span class="new-price">$55.00</span>
+                        <span class="new-price">₹55.00</span>
                       </div>
                     </div>
                   </div>
@@ -772,12 +772,12 @@
                       <a href="product-details.html">
                         <img
                           class="default-img"
-                          src="assets/images/product/product-10.jpg"
+                          src="/assets/images/product/product-10.jpg"
                           alt=""
                         />
                         <img
                           class="hover-img"
-                          src="assets/images/product/product-10-2.jpg"
+                          src="/assets/images/product/product-10-2.jpg"
                           alt=""
                         />
                       </a>
@@ -811,7 +811,7 @@
                         >
                       </h3>
                       <div class="product-price">
-                        <span class="new-price">$28.00</span>
+                        <span class="new-price">₹28.00</span>
                       </div>
                     </div>
                   </div>
@@ -822,12 +822,12 @@
                       <a href="product-details.html">
                         <img
                           class="default-img"
-                          src="assets/images/product/product-9.jpg"
+                          src="/assets/images/product/product-9.jpg"
                           alt=""
                         />
                         <img
                           class="hover-img"
-                          src="assets/images/product/product-9-2.jpg"
+                          src="/assets/images/product/product-9-2.jpg"
                           alt=""
                         />
                       </a>
@@ -859,7 +859,7 @@
                         <a href="product-details.html">News strappy sandals</a>
                       </h3>
                       <div class="product-price">
-                        <span class="new-price">$26.00</span>
+                        <span class="new-price">₹26.00</span>
                       </div>
                     </div>
                   </div>
@@ -870,12 +870,12 @@
                       <a href="product-details.html">
                         <img
                           class="default-img"
-                          src="assets/images/product/product-8.jpg"
+                          src="/assets/images/product/product-8.jpg"
                           alt=""
                         />
                         <img
                           class="hover-img"
-                          src="assets/images/product/product-8-2.jpg"
+                          src="/assets/images/product/product-8-2.jpg"
                           alt=""
                         />
                       </a>
@@ -907,7 +907,7 @@
                         <a href="product-details.html">Check bermuda shorts</a>
                       </h3>
                       <div class="product-price">
-                        <span class="new-price">$39.00</span>
+                        <span class="new-price">₹39.00</span>
                       </div>
                     </div>
                   </div>
@@ -918,12 +918,12 @@
                       <a href="product-details.html">
                         <img
                           class="default-img"
-                          src="assets/images/product/product-7.jpg"
+                          src="/assets/images/product/product-7.jpg"
                           alt=""
                         />
                         <img
                           class="hover-img"
-                          src="assets/images/product/product-7-2.jpg"
+                          src="/assets/images/product/product-7-2.jpg"
                           alt=""
                         />
                         <span
@@ -961,8 +961,8 @@
                         >
                       </h3>
                       <div class="product-price">
-                        <span class="old-price">$80.00</span>
-                        <span class="new-price">$55.00</span>
+                        <span class="old-price">₹80.00</span>
+                        <span class="new-price">₹55.00</span>
                       </div>
                     </div>
                   </div>
@@ -973,12 +973,12 @@
                       <a href="product-details.html">
                         <img
                           class="default-img"
-                          src="assets/images/product/product-6.jpg"
+                          src="/assets/images/product/product-6.jpg"
                           alt=""
                         />
                         <img
                           class="hover-img"
-                          src="assets/images/product/product-6-2.jpg"
+                          src="/assets/images/product/product-6-2.jpg"
                           alt=""
                         />
                       </a>
@@ -1012,7 +1012,7 @@
                         >
                       </h3>
                       <div class="product-price">
-                        <span class="new-price">$49.00</span>
+                        <span class="new-price">₹49.00</span>
                       </div>
                     </div>
                   </div>
@@ -1023,12 +1023,12 @@
                       <a href="product-details.html">
                         <img
                           class="default-img"
-                          src="assets/images/product/product-5.jpg"
+                          src="/assets/images/product/product-5.jpg"
                           alt=""
                         />
                         <img
                           class="hover-img"
-                          src="assets/images/product/product-5-2.jpg"
+                          src="/assets/images/product/product-5-2.jpg"
                           alt=""
                         />
                       </a>
@@ -1062,7 +1062,7 @@
                         >
                       </h3>
                       <div class="product-price">
-                        <span class="new-price">$55.00</span>
+                        <span class="new-price">₹55.00</span>
                       </div>
                     </div>
                   </div>
@@ -1091,12 +1091,12 @@
                       <a href="product-details.html">
                         <img
                           class="default-img"
-                          src="assets/images/product/product-4.jpg"
+                          src="/assets/images/product/product-4.jpg"
                           alt=""
                         />
                         <img
                           class="hover-img"
-                          src="assets/images/product/product-4-2.jpg"
+                          src="/assets/images/product/product-4-2.jpg"
                           alt=""
                         />
                       </a>
@@ -1130,7 +1130,7 @@
                         >
                       </h3>
                       <div class="product-price">
-                        <span class="new-price">$28.00</span>
+                        <span class="new-price">₹28.00</span>
                       </div>
                     </div>
                   </div>
@@ -1141,12 +1141,12 @@
                       <a href="product-details.html">
                         <img
                           class="default-img"
-                          src="assets/images/product/product-3.jpg"
+                          src="/assets/images/product/product-3.jpg"
                           alt=""
                         />
                         <img
                           class="hover-img"
-                          src="assets/images/product/product-3-2.jpg"
+                          src="/assets/images/product/product-3-2.jpg"
                           alt=""
                         />
                       </a>
@@ -1178,7 +1178,7 @@
                         <a href="product-details.html">News strappy sandals</a>
                       </h3>
                       <div class="product-price">
-                        <span class="new-price">$26.00</span>
+                        <span class="new-price">₹26.00</span>
                       </div>
                     </div>
                   </div>
@@ -1189,12 +1189,12 @@
                       <a href="product-details.html">
                         <img
                           class="default-img"
-                          src="assets/images/product/product-2.jpg"
+                          src="/assets/images/product/product-2.jpg"
                           alt=""
                         />
                         <img
                           class="hover-img"
-                          src="assets/images/product/product-2-2.jpg"
+                          src="/assets/images/product/product-2-2.jpg"
                           alt=""
                         />
                       </a>
@@ -1226,7 +1226,7 @@
                         <a href="product-details.html">Check bermuda shorts</a>
                       </h3>
                       <div class="product-price">
-                        <span class="new-price">$39.00</span>
+                        <span class="new-price">₹39.00</span>
                       </div>
                     </div>
                   </div>
@@ -1237,12 +1237,12 @@
                       <a href="product-details.html">
                         <img
                           class="default-img"
-                          src="assets/images/product/product-1.jpg"
+                          src="/assets/images/product/product-1.jpg"
                           alt=""
                         />
                         <img
                           class="hover-img"
-                          src="assets/images/product/product-1-2.jpg"
+                          src="/assets/images/product/product-1-2.jpg"
                           alt=""
                         />
                         <span
@@ -1280,8 +1280,8 @@
                         >
                       </h3>
                       <div class="product-price">
-                        <span class="old-price">$80.00</span>
-                        <span class="new-price">$55.00</span>
+                        <span class="old-price">₹80.00</span>
+                        <span class="new-price">₹55.00</span>
                       </div>
                     </div>
                   </div>
@@ -1292,12 +1292,12 @@
                       <a href="product-details.html">
                         <img
                           class="default-img"
-                          src="assets/images/product/product-9.jpg"
+                          src="/assets/images/product/product-9.jpg"
                           alt=""
                         />
                         <img
                           class="hover-img"
-                          src="assets/images/product/product-9-2.jpg"
+                          src="/assets/images/product/product-9-2.jpg"
                           alt=""
                         />
                       </a>
@@ -1331,7 +1331,7 @@
                         >
                       </h3>
                       <div class="product-price">
-                        <span class="new-price">$49.00</span>
+                        <span class="new-price">₹49.00</span>
                       </div>
                     </div>
                   </div>
@@ -1342,12 +1342,12 @@
                       <a href="product-details.html">
                         <img
                           class="default-img"
-                          src="assets/images/product/product-10.jpg"
+                          src="/assets/images/product/product-10.jpg"
                           alt=""
                         />
                         <img
                           class="hover-img"
-                          src="assets/images/product/product-10-2.jpg"
+                          src="/assets/images/product/product-10-2.jpg"
                           alt=""
                         />
                       </a>
@@ -1381,7 +1381,7 @@
                         >
                       </h3>
                       <div class="product-price">
-                        <span class="new-price">$55.00</span>
+                        <span class="new-price">₹55.00</span>
                       </div>
                     </div>
                   </div>
@@ -1410,12 +1410,12 @@
                       <a href="product-details.html">
                         <img
                           class="default-img"
-                          src="assets/images/product/product-15.jpg"
+                          src="/assets/images/product/product-15.jpg"
                           alt=""
                         />
                         <img
                           class="hover-img"
-                          src="assets/images/product/product-15-2.jpg"
+                          src="/assets/images/product/product-15-2.jpg"
                           alt=""
                         />
                       </a>
@@ -1449,7 +1449,7 @@
                         >
                       </h3>
                       <div class="product-price">
-                        <span class="new-price">$28.00</span>
+                        <span class="new-price">₹28.00</span>
                       </div>
                     </div>
                   </div>
@@ -1460,12 +1460,12 @@
                       <a href="product-details.html">
                         <img
                           class="default-img"
-                          src="assets/images/product/product-10.jpg"
+                          src="/assets/images/product/product-10.jpg"
                           alt=""
                         />
                         <img
                           class="hover-img"
-                          src="assets/images/product/product-10-2.jpg"
+                          src="/assets/images/product/product-10-2.jpg"
                           alt=""
                         />
                       </a>
@@ -1497,7 +1497,7 @@
                         <a href="product-details.html">News strappy sandals</a>
                       </h3>
                       <div class="product-price">
-                        <span class="new-price">$26.00</span>
+                        <span class="new-price">₹26.00</span>
                       </div>
                     </div>
                   </div>
@@ -1508,12 +1508,12 @@
                       <a href="product-details.html">
                         <img
                           class="default-img"
-                          src="assets/images/product/product-13.jpg"
+                          src="/assets/images/product/product-13.jpg"
                           alt=""
                         />
                         <img
                           class="hover-img"
-                          src="assets/images/product/product-13-2.jpg"
+                          src="/assets/images/product/product-13-2.jpg"
                           alt=""
                         />
                       </a>
@@ -1545,7 +1545,7 @@
                         <a href="product-details.html">Check bermuda shorts</a>
                       </h3>
                       <div class="product-price">
-                        <span class="new-price">$39.00</span>
+                        <span class="new-price">₹39.00</span>
                       </div>
                     </div>
                   </div>
@@ -1556,12 +1556,12 @@
                       <a href="product-details.html">
                         <img
                           class="default-img"
-                          src="assets/images/product/product-14.jpg"
+                          src="/assets/images/product/product-14.jpg"
                           alt=""
                         />
                         <img
                           class="hover-img"
-                          src="assets/images/product/product-14-2.jpg"
+                          src="/assets/images/product/product-14-2.jpg"
                           alt=""
                         />
                         <span
@@ -1599,8 +1599,8 @@
                         >
                       </h3>
                       <div class="product-price">
-                        <span class="old-price">$80.00</span>
-                        <span class="new-price">$55.00</span>
+                        <span class="old-price">₹80.00</span>
+                        <span class="new-price">₹55.00</span>
                       </div>
                     </div>
                   </div>
@@ -1611,12 +1611,12 @@
                       <a href="product-details.html">
                         <img
                           class="default-img"
-                          src="assets/images/product/product-15.jpg"
+                          src="/assets/images/product/product-15.jpg"
                           alt=""
                         />
                         <img
                           class="hover-img"
-                          src="assets/images/product/product-15-2.jpg"
+                          src="/assets/images/product/product-15-2.jpg"
                           alt=""
                         />
                       </a>
@@ -1650,7 +1650,7 @@
                         >
                       </h3>
                       <div class="product-price">
-                        <span class="new-price">$49.00</span>
+                        <span class="new-price">₹49.00</span>
                       </div>
                     </div>
                   </div>
@@ -1661,12 +1661,12 @@
                       <a href="product-details.html">
                         <img
                           class="default-img"
-                          src="assets/images/product/product-16.jpg"
+                          src="/assets/images/product/product-16.jpg"
                           alt=""
                         />
                         <img
                           class="hover-img"
-                          src="assets/images/product/product-16-2.jpg"
+                          src="/assets/images/product/product-16-2.jpg"
                           alt=""
                         />
                       </a>
@@ -1700,7 +1700,7 @@
                         >
                       </h3>
                       <div class="product-price">
-                        <span class="new-price">$55.00</span>
+                        <span class="new-price">₹55.00</span>
                       </div>
                     </div>
                   </div>
@@ -1729,7 +1729,7 @@
         <div class="banner-top banner-wrap">
           <div
             class="jarallax parallax-img parallax-ptb-1"
-            style="background-image: url(assets/images/bg/bg-2.jpg)"
+            style="background-image: url(/assets/images/bg/bg-2.jpg)"
           >
           <div class="row g-0">
             <div class="col-12">
@@ -1761,7 +1761,7 @@
               >
                 <div class="banner-img">
                   <a href="product-details.html"
-                    ><img src="assets/images/banner/banner-2.jpg" alt="banner"
+                    ><img src="/assets/images/banner/banner-2.jpg" alt="banner"
                   /></a>
                 </div>
                 <style>
@@ -1813,7 +1813,7 @@
               >
                 <div class="banner-img">
                   <a href="/product-list"
-                    ><img src="assets/images/banner/banner-3.jpg" alt="banner"
+                    ><img src="/assets/images/banner/banner-3.jpg" alt="banner"
                   /></a>
                 </div>
                 <div class="banner-content-2 banner-position-1" style="right: 290px !important; width: 307px  !important;">
@@ -1847,7 +1847,7 @@
         </div>
         <div
           class="jarallax parallax-img parallax-ptb-2 res-white-overly-md res-white-overly-xs"
-          style="background-image: url(assets/images/bg/bg-3.jpg)"
+          style="background-image: url(/assets/images/bg/bg-3.jpg)"
         >
           <div class="row g-0">
             <div class="col-xl-6 col-lg-5 ms-auto">
@@ -1856,8 +1856,8 @@
                 <h3>Luxury Littles Cradle</h3>
                 <h2>Off 30%</h2>
                 <div class="delay-price">
-                  <span class="old-price">$99.99</span>
-                  <span class="new-price" style="color: #bc0000 !important;">$39.99</span>
+                  <span class="old-price">₹99.99</span>
+                  <span class="new-price" style="color: #bc0000 !important;">₹39.99</span>
                 </div>
                 <div class="btn-style-1 text-center">
                   <a href="/product-list">
@@ -1932,107 +1932,10 @@
           </div>
         </div>
       </div>
-      <footer class="footer-area bg-black section-padding-1">
-        <div class="container-fluid">
-          <div class="footer-top pt-100 pb-35">
-            <div class="row">
-              <div class="footer-column footer-width-26 footer-logo-center">
-                <div class="footer-widget footer-logo mb-30">
-                  <a href="index.html" >
-                    <img style="width:254px !important" src="assets/images/logo/logo-white.png" alt="logo" />
-                  </a>
-                </div>
-              </div>
-              <div class="footer-column footer-width-15">
-                <div class="footer-widget footer-info-list mb-30">
-                  <h3 class="footer-title">Company Link</h3>
-                  <ul>
-                    <li><a href="#">About Us</a></li>
-                    <li><a href="#">Help Center</a></li>
-                    <li><a href="#">Our Team</a></li>
-                    <li><a href="#">Privacy Policy</a></li>
-                    <li><a href="#">The Blog</a></li>
-                  </ul>
-                </div>
-              </div>
-              <div class="footer-column footer-width-17">
-                <div class="footer-widget footer-info-list mb-30">
-                  <h3 class="footer-title">Userful</h3>
-                  <ul>
-                    <li><a href="#">The Collections</a></li>
-                    <li><a href="#">Size Guide</a></li>
-                    <li><a href="#">Return Policy</a></li>
-                  </ul>
-                </div>
-              </div>
-              <div class="footer-column footer-width-15 footer-width-15-res">
-                <div class="footer-widget footer-info-list mb-30">
-                  <h3 class="footer-title">Quick links</h3>
-                  <ul>
-                    <li><a href="#">Compare</a></li>
-                    <li><a href="#">My Wishlist</a></li>
-                    <li><a href="#">My Account</a></li>
-                    <li><a href="#">Orders Tracking</a></li>
-                  </ul>
-                </div>
-              </div>
-              <div class="footer-column footer-width-25 mb-30">
-                <div class="instagram-feed-thumb">
-                  <div
-                    id="instafeed"
-                    data-limit="6"
-                    class="instagram-wrap-2"
-                  ></div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="footer-botoom pb-15">
-            <div class="row">
-              <div class="col-lg-4 col-md-4 col-12">
-                <div class="social-icon-style-2 social-icon-center-res">
-                  <a class="facebook" href="#"
-                    ><i class="fa fa-facebook"></i
-                  ></a>
-                  <a class="twitter" href="#"><i class="fa fa-twitter"></i></a>
-                  <a class="youtube" href="#"><i class="fa fa-youtube"></i></a>
-                  <a class="dribbble" href="#"
-                    ><i class="fa fa-dribbble"></i
-                  ></a>
-                </div>
-              </div>
-              <div class="col-lg-4 col-md-4 col-12">
-                <div class="copyright res-mrg-xs text-center">
-                  <p>
-                    © 2021 <a href="https://hasthemes.com/">Toro.</a> All rights
-                    reserved
-                  </p>
-                </div>
-              </div>
-              <div class="col-lg-4 col-md-4 col-12">
-                <div class="footer-payment">
-                  <a href="#"
-                    ><img src="assets/images/icon-img/paypal.png" alt="payment"
-                  /></a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </footer>
-      <div class="support-lists">
-        <ul>
-          <li>
-            <a href="#"><i class="dlicon ui-3_chat-46"></i></a>
-          </li>
-          <li>
-            <a href="#"><i class="dlicon ui-3_phone"></i></a>
-          </li>
-          <li>
-            <a href="#"><i class="dlicon ui-1_email-85"></i></a>
-          </li>
-        </ul>
+      <div id="footer-container">
+        <%- include('footer') %>
       </div>
+     
       <!-- Modal -->
       <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
@@ -2056,17 +1959,17 @@
                   <div class="quickview-slider-active owl-carousel">
                     <a
                       class="img-popup"
-                      href="assets/images/product/quickview-1.jpg"
+                      href="/assets/images/product/quickview-1.jpg"
                       ><img
-                        src="assets/images/product/quickview-1.jpg"
+                        src="/assets/images/product/quickview-1.jpg"
                         alt=""
                       /><span>sold uot</span></a
                     >
                     <a
                       class="img-popup"
-                      href="assets/images/product/quickview-2.jpg"
+                      href="/assets/images/product/quickview-2.jpg"
                       ><img
-                        src="assets/images/product/quickview-2.jpg"
+                        src="/assets/images/product/quickview-2.jpg"
                         alt=""
                       /><span>sold uot</span></a
                     >
@@ -2084,7 +1987,7 @@
                       ></a>
                     </div>
                     <h2 class="uppercase">Quilted parka with hood</h2>
-                    <h3>$49.00</h3>
+                    <h3>₹49.00</h3>
                     <div class="product-details-peragraph">
                       <p>
                         Donec accumsan auctor iaculis. Sed suscipit arcu ligula,
@@ -2175,7 +2078,7 @@
 ============================================ -->
 
     <!-- Modernizer JS -->
-    <script src="assets/js/vendor/modernizr-3.11.7.min.js"></script>
+    <script src="/assets/js/vendor/modernizr-3.11.7.min.js"></script>
     <script>
       function filterByCategory(categoryId) {
         const allProducts = document.querySelectorAll(".product-card");
@@ -2195,35 +2098,35 @@
       });
     </script>
     <!-- jquery -->
-    <script src="assets/js/vendor/jquery-v3.6.0.min.js"></script>
+    <script src="/assets/js/vendor/jquery-v3.6.0.min.js"></script>
     <!-- Popper JS -->
-    <script src="assets/js/vendor/popper.js"></script>
+    <script src="/assets/js/vendor/popper.js"></script>
     <!-- Bootstrap JS -->
-    <script src="assets/js/vendor/bootstrap.min.js"></script>
-    <script src="assets/js/plugins/owl-carousel.js"></script>
-    <script src="assets/js/plugins/slick.js"></script>
-    <script src="assets/js/plugins/jarallax.min.js"></script>
-    <script src="assets/js/plugins/countdown.js"></script>
-    <script src="assets/js/plugins/magnific-popup.js"></script>
-    <script src="assets/js/plugins/instafeed.js"></script>
-    <script src="assets/js/plugins/tilt.js"></script>
-    <script src="assets/js/plugins/images-loaded.js"></script>
-    <script src="assets/js/plugins/isotope.js"></script>
-    <script src="assets/js/plugins/scrolloverflow-fullpage.js"></script>
-    <script src="assets/js/plugins/fullpage.js"></script>
-    <script src="assets/js/plugins/jquery-ui.js"></script>
-    <script src="assets/js/plugins/jquery-ui-touch-punch.js"></script>
-    <script src="assets/js/plugins/easyzoom.js"></script>
-    <script src="assets/js/plugins/resizesensor.js"></script>
-    <script src="assets/js/plugins/sticky-sidebar.js"></script>
-    <script src="assets/js/plugins/scrollup.js"></script>
-    <script src="assets/js/plugins/select2.min.js"></script>
-    <script src="assets/js/plugins/cookie.js"></script>
-    <script src="assets/js/plugins/bpopup.js"></script>
-    <script src="assets/js/plugins/wow.js"></script>
-    <script src="assets/js/plugins/ajax-mail.js"></script>
+    <script src="/assets/js/vendor/bootstrap.min.js"></script>
+    <script src="/assets/js/plugins/owl-carousel.js"></script>
+    <script src="/assets/js/plugins/slick.js"></script>
+    <script src="/assets/js/plugins/jarallax.min.js"></script>
+    <script src="/assets/js/plugins/countdown.js"></script>
+    <script src="/assets/js/plugins/magnific-popup.js"></script>
+    <script src="/assets/js/plugins/instafeed.js"></script>
+    <script src="/assets/js/plugins/tilt.js"></script>
+    <script src="/assets/js/plugins/images-loaded.js"></script>
+    <script src="/assets/js/plugins/isotope.js"></script>
+    <script src="/assets/js/plugins/scrolloverflow-fullpage.js"></script>
+    <script src="/assets/js/plugins/fullpage.js"></script>
+    <script src="/assets/js/plugins/jquery-ui.js"></script>
+    <script src="/assets/js/plugins/jquery-ui-touch-punch.js"></script>
+    <script src="/assets/js/plugins/easyzoom.js"></script>
+    <script src="/assets/js/plugins/resizesensor.js"></script>
+    <script src="/assets/js/plugins/sticky-sidebar.js"></script>
+    <script src="/assets/js/plugins/scrollup.js"></script>
+    <script src="/assets/js/plugins/select2.min.js"></script>
+    <script src="/assets/js/plugins/cookie.js"></script>
+    <script src="/assets/js/plugins/bpopup.js"></script>
+    <script src="/assets/js/plugins/wow.js"></script>
+    <script src="/assets/js/plugins/ajax-mail.js"></script>
     <!-- Main JS -->
-    <script src="assets/js/main.js"></script>
+    <script src="/assets/js/main.js"></script>
 
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

@@ -101,7 +101,6 @@ const loadDashboard = async (req, res) => {
         endDateTime = moment().endOf("day");
     }
 
-    // Order status distribution
     const orderStatusDistribution = await orderModel.aggregate([
       {
         $match: {
@@ -119,7 +118,7 @@ const loadDashboard = async (req, res) => {
       },
     ]);
 
-    // Top 10 categories
+
     const topCategories = await orderModel.aggregate([
       {
         $match: {
@@ -159,7 +158,7 @@ const loadDashboard = async (req, res) => {
       { $limit: 10 },
     ]);
 
-    // Top 10 products
+
     const topProducts = await orderModel.aggregate([
       {
         $match: {
@@ -730,7 +729,8 @@ const loadOrder = async (req, res) => {
       .skip(skip)
       .limit(limit)
       .populate("items.product")
-      .lean();
+      .lean()
+      .sort({ createdAt: -1 });
 
     const updatedOrders = await Promise.all(
       orders.map(async (order) => {
@@ -1008,7 +1008,7 @@ const addCoupons = async (req, res) => {
       description,
     });
     await newCoupons.save();
-    req.flash("success", "coupon added successfully");
+    // req.flash("success", "coupon added successfully");
     res.redirect("/admin/coupons");
   } catch (error) {
     console.log(error);
@@ -1050,8 +1050,11 @@ const unlistCoupons = async (req, res) => {
 //---------------------------------------------------------------offers----------------------------------------------------------
 const loadOffers = async (req, res) => {
   try {
-    const offers = await offerModel.find();
-    res.render("offer", { offers });
+    // const offers = await offerModel.find();
+    const activeOffers = await offerModel.find({
+      endDate: { $gt: Date.now() },
+    });
+    res.render("offer", { offers: activeOffers });
   } catch (error) {
     console.log(error);
   }
@@ -1619,7 +1622,6 @@ const downloadSalesReportPDF = async (req, res) => {
   try {
     const { filter = "all", startDate, endDate } = req.query;
 
-    // Generate the filter options
     let filterOptions = {};
     const today = dayjs().startOf("day");
 
@@ -1649,15 +1651,14 @@ const downloadSalesReportPDF = async (req, res) => {
       };
     }
 
-    // Fetch data from the database
     const orders = await orderModel
       .find(filterOptions)
       .populate("userId", "email")
       .populate("items.product", "name")
       .populate("billingDetails", "address")
-      .sort({ createdAt: -1 }); // Sort by creation date, newest first
+      .sort({ createdAt: -1 }); 
 
-    // Setup PDF document
+
     const doc = new PDFDocument({ margin: 50, size: "A4" });
     res.setHeader(
       "Content-Disposition",
@@ -1665,7 +1666,7 @@ const downloadSalesReportPDF = async (req, res) => {
     );
     res.setHeader("Content-Type", "application/pdf");
 
-    // Helper function to draw table cell
+   
     const drawTableCell = (
       x,
       y,
@@ -1688,7 +1689,6 @@ const downloadSalesReportPDF = async (req, res) => {
         });
     };
 
-    // Add title and heading
     doc
       .fontSize(24)
       .font("Helvetica-Bold")
@@ -1696,7 +1696,7 @@ const downloadSalesReportPDF = async (req, res) => {
       .text("Sales Report", { align: "center" })
       .moveDown(0.5);
 
-    // Add filter information
+
     doc
       .fontSize(12)
       .font("Helvetica")
@@ -1710,7 +1710,7 @@ const downloadSalesReportPDF = async (req, res) => {
         .moveDown(0.5);
     }
 
-    // Add report generation date
+ 
     doc
       .fontSize(10)
       .text(`Report generated on: ${dayjs().format("DD/MM/YYYY HH:mm")}`, {
@@ -1718,15 +1718,14 @@ const downloadSalesReportPDF = async (req, res) => {
       })
       .moveDown(1);
 
-    // Table settings
+ 
     const tableTop = 180;
     const tableLeft = 50;
     const colWidths = [40, 200, 110, 110];
     const rowHeight = 30;
     const headers = ["No.", "Customer", "Total Amount", "Date"];
 
-    // Draw table header
-    doc.fillColor("#e6f2ff");
+        doc.fillColor("#e6f2ff");
     headers.forEach((header, i) => {
       let x =
         tableLeft +
@@ -1734,7 +1733,6 @@ const downloadSalesReportPDF = async (req, res) => {
       drawTableCell(x, tableTop, colWidths[i], rowHeight, header, true);
     });
 
-    // Render table rows
     let currentTop = tableTop + rowHeight;
     const itemsPerPage = 10;
     let rowCount = 0;
@@ -1745,7 +1743,6 @@ const downloadSalesReportPDF = async (req, res) => {
         currentTop = 50;
         rowCount = 0;
 
-        // Re-add headers on new page
         doc.fillColor("#e6f2ff");
         headers.forEach((header, i) => {
           let x =
@@ -1758,7 +1755,7 @@ const downloadSalesReportPDF = async (req, res) => {
 
       doc.fillColor("#ffffff");
 
-      // No.
+      
       drawTableCell(
         tableLeft,
         currentTop,
@@ -1769,7 +1766,7 @@ const downloadSalesReportPDF = async (req, res) => {
         "center"
       );
 
-      // Customer
+      
       drawTableCell(
         tableLeft + colWidths[0],
         currentTop,
@@ -1778,7 +1775,7 @@ const downloadSalesReportPDF = async (req, res) => {
         order.userId.email || "N/A"
       );
 
-      // Total Amount
+      
       drawTableCell(
         tableLeft + colWidths[0] + colWidths[1],
         currentTop,
@@ -1789,7 +1786,7 @@ const downloadSalesReportPDF = async (req, res) => {
         "right"
       );
 
-      // Date
+      
       drawTableCell(
         tableLeft + colWidths[0] + colWidths[1] + colWidths[2],
         currentTop,
@@ -1804,7 +1801,6 @@ const downloadSalesReportPDF = async (req, res) => {
       rowCount++;
     });
 
-    // Add total sales
     const totalSales = orders.reduce(
       (sum, order) => sum + (order.totalPrice || 0),
       0
@@ -1823,7 +1819,6 @@ const downloadSalesReportPDF = async (req, res) => {
         }
       );
 
-    // End the document
     doc.pipe(res);
     doc.end();
   } catch (error) {
@@ -1836,7 +1831,6 @@ const downloadSalesReportExcel = async (req, res) => {
   try {
     const { filter = "all", startDate, endDate } = req.query;
 
-    // Generate the filter options
     let filterOptions = {};
     const today = dayjs().startOf("day");
 
@@ -1866,14 +1860,12 @@ const downloadSalesReportExcel = async (req, res) => {
       };
     }
 
-    // Fetch data from the database
     const orders = await orderModel
       .find(filterOptions)
       .populate("userId", "email")
       .populate("items.product", "name")
       .populate("billingDetails", "address");
 
-    // Generate Excel content (use a library like `exceljs`)
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Sales Report");
 

@@ -1,384 +1,317 @@
-<!DOCTYPE html>
-<html lang="en">
-  <!-- Mirrored from wp.alithemes.com/html/evara/evara-backend/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 01 Aug 2021 15:32:35 GMT -->
-  <head>
-    <meta charset="utf-8" />
-    <title>Dashboard</title>
-    <meta http-equiv="x-ua-compatible" content="ie=edge" />
-    <meta name="description" content="" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta property="og:title" content="" />
-    <meta property="og:type" content="" />
-    <meta property="og:url" content="" />
-    <meta property="og:image" content="" />
-    <!-- Favicon -->
-    <link
-      rel="shortcut icon"
-      type="image/x-icon"
-      href="assets/imgs/theme/favicon1.svg"
-    />
+<%- include('headers.ejs') %>
+<style>
+  .error-message {
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
+  }
+</style>
+  
 
-    <!-- Template CSS -->
-    <link href="assets/css/main.css" rel="stylesheet" type="text/css" />
-  </head>
 
-  <body>
-    <div class="screen-overlay"></div>
-    <aside class="navbar-aside" id="offcanvas_aside">
-      <div class="aside-top">
-        <a href="dashboard" class="brand-wrap">
-          <img
-            src="assets/imgs/theme/logo1.svg"
-            class="logo"
-            alt="Evara Dashboard"
-            style="width: 50px; height: 111px"
+<main class="main-wrap">
+  <header class="main-header navbar">
+    <div class="col-search">
+      <form method="post" action="/addCatagory" class="searchform">
+        <div class="input-group">
+          <input
+            list="search_terms"
+            type="text"
+            class="form-control"
+            placeholder="Search term"
           />
-        </a>
-
-        <div>
-          <button class="btn btn-icon btn-aside-minimize">
-            <i class="text-muted material-icons md-menu_open"></i>
+          <button class="btn btn-light bg" type="button">
+            <i class="material-icons md-search"></i>
           </button>
+        </div>
+        <datalist id="search_terms">
+          <option value="Products"></option>
+          <option value="New orders"></option>
+          <option value="Apple iphone"></option>
+          <option value="Ahmed Hassan"></option>
+        </datalist>
+      </form>
+    </div>
+    <div class="col-nav">
+      <button
+        class="btn btn-icon btn-mobile me-auto"
+        data-trigger="#offcanvas_aside"
+      >
+        <i class="material-icons md-apps"></i>
+      </button>
+      <ul class="nav">
+        <li class="nav-item">
+          <a class="nav-link btn-icon" href="#">
+            <i class="material-icons md-notifications animation-shake"></i>
+            <span class="badge rounded-pill">3</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link btn-icon darkmode" href="#">
+            <i class="material-icons md-nights_stay"></i>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="requestfullscreen nav-link btn-icon"
+            ><i class="material-icons md-cast"></i
+          ></a>
+        </li>
+        <li class="dropdown nav-item">
+          <a
+            class="dropdown-toggle"
+            data-bs-toggle="dropdown"
+            href="#"
+            id="dropdownLanguage"
+            aria-expanded="false"
+            ><i class="material-icons md-public"></i
+          ></a>
+          <div
+            class="dropdown-menu dropdown-menu-end"
+            aria-labelledby="dropdownLanguage"
+          >
+            <a class="dropdown-item text-brand" href="#"
+              ><img
+                src="/assets/imgs/theme/flag-us.png"
+                alt="English"
+              />English</a
+            >
+            <a class="dropdown-item" href="#"
+              ><img
+                src="/assets/imgs/theme/flag-fr.png"
+                alt="Français"
+              />Français</a
+            >
+            <a class="dropdown-item" href="#"
+              ><img
+                src="/assets/imgs/theme/flag-jp.png"
+                alt="Français"
+              />日本語</a
+            >
+            <a class="dropdown-item" href="#"
+              ><img
+                src="/assets/imgs/theme/flag-cn.png"
+                alt="Français"
+              />中国人</a
+            >
+          </div>
+        </li>
+        <li class="dropdown nav-item">
+          <a
+            class="dropdown-toggle"
+            data-bs-toggle="dropdown"
+            href="#"
+            id="dropdownAccount"
+            aria-expanded="false"
+          >
+            <img
+              class="img-xs rounded-circle"
+              src="/assets/imgs/people/avatar2.jpg"
+              alt="User"
+          /></a>
+          <div
+            class="dropdown-menu dropdown-menu-end"
+            aria-labelledby="dropdownAccount"
+          >
+            <a class="dropdown-item" href="#"
+              ><i class="material-icons md-perm_identity"></i>Edit
+              Profile</a
+            >
+            <a class="dropdown-item" href="#"
+              ><i class="material-icons md-settings"></i>Account Settings</a
+            >
+            <a class="dropdown-item" href="#"
+              ><i class="material-icons md-account_balance_wallet"></i
+              >Wallet</a
+            >
+            <a class="dropdown-item" href="#"
+              ><i class="material-icons md-receipt"></i>Billing</a
+            >
+            <a class="dropdown-item" href="#"
+              ><i class="material-icons md-help_outline"></i>Help center</a
+            >
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item text-danger" href="#"
+              ><i class="material-icons md-exit_to_app"></i>Logout</a
+            >
+          </div>
+        </li>
+      </ul>
+    </div>
+  </header>
+  <section class="content-main">
+    <div class="content-header">
+      <div>
+        <h2 class="content-title card-title">Coupons</h2>
+        <p>Add Coupons</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-3" style="width: 2000px">
+            <form action="/admin/addCoupons" method="POST" id="couponForm">
+              <div class="mb-4">
+                <label for="coupon_code" class="form-label">Coupon Code</label>
+                <input
+                  type="text"
+                  name="couponCode"
+                  placeholder="Enter coupon code"
+                  class="form-control"
+                  id="coupon_code"
+                  required
+                />
+                <div class="error-message" id="coupon_code_error"></div>
+              </div>
+
+              <div class="mb-4">
+                <label for="discount_percentage" class="form-label">Discount Percentage</label>
+                <input
+                  type="number"
+                  name="discountPercentage"
+                  placeholder="Discount %"
+                  min="0"
+                  max="100"
+                  class="form-control"
+                  id="discount_percentage"
+                  required
+                />
+                <div class="error-message" id="discount_percentage_error"></div>
+              </div>
+
+              <div class="mb-4">
+                <label for="max_discount_amount" class="form-label">Max Discount Amount</label>
+                <input
+                  type="number"
+                  name="maxDiscountAmount"
+                  placeholder="Maximum Discount"
+                  min="0"
+                  class="form-control"
+                  id="max_discount_amount"
+                />
+                <div class="error-message" id="max_discount_amount_error"></div>
+              </div>
+
+              <div class="mb-4">
+                <label for="min_purchase_amount" class="form-label">Minimum Purchase Amount</label>
+                <input
+                  type="number"
+                  name="minAmount"
+                  placeholder="Minimum Purchase Amount"
+                  min="0"
+                  class="form-control"
+                  id="min_purchase_amount"
+                />
+                <div class="error-message" id="min_purchase_amount_error"></div>
+              </div>
+
+              <div class="mb-4">
+                <label for="expiry_date" class="form-label">Expiry Date</label>
+                <input
+                  type="date"
+                  name="expiryDate"
+                  class="form-control"
+                  id="expiry_date"
+                  required
+                />
+                <div class="error-message" id="expiry_date_error"></div>
+              </div>
+
+              <div class="mb-4">
+                <label class="form-label">Description</label>
+                <textarea
+                  placeholder="Enter coupon description"
+                  name="description"
+                  class="form-control"
+                  id="description"
+                ></textarea>
+                <div class="error-message" id="description_error"></div>
+              </div>
+
+              <div class="d-grid">
+                <button
+                  style="
+                    height: 33px;
+                    color: white;
+                    background: #088178;
+                    border: #088178;
+                  "
+                  type="submit"
+                >
+                  Add Coupon
+                  <i class="zmdi zmdi-arrow-right"></i>
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
-      <nav>
-        <ul class="menu-aside">
-          <li class="menu-item active">
-            <a class="menu-link" href="dashboard">
-              <i class="icon material-icons md-home"></i>
-              <span class="text">Dashboard</span>
-            </a>
-          </li>
-          <li class="menu-item">
-            <a class="menu-link" href="productsList">
-              <i class="icon material-icons md-shopping_bag"></i>
-              <span class="text">Products</span>
-            </a>
-            <!-- <a href="productsList.ejs">Product List</a> -->
-          </li>
-          <!-- <li class="menu-item has-submenu">
-            <a class="menu-link" href="page-orders-1.html">
-              <i class="icon material-icons md-shopping_cart"></i>
-              <span class="text">Orders</span>
-            </a>
-            <div class="submenu">
-              <a href="page-orders-1.html">Order list 1</a>
-              <a href="page-orders-2.html">Order list 2</a>
-              <a href="page-orders-detail.html">Order detail</a>
-            </div>
-          </li> -->
+    </div>
+  </section>
+  <footer class="main-footer font-xs">
+    <div class="row pb-30 pt-15">
+      <div class="col-sm-6">
+        <script>
+          document.write(new Date().getFullYear());
+        </script>
+        ©, Evara - HTML Ecommerce Template .
+      </div>
+      <div class="col-sm-6">
+        <div class="text-sm-end">All rights reserved</div>
+      </div>
+    </div>
+  </footer>
+</main>
 
-          <!-- <li class="menu-item has-submenu">
-            <a class="menu-link" href="page-form-product-1.html">
-              <i class="icon material-icons md-add_box"></i>
-              <span class="text">Add product</span>
-            </a>
-            <div class="submenu">
-              <a href="page-form-product-1.html">Add product 1</a>
-              <a href="page-form-product-2.html">Add product 2</a>
-              <a href="page-form-product-3.html">Add product 3</a>
-              <a href="page-form-product-4.html">Add product 4</a>
-            </div>
-          </li> -->
-          <li class="menu-item has-submenu">
-            <a class="menu-link" href="#">
-              <i class="icon material-icons md-person"></i>
-              <span class="text">Users</span>
-            </a>
-          </li>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('couponForm');
+  const couponCodeInput = document.getElementById('coupon_code');
+  const expiryDateInput = document.getElementById('expiry_date');
 
-          <!-- <li class="menu-item">
-            <a class="menu-link" href="page-reviews.html">
-              <i class="icon material-icons md-comment"></i>
-              <span class="text">Reviews</span>
-            </a>
-          </li> -->
-          <li class="menu-item">
-            <a class="menu-link" href="brand">
-              <i class="icon material-icons md-stars"></i>
-              <span class="text">Brands</span>
-            </a>
-          </li>
-          <li class="menu-item">
-            <a class="menu-link" href="catagory">
-              <i class="icon material-icons md-stars"></i>
-              <span class="text">Catagory</span>
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </aside>
-    <main class="main-wrap">
-      <header class="main-header navbar">
-        <div class="col-search">
-          <form method="post" action="/addCatagory" class="searchform">
-            <div class="input-group">
-              <input
-                list="search_terms"
-                type="text"
-                class="form-control"
-                placeholder="Search term"
-              />
-              <button class="btn btn-light bg" type="button">
-                <i class="material-icons md-search"></i>
-              </button>
-            </div>
-            <datalist id="search_terms">
-              <option value="Products"></option>
-              <option value="New orders"></option>
-              <option value="Apple iphone"></option>
-              <option value="Ahmed Hassan"></option>
-            </datalist>
-          </form>
-        </div>
-        <div class="col-nav">
-          <button
-            class="btn btn-icon btn-mobile me-auto"
-            data-trigger="#offcanvas_aside"
-          >
-            <i class="material-icons md-apps"></i>
-          </button>
-          <ul class="nav">
-            <li class="nav-item">
-              <a class="nav-link btn-icon" href="#">
-                <i class="material-icons md-notifications animation-shake"></i>
-                <span class="badge rounded-pill">3</span>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link btn-icon darkmode" href="#">
-                <i class="material-icons md-nights_stay"></i>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="#" class="requestfullscreen nav-link btn-icon"
-                ><i class="material-icons md-cast"></i
-              ></a>
-            </li>
-            <li class="dropdown nav-item">
-              <a
-                class="dropdown-toggle"
-                data-bs-toggle="dropdown"
-                href="#"
-                id="dropdownLanguage"
-                aria-expanded="false"
-                ><i class="material-icons md-public"></i
-              ></a>
-              <div
-                class="dropdown-menu dropdown-menu-end"
-                aria-labelledby="dropdownLanguage"
-              >
-                <a class="dropdown-item text-brand" href="#"
-                  ><img
-                    src="assets/imgs/theme/flag-us.png"
-                    alt="English"
-                  />English</a
-                >
-                <a class="dropdown-item" href="#"
-                  ><img
-                    src="assets/imgs/theme/flag-fr.png"
-                    alt="Français"
-                  />Français</a
-                >
-                <a class="dropdown-item" href="#"
-                  ><img
-                    src="assets/imgs/theme/flag-jp.png"
-                    alt="Français"
-                  />日本語</a
-                >
-                <a class="dropdown-item" href="#"
-                  ><img
-                    src="assets/imgs/theme/flag-cn.png"
-                    alt="Français"
-                  />中国人</a
-                >
-              </div>
-            </li>
-            <li class="dropdown nav-item">
-              <a
-                class="dropdown-toggle"
-                data-bs-toggle="dropdown"
-                href="#"
-                id="dropdownAccount"
-                aria-expanded="false"
-              >
-                <img
-                  class="img-xs rounded-circle"
-                  src="assets/imgs/people/avatar2.jpg"
-                  alt="User"
-              /></a>
-              <div
-                class="dropdown-menu dropdown-menu-end"
-                aria-labelledby="dropdownAccount"
-              >
-                <a class="dropdown-item" href="#"
-                  ><i class="material-icons md-perm_identity"></i>Edit
-                  Profile</a
-                >
-                <a class="dropdown-item" href="#"
-                  ><i class="material-icons md-settings"></i>Account Settings</a
-                >
-                <a class="dropdown-item" href="#"
-                  ><i class="material-icons md-account_balance_wallet"></i
-                  >Wallet</a
-                >
-                <a class="dropdown-item" href="#"
-                  ><i class="material-icons md-receipt"></i>Billing</a
-                >
-                <a class="dropdown-item" href="#"
-                  ><i class="material-icons md-help_outline"></i>Help center</a
-                >
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item text-danger" href="#"
-                  ><i class="material-icons md-exit_to_app"></i>Logout</a
-                >
-              </div>
-            </li>
-          </ul>
-        </div>
-      </header>
-      <section class="content-main">
-        <div class="content-header">
-          <div>
-            <h2 class="content-title card-title">Categories</h2>
-            <p>Add Category</p>
-          </div>
-          <div>
-            <input
-              type="text"
-              placeholder="Search Categories"
-              class="form-control bg-white"
-            />
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-body">
-            <div class="row">
-              <div class="col-md-3" style="width: 2000px">
-                <form action="/admin//addCoupons" method="POST">
-                  <div class="mb-4">
-                    <label for="coupon_code" class="form-label"
-                      >Coupon Code</label
-                    >
-                    <input
-                      type="text"
-                      name="couponCode"
-                      placeholder="Enter coupon code"
-                      class="form-control"
-                      id="coupon_code"
-                      required
-                    />
-                  </div>
+  form.addEventListener('submit', function(event) {
+    event.preventDefault();
+    if (validateForm()) {
+      this.submit();
+    }
+  });
 
-                  <div class="mb-4">
-                    <label for="discount_percentage" class="form-label"
-                      >Discount Percentage</label
-                    >
-                    <input
-                      type="number"
-                      name="discountPercentage"
-                      placeholder="Discount %"
-                      min="0"
-                      max="100"
-                      class="form-control"
-                      id="discount_percentage"
-                      required
-                    />
-                  </div>
+  function validateForm() {
+    let isValid = true;
 
-                  <div class="mb-4">
-                    <label for="max_discount_amount" class="form-label"
-                      >Max Discount Amount</label
-                    >
-                    <input
-                      type="number"
-                      name="maxDiscountAmount"
-                      placeholder="Maximum Discount"
-                      min="0"
-                      class="form-control"
-                      id="max_discount_amount"
-                    />
-                  </div>
+    // Clear previous error messages
+    document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
 
-                  <div class="mb-4">
-                    <label for="min_purchase_amount" class="form-label"
-                      >Minimum Purchase Amount</label
-                    >
-                    <input
-                      type="number"
-                      name="minAmount"
-                      placeholder="Minimum Purchase Amount"
-                      min="0"
-                      class="form-control"
-                      id="min_purchase_amount"
-                    />
-                  </div>
+    // Coupon Code validation
+    if (couponCodeInput.value.trim() === '') {
+      document.getElementById('coupon_code_error').textContent = 'Coupon code is required';
+      isValid = false;
+    }
 
-                  <div class="mb-4">
-                    <label for="expiry_date" class="form-label"
-                      >Expiry Date</label
-                    >
-                    <input
-                      type="date"
-                      name="expiryDate"
-                      class="form-control"
-                      id="expiry_date"
-                      required
-                    />
-                  </div>
+    // Expiry Date validation
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const expiryDate = new Date(expiryDateInput.value);
+    if (expiryDate < today) {
+      document.getElementById('expiry_date_error').textContent = 'Expiry date must be today or a future date';
+      isValid = false;
+    }
 
-                  <div class="mb-4">
-                    <label class="form-label">Description</label>
-                    <textarea
-                      placeholder="Enter coupon description"
-                      name="description"
-                      class="form-control"
-                    ></textarea>
-                  </div>
+    // Add more validations for other fields here
 
-                  <div class="d-grid">
-                    <button
-                      style="
-                        height: 33px;
-                        color: white;
-                        background: #088178;
-                        border: #088178;
-                      "
-                      type="submit"
-                    >
-                      Add Coupon
-                      <i class="zmdi zmdi-arrow-right"></i>
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-      <footer class="main-footer font-xs">
-        <div class="row pb-30 pt-15">
-          <div class="col-sm-6">
-            <script>
-              document.write(new Date().getFullYear());
-            </script>
-            ©, Evara - HTML Ecommerce Template .
-          </div>
-          <div class="col-sm-6">
-            <div class="text-sm-end">All rights reserved</div>
-          </div>
-        </div>
-      </footer>
-    </main>
+    return isValid;
+  }
 
-    <script src="assets/js/vendors/jquery-3.6.0.min.js"></script>
-    <script src="assets/js/vendors/bootstrap.bundle.min.js"></script>
-    <script src="assets/js/vendors/select2.min.js"></script>
-    <script src="assets/js/vendors/perfect-scrollbar.js"></script>
-    <script src="assets/js/vendors/jquery.fullscreen.min.js"></script>
-    <!-- Main Script -->
-    <script src="assets/js/main.js" type="text/javascript"></script>
+  // Set min attribute for expiry date input to today's date
+  const today = new Date().toISOString().split('T')[0];
+  expiryDateInput.min = today;
+});
+</script>
+<script src="/assets/js/vendors/jquery-3.6.0.min.js"></script>
+    <script src="/assets/js/vendors/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/vendors/select2.min.js"></script>
+    <script src="/assets/js/vendors/perfect-scrollbar.js"></script>
+    <script src="/assets/js/vendors/jquery.fullscreen.min.js"></script>
+    <script src="/assets/js/main.js" type="text/javascript"></script>
   </body>
 
-  <!-- Mirrored from wp.alithemes.com/html/evara/evara-backend/page-categories.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 01 Aug 2021 15:33:21 GMT -->
-</html>
+  </html>

@@ -15,108 +15,100 @@
     <link
       rel="shortcut icon"
       type="image/x-icon"
-      href="http://localhost:3700/admin/http://localhost:3700/admin/assets/imgs/theme/favicon.svg"
+      href="/admin/assets/imgs/theme/favicon.svg"
     />
     <!-- Template CSS -->
+    <link href="/admin/assets/css/main.css" rel="stylesheet" type="text/css" />
     <link
-      href="http://localhost:3700/admin/assets/css/main.css"
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet"
-      type="text/css"
     />
+    <style>
+      .navbar-aside {
+        width: 250px;
+        height: 100vh;
+        position: fixed;
+        left: 0;
+        top: 0;
+        background: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+      }
+      .aside-top {
+        padding: 1rem;
+        border-bottom: 1px solid #eee;
+      }
+      .brand-wrap {
+        display: flex;
+        align-items: center;
+      }
+      .menu-aside {
+        padding: 0;
+        list-style: none;
+      }
+      .menu-item {
+        border-bottom: 1px solid #eee;
+      }
+      .menu-link {
+        display: flex;
+        align-items: center;
+        padding: 10px 1rem;
+        color: #333;
+        text-decoration: none;
+        transition: background-color 0.3s;
+      }
+      .menu-link:hover,
+      .menu-item.active .menu-link {
+        background-color: #f8f9fa;
+      }
+      .menu-link i {
+        margin-right: 10px;
+      }
+    </style>
   </head>
 
   <body>
     <div class="screen-overlay"></div>
-    <aside class="navbar-aside" id="offcanvas_aside">
+    <aside
+      class="navbar-aside"
+      id="offcanvas_aside"
+      style="width: 338px !important"
+    >
       <div class="aside-top">
         <a href="dashboard" class="brand-wrap">
           <img
             src="assets/imgs/theme/logo1.svg"
             class="logo"
             alt="Evara Dashboard"
-            style="width: 50px; height: 111px"
+            style="width: 50px; height: auto"
           />
         </a>
-
         <div>
           <button class="btn btn-icon btn-aside-minimize">
-            <i class="text-muted material-icons md-menu_open"></i>
+            <i class="material-icons">menu_open</i>
           </button>
         </div>
       </div>
       <nav>
         <ul class="menu-aside">
-          <li class="menu-item active">
-            <a class="menu-link" href="dashboard">
-              <i class="icon material-icons md-home"></i>
-              <span class="text">Dashboard</span>
+          <% const menuItems = [ { link: 'dashboard', icon: 'dashboard', text:
+          'Dashboard' }, { link: 'productsList', icon: 'inventory_2', text:
+          'Products' }, { link: 'userList', icon: 'people', text: 'Users' }, {
+          link: 'brand', icon: 'branding_watermark', text: 'Brands' }, { link:
+          'catagory', icon: 'category', text: 'Category' }, { link: 'offer',
+          icon: 'local_offer', text: 'Offers' }, { link: 'sales-report', icon:
+          'bar_chart', text: 'Sales Report' }, { link: 'coupons', icon:
+          'loyalty', text: 'Coupons' }, { link: 'orders', icon: 'shopping_cart',
+          text: 'Orders' } ]; %> <% menuItems.forEach(item => { %>
+          <li class="menu-item <%= item.active ? 'active' : '' %>">
+            <a class="menu-link" href="<%= item.link %>">
+              <i class="material-icons"><%= item.icon %></i>
+              <span class="text"><%= item.text %></span>
             </a>
           </li>
-          <li class="menu-item">
-            <a class="menu-link" href="productsList">
-              <i class="icon material-icons md-shopping_bag"></i>
-              <span class="text">Products</span>
-            </a>
-            <!-- <a href="productsList.ejs">Product List</a> -->
-          </li>
-          <!-- <li class="menu-item has-submenu">
-            <a class="menu-link" href="page-orders-1.html">
-              <i class="icon material-icons md-shopping_cart"></i>
-              <span class="text">Orders</span>
-            </a>
-            <div class="submenu">
-              <a href="page-orders-1.html">Order list 1</a>
-              <a href="page-orders-2.html">Order list 2</a>
-              <a href="page-orders-detail.html">Order detail</a>
-            </div>
-          </li> -->
-
-          <!-- <li class="menu-item has-submenu">
-            <a class="menu-link" href="page-form-product-1.html">
-              <i class="icon material-icons md-add_box"></i>
-              <span class="text">Add product</span>
-            </a>
-            <div class="submenu">
-              <a href="page-form-product-1.html">Add product 1</a>
-              <a href="page-form-product-2.html">Add product 2</a>
-              <a href="page-form-product-3.html">Add product 3</a>
-              <a href="page-form-product-4.html">Add product 4</a>
-            </div>
-          </li> -->
-          <li class="menu-item">
-            <a class="menu-link" href="userList">
-              <i class="icon material-icons md-person"></i>
-              <span class="text">Users</span>
-            </a>
-          </li>
-
-          <!-- <li class="menu-item">
-            <a class="menu-link" href="page-reviews.html">
-              <i class="icon material-icons md-comment"></i>
-              <span class="text">Reviews</span>
-            </a>
-          </li> -->
-          <li class="menu-item">
-            <a class="menu-link" href="brand">
-              <i class="icon material-icons md-stars"></i>
-              <span class="text">Brands</span>
-            </a>
-          </li>
-          <li class="menu-item">
-            <a class="menu-link" href="catagory">
-              <i class="icon material-icons md-stars"></i>
-              <span class="text">Catagory</span>
-            </a>
-          </li>
+          <% }); %>
         </ul>
       </nav>
-      <ul class="menu-aside">
-        <li class="menu-item ">
-          <a class="menu-link" href="orders">
-            <i class="icon material-icons md-home"></i>
-            <span class="text">Orders</span>
-          </a>
-        </li>
     </aside>
     <main class="main-wrap">
       <header class="main-header navbar">
@@ -180,25 +172,25 @@
               >
                 <a class="dropdown-item text-brand" href="#"
                   ><img
-                    src="http://localhost:3700/admin/assets/imgs/theme/flag-us.png"
+                    src="/admin/assets/imgs/theme/flag-us.png"
                     alt="English"
                   />English</a
                 >
                 <a class="dropdown-item" href="#"
                   ><img
-                    src="http://localhost:3700/admin/assets/imgs/theme/flag-fr.png"
+                    src="/admin/assets/imgs/theme/flag-fr.png"
                     alt="Français"
                   />Français</a
                 >
                 <a class="dropdown-item" href="#"
                   ><img
-                    src="http://localhost:3700/admin/assets/imgs/theme/flag-jp.png"
+                    src="/admin/assets/imgs/theme/flag-jp.png"
                     alt="Français"
                   />日本語</a
                 >
                 <a class="dropdown-item" href="#"
                   ><img
-                    src="http://localhost:3700/admin/assets/imgs/theme/flag-cn.png"
+                    src="/admin/assets/imgs/theme/flag-cn.png"
                     alt="Français"
                   />中国人</a
                 >
@@ -214,7 +206,7 @@
               >
                 <img
                   class="img-xs rounded-circle"
-                  src="http://localhost:3700/admin/assets/imgs/people/avatar2.jpg"
+                  src="/admin/assets/imgs/people/avatar2.jpg"
                   alt="User"
               /></a>
               <div
@@ -315,16 +307,13 @@
         </div>
       </footer>
     </main>
-    <script src="http://localhost:3700/admin/assets/js/vendors/jquery-3.6.0.min.js"></script>
-    <script src="http://localhost:3700/admin/assets/js/vendors/bootstrap.bundle.min.js"></script>
-    <script src="http://localhost:3700/admin/assets/js/vendors/select2.min.js"></script>
-    <script src="http://localhost:3700/admin/assets/js/vendors/perfect-scrollbar.js"></script>
-    <script src="http://localhost:3700/admin/assets/js/vendors/jquery.fullscreen.min.js"></script>
+    <script src="/admin/assets/js/vendors/jquery-3.6.0.min.js"></script>
+    <script src="/admin/assets/js/vendors/bootstrap.bundle.min.js"></script>
+    <script src="/admin/assets/js/vendors/select2.min.js"></script>
+    <script src="/admin/assets/js/vendors/perfect-scrollbar.js"></script>
+    <script src="/admin/assets/js/vendors/jquery.fullscreen.min.js"></script>
     <!-- Main Script -->
-    <script
-      src="http://localhost:3700/admin/assets/js/main.js"
-      type="text/javascript"
-    ></script>
+    <script src="/admin/assets/js/main.js" type="text/javascript"></script>
   </body>
 
   <!-- Mirrored from wp.alithemes.com/html/evara/evara-backend/page-categories.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 01 Aug 2021 15:33:21 GMT -->

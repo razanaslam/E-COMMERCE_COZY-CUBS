@@ -1,5 +1,73 @@
 <%- include('header.ejs') %>
 <style>
+  /* Existing styles here */
+  @media (max-width: 768px) {
+    .container {
+      padding: 1rem;
+    }
+
+    h1 {
+      font-size: 2rem;
+    }
+
+    .wishlist-table {
+      font-size: 14px;
+    }
+
+    .wishlist-table th, .wishlist-table td {
+      padding: 0.5rem;
+    }
+
+    .wishlist-table img {
+      max-width: 60px;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .wishlist-table, .wishlist-table tbody, .wishlist-table tr {
+      display: block;
+    }
+
+    .wishlist-table thead {
+      display: none;
+    }
+
+    .wishlist-table tr {
+      margin-bottom: 1rem;
+      border: 1px solid #e0e0e0;
+    }
+
+    .wishlist-table td {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem;
+      text-align: right;
+    }
+
+    .wishlist-table td::before {
+      content: attr(data-label);
+      font-weight: bold;
+      text-align: left;
+      padding-right: 0.5rem;
+    }
+
+    .wishlist-table img {
+      max-width: 100%;
+      height: auto;
+      margin-bottom: 0.5rem;
+    }
+
+    .btn-add-to-cart {
+      width: 100% !important;
+    }
+
+    .wishlist-remove {
+      text-align: center !important;
+    }
+  }
+</style>
+<style>
   
   body {
       font-family: 'Roboto', sans-serif;
@@ -85,79 +153,69 @@
   <h1>My Wishlist</h1>
   <table class="wishlist-table">
       <thead>
-          <tr>
-              <th  style="background-color: #ccccbb  !important;">Product</th>
-              <th  style="background-color: #ccccbb  !important;">Price</th>
-              <th  style="background-color: #ccccbb  !important;">Stock Status</th>
-              <th  style="background-color: #ccccbb  !important;">Actions</th>
-              <th  style="background-color: #ccccbb  !important;"></th>
-          </tr>
-         
+        <tr>
+          <th style="background-color: #ccccbb !important;">Product</th>
+          <th style="background-color: #ccccbb !important;"></th>
+          <th style="background-color: #ccccbb !important;">Price</th>
+          <th style="background-color: #ccccbb !important;">Stock Status</th>
+          <th style="background-color: #ccccbb !important;">Actions</th>
+          <th style="background-color: #ccccbb !important;"></th>
+        </tr>
       </thead>
-     
       <tbody>
-      
-          <% wishlist.items.forEach((item) => { %>
-              <tr>
-                  <td style="background-color: #e6e6dc !important;">
-                      <img src="/uploads/<%= item.product.image_url[0] %>" alt="<%= item.product.product_title %>">
-                      <%= item.product.product_title %>
-                  </td >
-                  <td style="background-color: #e6e6dc !important;">$<%= item.product.price %></td>
-                  <td style="background-color: #e6e6dc !important;">
-                      <span class="stock-status <%= item.product.stock !== 0 ? 'in-stock' : 'out-of-stock' %>">
-                          <%= item.product.stock !== 0 ? 'In Stock' : 'Out of Stock' %>
-                      </span>
-                  </td>
-                  <td style="background-color: #e6e6dc;">
-  <div class="product-details-cart">
-    <% if(item.product.stock === 0) { %>
-    <button 
-      class="btn-add-to-cart"  
-      style="
-        width: 99px !important;
-        height: 34px !important;
-        border-radius: 7px !important;
-        background-color: #e6e6dc !important;
-        border-color: black !important;
-      " 
-     
-      onclick="showOutOfStockAlert()">
-      Add to Cart
-    </button>
-                        <% }else{ %>
-    <button 
-      class="btn-add-to-cart"  style="
-    width: 99px !important;
-    height: 34px !important;
-    border-radius: 7px !important;
-    background-color: #e6e6dc !important;
-    border-color: black !important;
-"
-      onclick="addToCart('<%= item.product._id %>')">
-      Add to Cart
-    </button>
-    
-    <% } %>
-  </div>
-
-</td>
-
-
-
-                  <td style="background-color: #e6e6dc !important;" class="wishlist-remove">
-                    <a
-                      href="/whishlist/delete/<%= item.product._id  %>"
-                      ><i class="dlicon ui-1_simple-remove"></i
-                    ></a>
-                  </td>
-                  
-                  
-                  
-              </tr>
-          <% }) %>
+        <% wishlist.items.forEach((item) => { %>
+          <tr>
+            <td style="background-color: #e6e6dc !important;" data-label="Product">
+              <img src="/uploads/<%= item.product.image_url[0] %>" alt="<%= item.product.product_title %>">
+             
+            </td>
+            <td style="background-color: #e6e6dc !important;"> <%= item.product.product_title %></td>
+            <td style="background-color: #e6e6dc !important;" data-label="Price">₹<%= item.product.price %></td>
+            <td style="background-color: #e6e6dc !important;" data-label="Stock Status">
+              <span class="stock-status <%= item.product.stock !== 0 ? 'in-stock' : 'out-of-stock' %>">
+                <%= item.product.stock !== 0 ? 'In Stock' : 'Out of Stock' %>
+              </span>
+            </td>
+            <td style="background-color: #e6e6dc;" data-label="Actions">
+              <div class="product-details-cart">
+                <% if(item.product.stock === 0) { %>
+                  <button 
+                    class="btn-add-to-cart"  
+                    style="
+                      width: 99px !important;
+                      height: 34px !important;
+                      border-radius: 7px !important;
+                      background-color: #e6e6dc !important;
+                      border-color: black !important;
+                    " 
+                    onclick="showOutOfStockAlert()">
+                    Add to Cart
+                  </button>
+                <% } else { %>
+                  <button 
+                    class="btn-add-to-cart"  
+                    style="
+                      width: 99px !important;
+                      height: 34px !important;
+                      border-radius: 7px !important;
+                      background-color: #e6e6dc !important;
+                      border-color: black !important;
+                    "
+                    onclick="addToCart('<%= item.product._id %>')">
+                    Add to Cart
+                  </button>
+                <% } %>
+              </div>
+            </td>
+            <td style="background-color: #e6e6dc !important;" class="wishlist-remove" data-label="Remove">
+              <a href="/whishlist/delete/<%= item.product._id  %>">
+                <i class="dlicon ui-1_simple-remove"></i>
+              </a>
+            </td>
+          </tr>
+        <% }) %>
       </tbody>
-  </table>
+    </table>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 

@@ -1,202 +1,283 @@
 <%- include('headers.ejs') %>
-    <style>
-      /* Styling for the table */
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        border: 1px solid #ddd;
-      }
-      table,
-      th,
-      td {
-        border: 1px solid #ddd;
-      }
-      th,
-      td {
-        padding: 12px;
-        text-align: left;
-      }
-      th {
-        background-color: #f8f9fa;
-        font-weight: bold;
-      }
-      tr:nth-child(even) {
-        background-color: #f2f2f2;
-      }
-      /* Styling for the title */
-      h2.content-title {
-        font-size: 24px;
-        font-weight: bold;
-      }
-    </style>
- 
-    <main class="main-wrap">
-      <header style="background-color: #ffffff;" class="main-header navbar">
-        <div class="col-search">
+<style>
+  /* Base styles */
+  body {
+    font-family: Arial, sans-serif;
+  }
+
+  .main-wrap {
+    padding: 20px;
+  }
+
+  /* Table styles */
+  .table-responsive {
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #ddd;
+  }
+
+  table,
+  th,
+  td {
+    border: 1px solid #ddd;
+  }
+
+  th,
+  td {
+    padding: 12px;
+    text-align: left;
+  }
+
+  th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+  }
+
+  tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+
+  /* Header styles */
+  .content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .content-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0;
+  }
+
+  /* Button styles */
+  .btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  .btn-block {
+    background-color: red;
+    color: white;
+  }
+
+  .btn-unblock {
+    background-color: #088178;
+    color: white;
+  }
+
+  /* Pagination styles */
+  .pagination {
+    display: flex;
+    list-style-type: none;
+    padding: 0;
+  }
+
+  .page-item {
+    margin: 0 5px;
+  }
+
+  .page-link {
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    color: #333;
+    text-decoration: none;
+  }
+
+  .page-item.active .page-link {
+    background-color: #007bff;
+    color: white;
+  }
+
+  /* Responsive styles */
+  @media screen and (max-width: 768px) {
+    .content-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .content-header > div {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+
+    .table-responsive {
+      font-size: 14px;
+    }
+
+    th,
+    td {
+      padding: 8px;
+    }
+
+    .btn {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    .table-responsive {
+      font-size: 12px;
+    }
+
+    th,
+    td {
+      padding: 6px;
+    }
+
+    .btn {
+      padding: 4px 8px;
+      font-size: 11px;
+    }
+
+    .pagination {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+  }
+</style>
+
+<main class="main-wrap">
+  <header class="main-header navbar">
+    <div class="col-search"></div>
+    <div class="col-nav">
+      <button
+        class="btn btn-icon btn-mobile me-auto"
+        data-trigger="#offcanvas_aside"
+      >
+        <i class="material-icons md-apps"></i>
+      </button>
+      <a class="btn btn-danger" href="/admin/logout">
+        <i class="material-icons md-exit_to_app"></i> Logout
+      </a>
+    </div>
+  </header>
+
+  <section class="content-main">
+    <div class="content-header">
+      <div>
+        <h2 class="content-title">Users</h2>
+      </div>
+      <div>
+        <input
+          type="text"
+          placeholder="Search users"
+          class="form-control bg-white"
+        />
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Number</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% user.forEach(userModel => { %>
+              <tr>
+                <td><%= userModel.name %></td>
+                <td><%= userModel.email %></td>
+                <td><%= userModel.number %></td>
+                <td>
+                  <% if (userModel.isBlocked) { %>
+                  <span class="text-danger">Blocked</span>
+                  <% } else { %>
+                  <span class="text-success">Unblocked</span>
+                  <% } %>
+                </td>
+                <td>
+                  <% if (userModel.isBlocked) { %>
+                  <form
+                    action="/admin/UnblockUser/<%= userModel._id %>"
+                    method="post"
+                  >
+                    <button type="submit" class="btn btn-unblock">
+                      Unblock
+                    </button>
+                  </form>
+                  <% } else { %>
+                  <form
+                    action="/admin/blockUser/<%= userModel._id %>"
+                    method="post"
+                  >
+                    <button type="submit" class="btn btn-block">Block</button>
+                  </form>
+                  <% } %>
+                </td>
+              </tr>
+              <% }); %>
+            </tbody>
+          </table>
         </div>
-        <div class="col-nav">
-            <button class="btn btn-icon btn-mobile me-auto" data-trigger="#offcanvas_aside"> <i
-                    class="material-icons md-apps"></i> </button>
-            <a class="dropdown-item text-danger" href="/admin/logout"><i
-                    class="material-icons md-exit_to_app"></i>Logout</a>
+
+        <div class="pagination-area mt-15 mb-50">
+          <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-start">
+              <% if (currentPage > 1) { %>
+              <li class="page-item">
+                <a
+                  class="page-link"
+                  href="?page=<%= currentPage - 1 %>&limit=4"
+                >
+                  <i class="material-icons md-chevron_left"></i>
+                </a>
+              </li>
+              <% } %> <% for (let i = 1; i <= totalPages; i++) { %>
+              <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                <a class="page-link" href="?page=<%= i %>&limit=4"><%= i %></a>
+              </li>
+              <% } %> <% if (currentPage < totalPages) { %>
+              <li class="page-item">
+                <a
+                  class="page-link"
+                  href="?page=<%= currentPage + 1 %>&limit=4"
+                >
+                  <i class="material-icons md-chevron_right"></i>
+                </a>
+              </li>
+              <% } %>
+            </ul>
+          </nav>
         </div>
-    </header>
-      <section class="content-main">
-        <div class="content-header">
-          <div>
-            <h2 class="content-title card-title">User'S</h2>
-          </div>
-          <div>
-            <input
-              type="text"
-              placeholder="Search products"
-              class="form-control bg-white"
-            />
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-body" style="width: 1100px">
-            <div class="row">
-              <div class="col-md-9">
-                <div class="table-responsive">
-                  <table class="table table-hover">
-                    <thead>
-                      <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Number</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <% user.forEach(userModel => { %>
-                      <tr>
-                        <td><%= userModel.name %></td>
-                        <td><%= userModel.email %></td>
-                        <td><%= userModel.number %></td>
-                        <td>
-                          <% if (userModel.isBlocked) { %>
-                          <h6 style="color: red">Blocked</h6>
-                          <% } else { %>
-                          <h6 style="color: #088178">UnBlocked</h6>
-                          <% } %>
-                        </td>
-                        <td>
-                          <% if (userModel.isBlocked) { %>
-                          <form
-                            action="/admin/UnblockUser/<%= userModel._id %>"
-                            method="post"
-                          >
-                            <button
-                              type="submit"
-                              style="
-                                background-color: #088178;
-                                color: white;
-                                width: 70px;
-                                border-color: #088178;
-                              "
-                            >
-                              UnBlock
-                            </button>
-                          </form>
-                          <% } else { %>
-                          <form
-                            action="/admin/blockUser/<%= userModel._id %>"
-                            method="post"
-                          >
-                            <button
-                              type="submit"
-                              style="
-                                background-color: red;
-                                color: white;
-                                width: 70px;
-                                border-color: red;
-                              "
-                            >
-                              Block
-                            </button>
-                          </form>
-                          <% } %>
-                        </td>
-                      </tr>
-                      <% }); %>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-              <div class="pagination-area mt-15 mb-50">
-                <nav aria-label="Page navigation example">
-                  <ul class="pagination justify-content-start">
-                    <% if (currentPage > 1) { %>
-                      <li class="page-item">
-                        <a class="page-link" href="?page=<%= currentPage - 1 %>&limit=4">
-                          <i class="material-icons md-chevron_left"></i>
-                        </a>
-                      </li>
-                    <% } %>
-                    <% for (let i = 1; i <= totalPages; i++) { %>
-                      <li class="page-item <%= i === currentPage ? 'active' : '' %>">
-                        <a class="page-link" href="?page=<%= i %>&limit=4"><%= i %></a>
-                      </li>
-                    <% } %>
-                    <% if (currentPage < totalPages) { %>
-                      <li class="page-item">
-                        <a class="page-link" href="?page=<%= currentPage + 1 %>&limit=4">
-                          <i class="material-icons md-chevron_right"></i>
-                        </a>
-                      </li>
-                    <% } %>
-                  </ul>
-                </nav>
-              </div>
-              
-              
-            </div>
-          </div>
-        </div>
+      </div>
+    </div>
+  </section>
 
-        <!-- card .// -->
-      </section>
-      <!-- content-main end// -->
+  <footer class="main-footer font-xs">
+    <div class="row pb-30 pt-15">
+      <div class="col-sm-6">
+        <script>
+          document.write(new Date().getFullYear());
+        </script>
+      </div>
+      <div class="col-sm-6">
+        <div class="text-sm-end">All rights reserved</div>
+      </div>
+    </div>
+  </footer>
+</main>
 
-      <footer class="main-footer font-xs">
-        <div class="row pb-30 pt-15">
-          <div class="col-sm-6">
-            <script>
-              document.write(new Date().getFullYear());
-            </script>
-          </div>
-          <div class="col-sm-6">
-            <div class="text-sm-end">All rights reserved</div>
-          </div>
-        </div>
-      </footer>
-    </main>
-
-    <!-- <script>
-      // function changeColor(selectElement) {
-      //   if (selectElement.value === "list") {
-      //     selectElement.style.color = "#4CAF50";
-      //   } else if (selectElement.value === "unlist") {
-      //     selectElement.style.color = "red";
-      //   }
-      // }
-
-      // window.onload = function () {
-      //   const selectElement = document.getElementById("statusSelect");
-      //   changeColor(selectElement);
-      // };
-    </script> -->
-
-    <script src="assets/js/vendors/jquery-3.6.0.min.js"></script>
-    <script src="assets/js/vendors/bootstrap.bundle.min.js"></script>
-    <script src="assets/js/vendors/select2.min.js"></script>
-    <script src="assets/js/vendors/perfect-scrollbar.js"></script>
-    <script src="assets/js/vendors/jquery.fullscreen.min.js"></script>
-    <!-- Main Script -->
-    <script src="assets/js/main.js" type="text/javascript"></script>
-  </body>
-
-  <!-- Mirrored from wp.alithemes.com/html/evara/evara-backend/page-categories.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 01 Aug 2021 15:33:21 GMT -->
-</html>
+<script src="/assets/js/vendors/jquery-3.6.0.min.js"></script>
+<script src="/assets/js/vendors/bootstrap.bundle.min.js"></script>
+<script src="/assets/js/vendors/select2.min.js"></script>
+<script src="/assets/js/vendors/perfect-scrollbar.js"></script>
+<script src="/assets/js/vendors/jquery.fullscreen.min.js"></script>
+<script src="/assets/js/main.js" type="text/javascript"></script>

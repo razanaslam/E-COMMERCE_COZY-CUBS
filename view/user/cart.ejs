@@ -1,5 +1,31 @@
 <%- include('header.ejs') %>
 <style>
+  @media (max-width: 768px) {
+    .wishlist-table img {
+        width: 40px; /* Reduce image size for small screens */
+    }
+    .wishlist-table th,
+    .wishlist-table td {
+        font-size: 14px; /* Adjust font size for readability */
+        padding: 8px; /* Reduce padding */
+    }
+    .quantity-container button {
+        font-size: 12px; /* Smaller buttons for quantity controls */
+    }
+}
+
+@media (max-width: 576px) {
+    .wishlist-table th,
+    .wishlist-table td {
+        font-size: 12px;
+        padding: 5px;
+    }
+    .quantity-container button {
+        font-size: 10px;
+        padding: 4px;
+    }
+}
+
   body {
       font-family: 'Roboto', sans-serif;
       background-color: #f6f6e6;
@@ -74,57 +100,60 @@
 
 <div class="container">
   <div class="row" style="margin-top:53 px !important;">
-    <div class="col-lg-8" >
-    <h1>My Cart</h1>
-    <table class="wishlist-table">
-        <thead>
-            <tr>
-                <th style="background-color: #ccccbb !important;">Product</th>
-                <th style="background-color: #ccccbb !important;">Price</th>
-                <th style="background-color: #ccccbb !important;">Quantity</th>
-                <th style="background-color: #ccccbb !important;">Total</th>
-                <th style="background-color: #ccccbb !important;">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <% let subtotal = 0; %>
-            <% cartItems.forEach((item) => { %>
-                <% const itemPrice = parseFloat(item.product.discountedPrice || item.product.price); %>
-                <% const itemTotal = itemPrice * item.qty; %>
-                <% subtotal += itemTotal; %>
-                <tr>
-                    <td style="background-color: #e6e6dc !important;">
-                        <img src="/uploads/<%= item.product.image_url[0] %>" alt="<%= item.product.product_title %>">
-                        <%= item.product.product_title %>
-                    </td>
-                    <td style="background-color: #e6e6dc !important;">$<%= itemPrice.toFixed(2) %></td>
-                    <td style="background-color: #e6e6dc !important;">
-                        <div class="quantity-container">
-                            <button type="button" style="background-color: #e6e6dc; border: none; color: black; cursor: pointer;" onclick="updateQty('<%= item.product._id %>', 'decrement', <%= itemPrice %>, event)">-</button>
-                            <span class="qty-label" id="qty-<%= item.product._id %>"><%= item.qty %></span>
-                            <button type="button"  style="background-color: #e6e6dc; border: none; color: black; cursor: pointer;" onclick="updateQty('<%= item.product._id %>', 'increment', <%= itemPrice %>, event)">+</button>
-                        </div>
-                    </td>
-                    <td style="background-color: #e6e6dc !important;" id="total-<%= item.product._id %>">$<%= itemTotal.toFixed(2) %></td>
-                    <td style="background-color: #e6e6dc !important;" class="wishlist-remove">
-                        <button style="background-color: #e6e6dc; border: none; color: black;" class="remove-btn" onclick="removeFromCart('<%= item.product._id %>')" aria-label="Remove <%= item.product.product_title %> from cart">
-                            <i class="dlicon ui-1_simple-remove"></i>
-                        </button>
-                    </td>
-                </tr>
-            <% }); %>
-        </tbody>
-    </table>
-    </div>
+    <div class="col-lg-8">
+      <h1>My Cart</h1>
+      <div class="table-responsive">
+          <table class="wishlist-table table table-bordered">
+              <thead>
+                  <tr>
+                      <th style="background-color: #ccccbb !important;">Product</th>
+                      <th style="background-color: #ccccbb !important;">Price</th>
+                      <th style="background-color: #ccccbb !important;">Quantity</th>
+                      <th style="background-color: #ccccbb !important;">Total</th>
+                      <th style="background-color: #ccccbb !important;">Actions</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  <% let subtotal = 0; %>
+                  <% cartItems.forEach((item) => { %>
+                      <% const itemPrice = parseFloat(item.product.discountedPrice || item.product.price); %>
+                      <% const itemTotal = itemPrice * item.qty; %>
+                      <% subtotal += itemTotal; %>
+                      <tr>
+                          <td style="background-color: #f3f3f3 !important;">
+                              <img src="/uploads/<%= item.product.image_url[0] %>" alt="<%= item.product.product_title %>" style="width: 50px; height: auto; margin-right: 10px;">
+                              <%= item.product.product_title %>
+                          </td>
+                          <td style="background-color: #f3f3f3 !important;">₹<%= itemPrice.toFixed(2) %></td>
+                          <td style="background-color: #f3f3f3 !important;">
+                              <div class="quantity-container">
+                                  <button type="button" style="background-color: #f3f3f3; border: none; color: black; cursor: pointer;" onclick="updateQty('<%= item.product._id %>', 'decrement', <%= itemPrice %>, event)">-</button>
+                                  <span class="qty-label" id="qty-<%= item.product._id %>"><%= item.qty %></span>
+                                  <button type="button" style="background-color: #f3f3f3; border: none; color: black; cursor: pointer;" onclick="updateQty('<%= item.product._id %>', 'increment', <%= itemPrice %>, event)">+</button>
+                              </div>
+                          </td>
+                          <td style="background-color: #f3f3f3 !important;" id="total-<%= item.product._id %>">₹<%= itemTotal.toFixed(2) %></td>
+                          <td style="background-color: #f3f3f3 !important;" class="wishlist-remove">
+                              <button style="background-color: #f3f3f3; border: none; color: black;" class="remove-btn" onclick="removeFromCart('<%= item.product._id %>')" aria-label="Remove <%= item.product.product_title %> from cart">
+                                  <i class="dlicon ui-1_simple-remove"></i>
+                              </button>
+                          </td>
+                      </tr>
+                  <% }); %>
+              </tbody>
+          </table>
+      </div>
+  </div>
+  
     
       <div class="col-lg-4">
     <% if(cartItems.length === 0){ %>
       <div class="col-lg-4">
-        <div class="grand-total-wrap" style="margin-top: 5rem; text-align: right;width: 340px; background-color: #e6e6dc;">
+        <div class="grand-total-wrap" style="margin-top: 5rem; text-align: right;width: 340px; background-color: #f3f3f3;">
             <h4 style="text-align: start; font-weight: 500 !important; color: #333 !important; font-size: 31px !important;">Cart totals</h4>
             <div class="grand-total-content">
-                <p style="text-align: start; color: #4c4a4a !important; font-size: 18px !important;">Subtotal: <span id="subtotal">$<%= subtotal.toFixed(2) %></span></p>
-                <p style="text-align: start; color: #4c4a4a !important; font-size: 18px !important;">Total: <span id="total">$<%= subtotal.toFixed(2) %></span></p>
+                <p style="text-align: start; color: #4c4a4a !important; font-size: 18px !important;">Subtotal: <span id="subtotal">₹<%= subtotal.toFixed(2) %></span></p>
+                <p style="text-align: start; color: #4c4a4a !important; font-size: 18px !important;">Total: <span id="total">₹<%= subtotal.toFixed(2) %></span></p>
             </div>
             <div class="grand-btn" style="margin-top: 1rem;">
                 <a id="checkout-link" href="javascript:void(0);" style="background-color: #ccccbb; color: #494948; padding: 0.5rem 1rem; text-decoration: none; border-radius: 4px; height: 52px; font-size: 19px;">Proceed to checkout</a>
@@ -134,13 +163,13 @@
   
  
 <% }else{ %>    
-    <div class="grand-total-wrap" style="margin-top: 5rem; text-align: right; background-color: #e6e6dc;">
+    <div class="grand-total-wrap" style="margin-top: 5rem; text-align: right; background-color: #f3f3f3;">
         <h4 style="text-align: start;     font-weight: 500 !important; color: #333 !important;
         font-size: 31px !important;
        ">Cart totals</h4>
         <div class="grand-total-content">
-            <p style="text-align: start; color: #4c4a4a !important; font-size: 18px !important;">Subtotal: <span id="subtotal">$<%= subtotal.toFixed(2) %></span></p>
-            <p style="text-align: start; color: #4c4a4a !important; font-size: 18px !important;">Total: <span id="total">$<%= subtotal.toFixed(2) %></span></p>
+            <p style="text-align: start; color: #4c4a4a !important; font-size: 18px !important;">Subtotal: <span id="subtotal">₹<%= subtotal.toFixed(2) %></span></p>
+            <p style="text-align: start; color: #4c4a4a !important; font-size: 18px !important;">Total: <span id="total">₹<%= subtotal.toFixed(2) %></span></p>
         </div>
         <div class="grand-btn" style="margin-top: 1rem;">
             <a href="checkout" style="background-color: #ccccbb; color: #494948; padding: 0.5rem 1rem; text-decoration: none; border-radius: 4px; height: 52px; font-size: 19px ; ">Proceed to checkout</a>
@@ -221,8 +250,82 @@
       });
   }
 
+  // async function updateQty(productId, action, price, event) {
+  //   event.preventDefault();
+
+  //   try {
+  //     const response = await fetch(`/cart/${action}Qty`, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({ productId }),
+  //     });
+
+  //     const data = await response.json();
+
+  //     if (response.ok) {
+  //       const qtyElement = document.getElementById(`qty-${productId}`);
+  //       const totalElement = document.getElementById(`total-${productId}`);
+  //       const subtotalElement = document.getElementById('subtotal');
+  //       const totalPriceElement = document.getElementById('total');
+
+  //       qtyElement.textContent = data.newQty;
+  //       const newTotal = (data.newQty * price).toFixed(2);
+  //       totalElement.textContent = `₹${newTotal}`;
+
+  //       // Update subtotal and total
+  //       const allTotals = document.querySelectorAll('[id^="total-"]');
+  //       let newSubtotal = 0;
+  //       allTotals.forEach(el => {
+  //         newSubtotal += parseFloat(el.textContent.replace('$', ''));
+  //       });
+
+  //       subtotalElement.textContent = `₹${newSubtotal.toFixed(2)}`;
+  //       totalPriceElement.textContent = `₹${newSubtotal.toFixed(2)}`;
+  //     } else {
+  //       console.error("Failed to update quantity:", data.message);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error updating quantity:", error);
+  //   }
+  // }
+
   async function updateQty(productId, action, price, event) {
     event.preventDefault();
+
+    const qtyElement = document.getElementById(`qty-${productId}`);
+    const currentQty = parseInt(qtyElement.textContent);
+
+    // Check for decrement when quantity is 1
+    if (action === 'decrement' && currentQty === 1) {
+      Swal.fire({
+        toast: true,
+        icon: 'warning',
+        title: 'Minimum quantity reached',
+        text: 'Cannot decrease quantity below 1',
+        position: 'center',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+      });
+      return;
+    }
+
+    // Check for increment when quantity is 5 or greater
+    if (action === 'increment' && currentQty >= 5) {
+      Swal.fire({
+        toast: true,
+        icon: 'warning',
+        title: 'Maximum quantity reached',
+        text: 'Cannot increase quantity above 5',
+        position: 'center',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+      });
+      return;
+    }
 
     try {
       const response = await fetch(`/cart/${action}Qty`, {
@@ -236,32 +339,50 @@
       const data = await response.json();
 
       if (response.ok) {
-        const qtyElement = document.getElementById(`qty-${productId}`);
         const totalElement = document.getElementById(`total-${productId}`);
         const subtotalElement = document.getElementById('subtotal');
         const totalPriceElement = document.getElementById('total');
 
         qtyElement.textContent = data.newQty;
         const newTotal = (data.newQty * price).toFixed(2);
-        totalElement.textContent = `$${newTotal}`;
+        totalElement.textContent = `₹${newTotal}`;
 
         // Update subtotal and total
         const allTotals = document.querySelectorAll('[id^="total-"]');
         let newSubtotal = 0;
         allTotals.forEach(el => {
-          newSubtotal += parseFloat(el.textContent.replace('$', ''));
+          newSubtotal += parseFloat(el.textContent.replace('₹', ''));
         });
 
-        subtotalElement.textContent = `$${newSubtotal.toFixed(2)}`;
-        totalPriceElement.textContent = `$${newSubtotal.toFixed(2)}`;
+        subtotalElement.textContent = `₹${newSubtotal.toFixed(2)}`;
+        totalPriceElement.textContent = `₹${newSubtotal.toFixed(2)}`;
       } else {
         console.error("Failed to update quantity:", data.message);
+        Swal.fire({
+          toast: true,
+          icon: 'error',
+          title: 'Update failed',
+          text: data.message || 'Failed to update quantity',
+          position: 'center',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+        });
       }
     } catch (error) {
       console.error("Error updating quantity:", error);
+      Swal.fire({
+        toast: true,
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred while updating quantity',
+        position: 'center',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+      });
     }
   }
-
   function removeFromCart(productId) {
     fetch(`/cart/delete/${productId}`, {
       method: "POST",
@@ -334,4 +455,5 @@
 
     
 </script>
-</body></html>
+</body>
+<%- include('footer') %></html>

@@ -217,7 +217,7 @@ button:hover {
       <h2 style="color: rgb(63,60,60);">Your Wallet</h2>
       <div class="wallet-info">
         <p><strong>Welcome,</strong> <%= wallet.userId.name %></p>
-        <p class="wallet-balance" style="color: rgb(77, 150, 77);">$<%= wallet.balance.toFixed(2) %></p>
+        <p class="wallet-balance" style="color: rgb(77, 150, 77);">₹<%= wallet.balance.toFixed(2) %></p>
       </div>
     </section>
 
@@ -236,7 +236,7 @@ button:hover {
           <% transactions.forEach(transaction => { %>
           <tr>
             <td><%= transaction.date %></td>
-            <td>$<%= transaction.amount.toFixed(2) %></td>
+            <td>₹<%= transaction.amount.toFixed(2) %></td>
             <td>
               <% if (transaction.status === "Debited") { %>
               <span class="badge badge-danger"><%= transaction.status %></span>
@@ -309,4 +309,5 @@ button:hover {
 
 </div>
 </body>
+<%- include("footer.ejs") %>
 </html>

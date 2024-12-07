@@ -2,12 +2,13 @@
 
 <%- include('header.ejs') %>
 <style>
+  
   :root {
   --primary-color: #818162; /* Muted olive green */
-  --secondary-color: #f6f6e6; /* Light beige */
+  --secondary-color: transparent; /* Light beige */
   --accent-color: #000000; /* Black for strong contrasts */
   
-  --background-color: #f6f6e6; /* Soft beige background */
+  --background-color: transparent; /* Soft beige background */
   --text-color: #000000; /* Black text for readability */
   
   --card-background: #ffffff; /* White card for clean design */
@@ -232,165 +233,131 @@ button:hover {
 <br><br>
 <h1>Acc Details</h1>
 
-<div>
-  <form action="/accountDetails/userDetails" method="post" id="userDetailsForm">
-    <div class="container" style="margin-left: 209px">
-      <p style="color: green"><%= success %></p>
 
-      <div class="single-input-item">
-        <label for="email" class="required" style="display: block; margin-bottom: 5px">Email Address *</label>
-        <input
-          name="email"
-          style="border-color: black; background-color: #f6f6e6; width: 70%; display: block; margin-bottom: 15px"
-          type="email"
-          id="email"
-          value="<%= acc.email %>"
-          disabled
-        />
+  <div class="container-fluid">
+    <form action="/accountDetails/userDetails" method="post" id="userDetailsForm">
+      <div class="row justify-content-center align-items-center" >
+        <div class="col-12 col-md-8 col-lg-6">
+          <p style="color: green"><%= success %></p>
+  
+          <div class="single-input-item">
+            <label for="email" class="required" style="display: block; margin-bottom: 5px">Email Address *</label>
+            <input
+              name="email"
+              style="border-color: black; background-color: transparent; width: 100%; display: block; margin-bottom: 15px"
+              type="email"
+              id="email"
+              value="<%= acc.email %>"
+              disabled
+            />
+          </div>
+  
+          <div class="single-input-item">
+            <label for="display-name" class="required" style="display: block; margin-bottom: 5px">User Name *</label>
+            <input
+              name="name"
+              style="border-color: black; background-color: transparent; width: 100%; display: block; margin-bottom: 15px"
+              type="text"
+              id="display-name"
+              value="<%= acc.name %>"
+              pattern="^[a-zA-Z\s]+$" 
+              title="User name must only contain letters and spaces"
+              required
+            />
+          </div>
+  
+          <div class="single-input-item">
+            <label for="phone-number" class="required" style="display: block; margin-bottom: 5px">Phone Number *</label>
+            <input
+              name="number"
+              style="border-color: black; background-color: transparent; width: 100%; display: block; margin-bottom: 15px"
+              type="text"
+              id="phone-number"
+              value="<%= acc.number %>"
+              pattern="^\d+$" 
+              title="Phone number must contain digits only"
+            />
+          </div>
+  
+          <div class="single-input-item text-center">
+            <button
+              type="submit"
+              id="saveChangesBtn"
+              class="check-btn sqr-btn"
+              style="background-color: #636348; color: white; border: none; padding: 10px 20px; display: block; margin: 20px auto; text-align: center; cursor: pointer;"
+            >
+              Save Changes
+            </button>
+          </div>
+        </div>
       </div>
+    </form>
 
-      <div class="single-input-item">
-        <label for="display-name" class="required" style="display: block; margin-bottom: 5px">User Name *</label>
-        <input
-          name="name"
-          style="border-color: black; background-color: #f6f6e6; width: 70%; display: block; margin-bottom: 15px"
-          type="text"
-          id="display-name"
-          value="<%= acc.name %>"
-        />
-      </div>
+  
+</div>
+<div class="container-fluid">
+  <form action="/accountDetails/updatepassword" method="post" onsubmit="return validation(event)">
+    <div class="row justify-content-center align-items-center" >
+      <div class="col-12 col-md-8 col-lg-6">
+        <h2 class="text-center">Change Password</h2>
+        <p style="color: green"><%= successPass %></p>
+        <p style="color: red"><%= errorPassword %></p>
 
-      <div class="single-input-item">
-        <label for="display-name" class="required" style="display: block; margin-bottom: 5px">Phone Number *</label>
-        <input
-          name="number"
-          style="border-color: black; background-color: #f6f6e6; width: 70%; display: block; margin-bottom: 15px"
-          type="text"
-          id="display-name"
-          value="<%= acc.number %>"
-        />
-      </div>
+        <!-- Error Message -->
+        <span
+          id="errorPass"
+          class="error-message"
+          style="color: red; display: block; margin-bottom: 10px"
+        ></span>
 
-      <div class="single-input-item" style="margin-right: 340px">
-        <button
-          type="submit"
-          id="saveChangesBtn"
-          class="check-btn sqr-btn"
-          style="background-color: #636348; color: white; border: none; padding: 10px 20px; display: block; margin: 20px auto; text-align: center; cursor: pointer;"
-        >
-          Save Changes
-        </button>
+        <!-- Current Password -->
+        <div class="single-input-item">
+          <label for="current-password" class="required" style="display: block; margin-bottom: 5px">Current Password *</label>
+          <input
+            name="currentPassword"
+            style="border-color: black; background-color: transparent; width: 100%; display: block; margin-bottom: 15px;"
+            type="password"
+            id="current-password"
+          />
+        </div>
+
+        <!-- New Password -->
+        <div class="single-input-item">
+          <label for="new-password" class="required" style="display: block; margin-bottom: 5px">New Password *</label>
+          <input
+            name="newPassword"
+            style="border-color: black; background-color: transparent; width: 100%; display: block; margin-bottom: 15px;"
+            type="password"
+            id="new-password"
+          />
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="single-input-item">
+          <label for="confirm-password" class="required" style="display: block; margin-bottom: 5px">Confirm Password *</label>
+          <input
+            name="confirmPassword"
+            style="border-color: black; background-color: transparent; width: 100%; display: block; margin-bottom: 15px;"
+            type="password"
+            id="confirm-password"
+          />
+        </div>
+
+        <!-- Save Changes Button -->
+        <div class="single-input-item text-center">
+          <button
+            type="submit"
+            class="check-btn sqr-btn"
+            style="background-color: #636348; color: white; border: none; padding: 10px 20px; display: block; margin: 20px auto; text-align: center; cursor: pointer;"
+          >
+            Save Changes
+          </button>
+        </div>
       </div>
     </div>
   </form>
 </div>
-<div>
-  <form
-    action="/accountDetails/updatepassword"
-    method="post"
-    onsubmit="return validation(event)"
-  >
-    <div class="container" style="margin-left: 209px">
-      <!-- Title for Changing Password -->
-      <h2>Change Password</h2>
-      <p style="color: green"><%= successPass %></p>
-      <p style="color: red"><%= errorPassword %></p>
 
-      <!-- Error Message -->
-      <span
-        id="errorPass"
-        class="error-message"
-        style="color: red; display: block; margin-bottom: 10px"
-      ></span>
-
-      <!-- Current Password -->
-      <div class="single-input-item">
-        <label
-          for="current-password"
-          class="required"
-          style="display: block; margin-bottom: 5px"
-          >Current Password *</label
-        >
-        <input
-          name="currentPassword"
-          style="
-            border-color: black;
-            background-color: #f6f6e6;
-            width: 70%;
-            display: block;
-            margin-bottom: 15px;
-          "
-          type="password"
-          id="current-password"
-        />
-      </div>
-
-      <!-- New Password -->
-      <div class="single-input-item">
-        <label
-          for="new-password"
-          class="required"
-          style="display: block; margin-bottom: 5px"
-          >New Password *</label
-        >
-        <input
-          name="newPassword"
-          style="
-            border-color: black;
-            background-color: #f6f6e6;
-            width: 70%;
-            display: block;
-            margin-bottom: 15px;
-          "
-          type="password"
-          id="new-password"
-        />
-      </div>
-
-      <!-- Confirm Password -->
-      <div class="single-input-item">
-        <label
-          for="confirm-password"
-          class="required"
-          style="display: block; margin-bottom: 5px"
-          >Confirm Password *</label
-        >
-        <input
-          name="confirmPassword"
-          style="
-            border-color: black;
-            background-color: #f6f6e6;
-            width: 70%;
-            display: block;
-            margin-bottom: 15px;
-          "
-          type="password"
-          id="confirm-password"
-        />
-      </div>
-
-      <!-- Save Changes Button -->
-      <div class="single-input-item" style="margin-right: 340px">
-        <button
-          type="submit"
-          class="check-btn sqr-btn"
-          style="
-            background-color: #636348;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            display: block;
-            margin: 20px auto;
-            text-align: center;
-            cursor: pointer;
-          "
-        >
-          Save Changes
-        </button>
-      </div>
-    </div>
-  </form>
-</div>
 <!-- SweetAlert CDN -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -452,46 +419,80 @@ button:hover {
     return isValid;
   }
 </script>
+
 <script>
-  const form = document.getElementById('userDetailsForm');
-  const saveChangesBtn = document.getElementById('saveChangesBtn');
-  let formChanged = false;
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('userDetailsForm');
+    const saveChangesBtn = document.getElementById('saveChangesBtn');
+    const nameInput = document.getElementById("display-name");
+    const phoneInput = document.getElementById("phone-number");
+    let formChanged = false;
 
-  // Detect changes in the form fields
-  form.addEventListener('input', function () {
-    formChanged = true; // Set to true if any field changes
-  });
-
-  saveChangesBtn.addEventListener('click', function (event) {
-    if (formChanged) {
-      console.log(formChanged,'cccc');
-      
-      // SweetAlert Toast notification for changes
-      Swal.fire({
-      toast: true,
-      position: 'top-end',
-      icon: 'success',
-      title: 'Changes saved successfully!',
-      showConfirmButton: false,
-      timer: 3000, 
-      timerProgressBar: true, 
+    // Detect changes in the form fields
+    form.addEventListener('input', function () {
+      formChanged = true;
     });
-    // window.location.href=`/accountDetails`
-    } else {
-      // If no changes, alert the user
-      Swal.fire({
-        toast: true,
-        position: 'top-end',
-        icon: 'info',
-        title: 'No changes made!',
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true,
-      });
-      window.location.href=`/accountDetails`
-    }
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault(); // Prevent default submission initially
+
+      // Check if name contains only letters and spaces
+      const namePattern = /^[a-zA-Z\s]+$/;
+      if (!namePattern.test(nameInput.value)) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Invalid Input',
+          text: 'User name must only contain letters and spaces.',
+          confirmButtonText: 'OK'
+        });
+        return;
+      }
+
+      // Check if phone number contains only digits
+      const phonePattern = /^\d+$/;
+      if (!phonePattern.test(phoneInput.value)) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Invalid Input',
+          text: 'Phone number must contain digits only.',
+          confirmButtonText: 'OK'
+        });
+        return;
+      }
+
+      if (formChanged) {
+        // SweetAlert Toast notification for changes
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Changes saved successfully!',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+        });
+
+        // Submit the form after a short delay
+        setTimeout(() => {
+          form.submit();
+        }, 1000);
+      } else {
+        // If no changes, alert the user
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'info',
+          title: 'No changes made!',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+        });
+      }
+    });
   });
 </script>
 
+
 </body>
+<%- include('footer') %>
 </html>

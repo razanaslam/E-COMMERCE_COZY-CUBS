@@ -2,40 +2,46 @@
 
 <style>
   body {
-    font-family: 'Roboto', sans-serif;
+    font-family: "Roboto", sans-serif;
     background-color: #f6f6e6;
     color: #333;
     line-height: 1.6;
     margin: 0;
     padding: 0;
   }
+
   .dashboard-container {
     max-width: 1200px;
     margin: 2rem auto;
     padding: 2rem;
   }
+
   .dashboard-title {
-    font-family: 'Playfair Display', serif !important;
+    font-family: "Playfair Display", serif !important;
     font-size: 2.5rem;
     color: #2c3e50;
     text-align: center;
     margin-bottom: 2rem;
   }
+
   .dashboard-menu {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 1.5rem;
   }
+
   .dashboard-item {
     background-color: #fffff3;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
   }
+
   .dashboard-item:hover {
     transform: translateY(-5px);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
   }
+
   .dashboard-link {
     display: flex;
     flex-direction: column;
@@ -43,28 +49,51 @@
     padding: 1.5rem;
     text-decoration: none;
     color: #333;
+    transition: background-color 0.3s ease;
   }
+
+  .dashboard-link:hover {
+    background-color: #f0f0d9;
+  }
+
   .dashboard-icon {
     font-size: 2rem;
     margin-bottom: 1rem;
   }
+
   .dashboard-text {
     font-size: 1.1rem;
     font-weight: 500;
     text-align: center;
   }
+
   .active {
     background-color: #818162;
     color: #ffffff;
   }
+
   .active .dashboard-icon,
   .active .dashboard-text {
     color: #ffffff;
   }
+
+  /* Large screens (lg): 2 rows with 3 items each */
+  @media (min-width: 992px) {
+    .dashboard-menu {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  /* Small screens: 3 rows with 2 items each */
+  @media (max-width: 991px) {
+    .dashboard-menu {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
 </style>
 
 <div class="dashboard-container">
-  <h1 class="dashboard-title"> Dashboard</h1>
+  <h1 class="dashboard-title">Dashboard</h1>
   <div class="dashboard-menu">
     <div class="dashboard-item">
       <a href="#dashboard" class="dashboard-link active">
@@ -105,8 +134,4 @@
   </div>
 </div>
 
-<!-- Add your wishlist content here -->
-
-
-  
-</body></html>
+<%- include('footer') %>

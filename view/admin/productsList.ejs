@@ -1,6 +1,81 @@
 <%- include('headers.ejs') %>
     <style>
-      /* Styling for the table */
+     
+  /* Existing styles */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #ddd;
+  }
+  table, th, td {
+    border: 1px solid #ddd;
+  }
+  th, td {
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+  }
+  tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  h2.content-title {
+    font-size: 24px;
+    font-weight: bold;
+  }
+
+  /* Responsive styles */
+  @media screen and (max-width: 1200px) {
+    .card-body {
+      width: 100% !important;
+    }
+  }
+
+  @media screen and (max-width: 992px) {
+    .table-responsive {
+      overflow-x: auto;
+    }
+    .col-md-9 {
+      width: 100%;
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    .content-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .content-header > div {
+      width: 100%;
+      margin-bottom: 1rem;
+    }
+    .table-responsive {
+      font-size: 14px;
+    }
+    .btn-sm {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.875rem;
+    }
+  }
+
+  @media screen and (max-width: 576px) {
+    .table-responsive {
+      font-size: 12px;
+    }
+    .btn-sm {
+      padding: 0.2rem 0.4rem;
+      font-size: 0.75rem;
+    }
+    .pagination-area {
+      overflow-x: auto;
+    }
+    .pagination {
+      flex-wrap: nowrap;
+    }
+  }
+
       table {
         width: 100%;
         border-collapse: collapse;
@@ -30,177 +105,179 @@
       }
     </style>
  
-    <main class="main-wrap">
-      <header style="background-color: #ffffff;" class="main-header navbar">
-        <div class="col-search">
-        </div>
-        <div class="col-nav">
-            <button class="btn btn-icon btn-mobile me-auto" data-trigger="#offcanvas_aside"> <i
-                    class="material-icons md-apps"></i> </button>
-            <a class="dropdown-item text-danger" href="/admin/logout"><i
-                    class="material-icons md-exit_to_app"></i>Logout</a>
-        </div>
-    </header>
-      <section class="content-main">
-        <div class="content-header">
-          <div>
-            <h2 class="content-title card-title">Products</h2>
-            <p>Add, edit or delete a product</p>
-          </div>
-          <div>
-            <input
-              type="text"
-              placeholder="Search products"
-              class="form-control bg-white"
-            />
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-body" style="width: 1100px">
-            <div class="row">
-              <div class="col-md-9">
-                <div class="table-responsive">
-                  <table class="table table-hover">
-                    <thead>
-                      <tr>
-                        <th>Image</th>
-                        <th>Title</th>
-                        <th>Price</th>
-                        <th>List/Unlist</th>
-                        <th>Edit</th>
-                        <th>New Arrival</th>
-                        <th>Delete</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <% products.forEach(product => { %>
-                      <tr>
-                        <td>
-                          <% if (product.image_url) { %>
-                          <img
-                            src="/uploads/<%= product.image_url[0] %>"
-                            alt="<%= product.product_title %>"
-                            style="width: 50px; height: 50px"
-                          />
-                          <% } else { %> No Image <% } %>
-                        </td>
-                        <td><%= product.product_title %></td>
-                        <td><%= product.price %></td>
 
-                        <td>
-                          <% if(product.isListed){ %>
-                          <form
-                            action="/admin/unlistProduct/<%= product._id %>"
-                            method="post"
-                          >
-                            <!-- Button will be green for listed products -->
-                            <button
-                              type="submit"
-                              style="
-                                background-color: red;
-                                color: white;
-                                width: 70px;
-                                border-color: red;
-                              "
-                            >
-                              Unlist
-                            </button>
-                          </form>
-                          <% } else { %>
-                          <form
-                            action="/admin/listProduct/<%= product._id %>"
-                            method="post"
-                          >
-                            <!-- Button will be red for unlisted products -->
-                            <button
-                              type="submit"
-                              style="
-                                background-color: #088178;
-                                color: white;
-                                width: 70px;
-                                border-color: #088178;
-                              "
-                            >
-                              List
-                            </button>
-                          </form>
-                          <% } %>
-                        </td>
-                        <td>
-                          <a
-                            href="/admin/editProduct/<%= product._id %>"
-                            class="btn btn-sm btn-primary"
-                            >Edit</a
-                          >
-
-                         
-                        </td>
-                        <td>
-                          <button onclick="toggleIsNew('<%= product._id %>', '<%= product.isNewProduct %>')" class="btn btn-toggle">
-                            <%= product.isNewProduct ? 'Mark as New' : 'Mark as Old' %>
-                          </button>
-                        </td>
-                        <td>
-                          <form
-                          action="/admin/deleteProduct/<%= product._id %>"
-                          method="post"
-                        >
-                          <!-- Button will be red for unlisted products -->
-                          <button
-                            type="submit"
-                            style="
-                              background-color: red;
-                              color: white;
-                              width: 70px;
-                              border-color: red;
-                            "
-                          >
-                            Delete
-                          </button>
-                        </form>
-                        </td>
-                      </tr>
-                      <% }) %>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-              <div class="pagination-area mt-15 mb-50">
-                <nav aria-label="Page navigation example">
-                  <ul class="pagination justify-content-start">
-                    <!-- Previous Page Link -->
-                    <% if (currentPage > 1) { %>
-                      <li class="page-item">
-                        <a class="page-link" href="?page=<%= currentPage - 1 %>&limit=4">
-                          <i class="material-icons md-chevron_left"></i>
-                        </a>
-                      </li>
-                    <% } %>
-              
-                    <!-- Page Number Links -->
-                    <% for (let i = 1; i <= totalPages; i++) { %>
-                      <li class="page-item <%= i === currentPage ? 'active' : '' %>">
-                        <a class="page-link" href="?page=<%= i %>&limit=4"><%= i %></a>
-                      </li>
-                    <% } %>
-              
-                    <!-- Next Page Link -->
-                    <% if (currentPage < totalPages) { %>
-                      <li class="page-item">
-                        <a class="page-link" href="?page=<%= currentPage + 1 %>&limit=4">
-                          <i class="material-icons md-chevron_right"></i>
-                        </a>
-                      </li>
-                    <% } %>
-                  </ul>
-                </nav>
-              </div>
-              
+<main class="main-wrap">
+  <header style="background-color: #ffffff;" class="main-header navbar">
+    <div class="col-search">
+    </div>
+    <div class="col-nav">
+        <button class="btn btn-icon btn-mobile me-auto" data-trigger="#offcanvas_aside"> <i
+                class="material-icons md-apps"></i> </button>
+        <a class="dropdown-item text-danger" href="/admin/logout"><i
+                class="material-icons md-exit_to_app"></i>Logout</a>
+    </div>
+</header>
   
+  <section class="content-main">
+    <div class="content-header">
+      <div>
+        <h2 class="content-title card-title">Products</h2>
+        <p>Add, edit or delete a product</p>
+      </div>
+      <div>
+        <input
+          type="text"
+          placeholder="Search products"
+          class="form-control bg-white"
+        />
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-body" style="width: 1100px">
+        <div class="row">
+          <div class="col-md-9">
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Image</th>
+                    <th>Title</th>
+                    <th>Price</th>
+                    <th>List/Unlist</th>
+                    <th>Edit</th>
+                    <th>New Arrival</th>
+                    <th>Delete</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% products.forEach(product => { %>
+                  <tr>
+                    <td>
+                      <% if (product.image_url) { %>
+                      <img
+                        src="/uploads/<%= product.image_url[0] %>"
+                        alt="<%= product.product_title %>"
+                        style="width: 50px; height: 50px"
+                      />
+                      <% } else { %> No Image <% } %>
+                    </td>
+                    <td><%= product.product_title %></td>
+                    <td><%= product.price %></td>
+
+                    <td>
+                      <% if(product.isListed){ %>
+                      <form
+                        action="/admin/unlistProduct/<%= product._id %>"
+                        method="post"
+                      >
+                        <!-- Button will be green for listed products -->
+                        <button
+                          type="submit"
+                          style="
+                            background-color: red;
+                            color: white;
+                            width: 70px;
+                            border-color: red;
+                          "
+                        >
+                          Unlist
+                        </button>
+                      </form>
+                      <% } else { %>
+                      <form
+                        action="/admin/listProduct/<%= product._id %>"
+                        method="post"
+                      >
+                        <!-- Button will be red for unlisted products -->
+                        <button
+                          type="submit"
+                          style="
+                            background-color: #088178;
+                            color: white;
+                            width: 70px;
+                            border-color: #088178;
+                          "
+                        >
+                          List
+                        </button>
+                      </form>
+                      <% } %>
+                    </td>
+                    <td>
+                      <a
+                        href="/admin/editProduct/<%= product._id %>"
+                        class="btn btn-sm btn-primary"
+                        >Edit</a
+                      >
+
+                     
+                    </td>
+                    <td>
+                      <button onclick="toggleIsNew('<%= product._id %>', '<%= product.isNewProduct %>')" class="btn btn-toggle">
+                        <%= product.isNewProduct ? 'Mark as New' : 'Mark as Old' %>
+                      </button>
+                    </td>
+                    <td>
+                      <form
+                      action="/admin/deleteProduct/<%= product._id %>"
+                      method="post"
+                    >
+                      <!-- Button will be red for unlisted products -->
+                      <button
+                        type="submit"
+                        style="
+                          background-color: red;
+                          color: white;
+                          width: 70px;
+                          border-color: red;
+                        "
+                      >
+                        Delete
+                      </button>
+                    </form>
+                    </td>
+                  </tr>
+                  <% }) %>
+                </tbody>
+              </table>
             </div>
           </div>
+          <div class="pagination-area mt-15 mb-50">
+            <nav aria-label="Page navigation example">
+              <ul class="pagination justify-content-start">
+                <!-- Previous Page Link -->
+                <% if (currentPage > 1) { %>
+                  <li class="page-item">
+                    <a class="page-link" href="?page=<%= currentPage - 1 %>&limit=4">
+                      <i class="material-icons md-chevron_left"></i>
+                    </a>
+                  </li>
+                <% } %>
+          
+                <!-- Page Number Links -->
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                  <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                    <a class="page-link" href="?page=<%= i %>&limit=4"><%= i %></a>
+                  </li>
+                <% } %>
+          
+                <!-- Next Page Link -->
+                <% if (currentPage < totalPages) { %>
+                  <li class="page-item">
+                    <a class="page-link" href="?page=<%= currentPage + 1 %>&limit=4">
+                      <i class="material-icons md-chevron_right"></i>
+                    </a>
+                  </li>
+                <% } %>
+              </ul>
+            </nav>
+          </div>
         </div>
-        <a
+      </div>
+    </div>
+    
+     <a
           href="/admin/addProduct"
           style="
             background-color: #4caf50;
@@ -212,11 +289,8 @@
           "
           >Add Products</a
         >
-        <!-- card .// -->
-      </section>
-      <!-- content-main end// -->
-
-      <footer class="main-footer font-xs">
+  </section>
+    <footer class="main-footer font-xs">
         <div class="row pb-30 pt-15">
           <div class="col-sm-6">
             <script>
@@ -228,23 +302,8 @@
           </div>
         </div>
       </footer>
-    </main>
-
-    <!-- <script>
-      // function changeColor(selectElement) {
-      //   if (selectElement.value === "list") {
-      //     selectElement.style.color = "#4CAF50";
-      //   } else if (selectElement.value === "unlist") {
-      //     selectElement.style.color = "red";
-      //   }
-      // }
-
-      // window.onload = function () {
-      //   const selectElement = document.getElementById("statusSelect");
-      //   changeColor(selectElement);
-      // };
-    </script> -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</main>
+ <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
@@ -302,13 +361,13 @@
 
 
 </script>
-    <script src="assets/js/vendors/jquery-3.6.0.min.js"></script>
-    <script src="assets/js/vendors/bootstrap.bundle.min.js"></script>
-    <script src="assets/js/vendors/select2.min.js"></script>
-    <script src="assets/js/vendors/perfect-scrollbar.js"></script>
-    <script src="assets/js/vendors/jquery.fullscreen.min.js"></script>
+    <script src="/assets/js/vendors/jquery-3.6.0.min.js"></script>
+    <script src="/assets/js/vendors/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/vendors/select2.min.js"></script>
+    <script src="/assets/js/vendors/perfect-scrollbar.js"></script>
+    <script src="/assets/js/vendors/jquery.fullscreen.min.js"></script>
     <!-- Main Script -->
-    <script src="assets/js/main.js" type="text/javascript"></script>
+    <script src="/assets/js/main.js" type="text/javascript"></script>
   </body>
 
   <!-- Mirrored from wp.alithemes.com/html/evara/evara-backend/page-categories.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 01 Aug 2021 15:33:21 GMT -->

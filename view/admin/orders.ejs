@@ -74,7 +74,7 @@
                       <span
                         class="badge rounded-pill alert-<%= order.status === 'Pending' ? 'warning' : order.status === 'Shipped' || order.status === 'Delivered' ? 'success' : order.status === 'Cancelled' ? 'danger' : 'primary' %> text-<%= order.status === 'Pending' ? 'warning' : order.status === 'Shipped' || order.status === 'Delivered' ? 'success' : order.status === 'Cancelled' ? 'danger' : 'primary' %>"
                       >
-                        <%= order.status %>
+                      <%= order.status === 'Pending' ? 'Placed' : order.status %>
                       </span>
                       <% if (order.paymentStatus === 'Failed') { %>
                       <span class="badge rounded-pill alert-danger text-danger"
@@ -98,7 +98,7 @@
     onchange="handleStatusChange('<%= order._id %>')"
     data-current-status="<%= order.status %>"
   >
-    <option value="Pending" <%= order.status === 'Pending' ? 'selected' : '' %>>Pending</option>
+    <option value="Pending" <%= order.status === 'Pending' ? 'selected' : '' %>>Placed</option>
     <option value="Shipped" <%= order.status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
     <option value="Processing" <%= order.status === 'Processing' ? 'selected' : '' %>>Processing</option>
     <option value="Delivered" <%= order.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>

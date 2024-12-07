@@ -15,7 +15,7 @@
     <link
       rel="shortcut icon"
       type="image/x-icon"
-      href="assets/images/favicon.png"
+      href="/assets/images/favicon.png"
     />
 
     <!-- All CSS is here
@@ -204,21 +204,21 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="assets/css/vendor/bootstrap.min.css" />
+    <link rel="stylesheet" href="/assets/css/vendor/bootstrap.min.css" />
     <!-- Icon Font CSS -->
-    <link rel="stylesheet" href="assets/css/vendor/font-awesome.css" />
-    <link rel="stylesheet" href="assets/css/vendor/dlicon.css" />
+    <link rel="stylesheet" href="/assets/css/vendor/font-awesome.css" />
+    <link rel="stylesheet" href="/assets/css/vendor/dlicon.css" />
     <!-- Others CSS -->
-    <link rel="stylesheet" href="assets/css/plugins/owl-carousel.css" />
-    <link rel="stylesheet" href="assets/css/plugins/slick.css" />
-    <link rel="stylesheet" href="assets/css/plugins/magnific-popup.css" />
-    <link rel="stylesheet" href="assets/css/plugins/jarallax.css" />
-    <link rel="stylesheet" href="assets/css/plugins/easyzoom.css" />
-    <link rel="stylesheet" href="assets/css/plugins/animate.css" />
-    <link rel="stylesheet" href="assets/css/plugins/fullpage.css" />
-    <link rel="stylesheet" href="assets/css/plugins/jquery-ui.css" />
-    <link rel="stylesheet" href="assets/css/plugins/select2.min.css" />
-    <link rel="stylesheet" href="assets/css/style.css" />
+    <link rel="stylesheet" href="/assets/css/plugins/owl-carousel.css" />
+    <link rel="stylesheet" href="/assets/css/plugins/slick.css" />
+    <link rel="stylesheet" href="/assets/css/plugins/magnific-popup.css" />
+    <link rel="stylesheet" href="/assets/css/plugins/jarallax.css" />
+    <link rel="stylesheet" href="/assets/css/plugins/easyzoom.css" />
+    <link rel="stylesheet" href="/assets/css/plugins/animate.css" />
+    <link rel="stylesheet" href="/assets/css/plugins/fullpage.css" />
+    <link rel="stylesheet" href="/assets/css/plugins/jquery-ui.css" />
+    <link rel="stylesheet" href="/assets/css/plugins/select2.min.css" />
+    <link rel="stylesheet" href="/assets/css/style.css" />
     <style>
       .btn-viewmore-hover:hover {
         background-color: palevioletred; 
@@ -256,7 +256,7 @@
     margin-top: -6px;">
               <div class="logo logo-width text-center">
                 <a href="index.html">
-                  <img style="width: 100px;" src="assets/images/logo/logo-white.png" alt="logo" />
+                  <img style="width: 100px;" src="/assets/images/logo/logo-white.png" alt="logo" />
                 </a>
                 <p class="elegant-text" style="width: 220px !important; font-size: 10px !important;font-family: 'Lucida Handwriting',cursive !important;">The Best Destination To Nourish Your Baby</p>
               </div>
@@ -346,36 +346,7 @@ input[type="checkbox"]:checked::before {
     </style>
     
 
-      <div class="header-small-mobile section-padding-1">
-        <div class="container-fluid">
-          <div class="row align-items-center">
-            <div class="col-6">
-              <div class="mobile-logo logo-width">
-                <a href="index.html">
-                  <img alt="" src="assets/images/logo/logo.png" />
-                </a>
-              </div>
-            </div>
-            <div class="col-6">
-              <div class="mobile-header-right-wrap">
-                <div class="header-right-wrap header-right-flex">
-                  <div class="same-style cart-wrap">
-                    <a href="#" class="cart-active">
-                      <i class="dlicon shopping_bag-20"></i>
-                      <span class="count-style">02</span>
-                    </a>
-                  </div>
-                  <div class="same-style header-off-canvas">
-                    <a class="header-aside-button" href="#">
-                      <i class="dlicon ui-3_menu-left"></i>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      
       <!-- search start -->
       <div class="search-content-wrap main-search-active">
         <a class="search-close"><i class="dlicon ui-1_simple-remove"></i></a>
@@ -401,7 +372,7 @@ input[type="checkbox"]:checked::before {
               <li class="single-product-cart">
                 <div class="cart-img">
                   <a href="#"
-                    ><img src="assets/images/cart/cart-1.jpg" alt=""
+                    ><img src="/assets/images/cart/cart-1.jpg" alt=""
                   /></a>
                 </div>
                 <div class="cart-title">
@@ -415,7 +386,7 @@ input[type="checkbox"]:checked::before {
               <li class="single-product-cart">
                 <div class="cart-img">
                   <a href="#"
-                    ><img src="assets/images/cart/cart-2.jpg" alt=""
+                    ><img src="/assets/images/cart/cart-2.jpg" alt=""
                   /></a>
                 </div>
                 <div class="cart-title">
@@ -471,7 +442,7 @@ input[type="checkbox"]:checked::before {
 
       <div
   class="breadcrumb-area section-padding-1 breadcrumb-bg-1 breadcrumb-ptb-2"
-  style="background-image: url('http://localhost:3700/assets/images/bg/breadcrumb-bg-1.jpg'); 
+  style="background-image: url('/assets/images/bg/breadcrumb-bg-1.jpg'); 
          width: 100%; 
          max-width: 1880px; 
          height: 400px; 
@@ -656,13 +627,13 @@ input[type="checkbox"]:checked::before {
                                     <% console.log("hy");
                                      %>
                                     <span class="original-price" style="text-decoration: line-through; color: grey;">
-                                      $<%= product[i].price.toFixed(2) %>
+                                      ₹<%= product[i].price.toFixed(2) %>
                                     </span>
                                     <span class="new-price" style="color: green; font-weight: bold;">
-                                      $<%= product[i].discountedPrice.toFixed(2) %>
+                                      ₹<%= product[i].discountedPrice.toFixed(2) %>
                                     </span>
                                   <% } else { %>
-                                    <span class="new-price">$<%= product[i].price.toFixed(2) %></span>
+                                    <span class="new-price">₹<%= product[i].price.toFixed(2) %></span>
                                   <% } %>
                                 </div>
                               </div>
@@ -688,7 +659,7 @@ input[type="checkbox"]:checked::before {
               <div class="footer-column footer-width-24">
                 <div class="footer-widget footer-about mb-30">
                   <a href="index.html">
-                    <img src="assets/images/logo/logo.png" alt="logo" />
+                    <img src="/assets/images/logo/logo.png" alt="logo" />
                   </a>
                   <p>
                     Lorem ipsum dolor sit amet, magna habemus ius ad, qui
@@ -816,7 +787,7 @@ input[type="checkbox"]:checked::before {
                       <div class="demo-item-img">
                         <a href="index.html">
                           <img
-                            src="assets/images/demo-img/h-1.jpg"
+                            src="/assets/images/demo-img/h-1.jpg"
                             alt="demo-img"
                           />
                           <span>View Demo</span>
@@ -832,7 +803,7 @@ input[type="checkbox"]:checked::before {
                       <div class="demo-item-img">
                         <a href="index-2.html">
                           <img
-                            src="assets/images/demo-img/h-2.jpg"
+                            src="/assets/images/demo-img/h-2.jpg"
                             alt="demo-img"
                           />
                           <span>View Demo</span>
@@ -848,7 +819,7 @@ input[type="checkbox"]:checked::before {
                       <div class="demo-item-img">
                         <a href="index-3.html">
                           <img
-                            src="assets/images/demo-img/h-3.jpg"
+                            src="/assets/images/demo-img/h-3.jpg"
                             alt="demo-img"
                           />
                           <span>View Demo</span>
@@ -864,7 +835,7 @@ input[type="checkbox"]:checked::before {
                       <div class="demo-item-img">
                         <a href="index-4.html">
                           <img
-                            src="assets/images/demo-img/h-4.jpg"
+                            src="/assets/images/demo-img/h-4.jpg"
                             alt="demo-img"
                           />
                           <span>View Demo</span>
@@ -880,7 +851,7 @@ input[type="checkbox"]:checked::before {
                       <div class="demo-item-img">
                         <a href="index-5.html">
                           <img
-                            src="assets/images/demo-img/h-5.jpg"
+                            src="/assets/images/demo-img/h-5.jpg"
                             alt="demo-img"
                           />
                           <span>View Demo</span>
@@ -896,7 +867,7 @@ input[type="checkbox"]:checked::before {
                       <div class="demo-item-img">
                         <a href="index-6.html">
                           <img
-                            src="assets/images/demo-img/h-6.jpg"
+                            src="/assets/images/demo-img/h-6.jpg"
                             alt="demo-img"
                           />
                           <span>View Demo</span>
@@ -912,7 +883,7 @@ input[type="checkbox"]:checked::before {
                       <div class="demo-item-img">
                         <a href="index-7.html">
                           <img
-                            src="assets/images/demo-img/h-7.jpg"
+                            src="/assets/images/demo-img/h-7.jpg"
                             alt="demo-img"
                           />
                           <span>View Demo</span>
@@ -928,7 +899,7 @@ input[type="checkbox"]:checked::before {
                       <div class="demo-item-img">
                         <a href="index-8.html">
                           <img
-                            src="assets/images/demo-img/h-8.jpg"
+                            src="/assets/images/demo-img/h-8.jpg"
                             alt="demo-img"
                           />
                           <span>View Demo</span>
@@ -951,7 +922,7 @@ input[type="checkbox"]:checked::before {
                       <div class="demo-item-img">
                         <a href="index-9.html">
                           <img
-                            src="assets/images/demo-img/h-9.jpg"
+                            src="/assets/images/demo-img/h-9.jpg"
                             alt="demo-img"
                           />
                           <span>View Demo</span>
@@ -967,7 +938,7 @@ input[type="checkbox"]:checked::before {
                       <div class="demo-item-img">
                         <a href="index-10.html">
                           <img
-                            src="assets/images/demo-img/h-10.jpg"
+                            src="/assets/images/demo-img/h-10.jpg"
                             alt="demo-img"
                           />
                           <span>View Demo</span>
@@ -983,7 +954,7 @@ input[type="checkbox"]:checked::before {
                       <div class="demo-item-img">
                         <a href="index-11.html">
                           <img
-                            src="assets/images/demo-img/h-11.jpg"
+                            src="/assets/images/demo-img/h-11.jpg"
                             alt="demo-img"
                           />
                           <span>View Demo</span>
@@ -999,7 +970,7 @@ input[type="checkbox"]:checked::before {
                       <div class="demo-item-img">
                         <a href="index-12.html">
                           <img
-                            src="assets/images/demo-img/h-12.jpg"
+                            src="/assets/images/demo-img/h-12.jpg"
                             alt="demo-img"
                           />
                           <span>View Demo</span>
@@ -1015,7 +986,7 @@ input[type="checkbox"]:checked::before {
                       <div class="demo-item-img">
                         <a href="index-13.html">
                           <img
-                            src="assets/images/demo-img/h-13.jpg"
+                            src="/assets/images/demo-img/h-13.jpg"
                             alt="demo-img"
                           />
                           <span>View Demo</span>
@@ -1031,7 +1002,7 @@ input[type="checkbox"]:checked::before {
                       <div class="demo-item-img">
                         <a href="index-14.html">
                           <img
-                            src="assets/images/demo-img/h-14.jpg"
+                            src="/assets/images/demo-img/h-14.jpg"
                             alt="demo-img"
                           />
                           <span>View Demo</span>
@@ -1047,7 +1018,7 @@ input[type="checkbox"]:checked::before {
                       <div class="demo-item-img">
                         <a href="index-15.html">
                           <img
-                            src="assets/images/demo-img/h-15.jpg"
+                            src="/assets/images/demo-img/h-15.jpg"
                             alt="demo-img"
                           />
                           <span>View Demo</span>
@@ -1063,7 +1034,7 @@ input[type="checkbox"]:checked::before {
                       <div class="demo-item-img">
                         <a href="index-16.html">
                           <img
-                            src="assets/images/demo-img/h-16.jpg"
+                            src="/assets/images/demo-img/h-16.jpg"
                             alt="demo-img"
                           />
                           <span>View Demo</span>
@@ -1086,7 +1057,7 @@ input[type="checkbox"]:checked::before {
                       <div class="demo-item-img">
                         <a href="index-17.html">
                           <img
-                            src="assets/images/demo-img/h-17.jpg"
+                            src="/assets/images/demo-img/h-17.jpg"
                             alt="demo-img"
                           />
                           <span>View Demo</span>
@@ -1102,7 +1073,7 @@ input[type="checkbox"]:checked::before {
                       <div class="demo-item-img">
                         <a href="index-18.html">
                           <img
-                            src="assets/images/demo-img/h-18.jpg"
+                            src="/assets/images/demo-img/h-18.jpg"
                             alt="demo-img"
                           />
                           <span>View Demo</span>
@@ -1118,7 +1089,7 @@ input[type="checkbox"]:checked::before {
                       <div class="demo-item-img">
                         <a href="index-19.html">
                           <img
-                            src="assets/images/demo-img/h-19.jpg"
+                            src="/assets/images/demo-img/h-19.jpg"
                             alt="demo-img"
                           />
                           <span>View Demo</span>
@@ -1161,17 +1132,17 @@ input[type="checkbox"]:checked::before {
                   <div class="quickview-slider-active owl-carousel">
                     <a
                       class="img-popup"
-                      href="assets/images/product/quickview-1.jpg"
+                      href="/assets/images/product/quickview-1.jpg"
                       ><img
-                        src="assets/images/product/quickview-1.jpg"
+                        src="/assets/images/product/quickview-1.jpg"
                         alt=""
                       /><span>sold uot</span></a
                     >
                     <a
                       class="img-popup"
-                      href="assets/images/product/quickview-2.jpg"
+                      href="/assets/images/product/quickview-2.jpg"
                       ><img
-                        src="assets/images/product/quickview-2.jpg"
+                        src="/assets/images/product/quickview-2.jpg"
                         alt=""
                       /><span>sold uot</span></a
                     >
@@ -1189,7 +1160,7 @@ input[type="checkbox"]:checked::before {
                       ></a>
                     </div>
                     <h2 class="uppercase">Quilted parka with hood</h2>
-                    <h3>$49.00</h3>
+                    <h3>₹49.00</h3>
                     <div class="product-details-peragraph">
                       <p>
                         Donec accumsan auctor iaculis. Sed suscipit arcu ligula,
@@ -1364,7 +1335,7 @@ input[type="checkbox"]:checked::before {
               <a href="/product-guest-details/${product._id}">${product.product_title}</a>
             </h3>
             <div class="product-price">
-              <span class="new-price">$${product.price}</span>
+              <span class="new-price">₹${product.price}</span>
             </div>
           </div>
         </div>
@@ -1425,38 +1396,39 @@ input[type="checkbox"]:checked::before {
     </script>
   
     <!-- Modernizer JS -->
-    <script src="assets/js/vendor/modernizr-3.11.7.min.js"></script>
+    <script src="/assets/js/vendor/modernizr-3.11.7.min.js"></script>
     <!-- jquery -->
-    <script src="assets/js/vendor/jquery-v3.6.0.min.js"></script>
+    <script src="/assets/js/vendor/jquery-v3.6.0.min.js"></script>
     <!-- Popper JS -->
-    <script src="assets/js/vendor/popper.js"></script>
+    <script src="/assets/js/vendor/popper.js"></script>
     <!-- Bootstrap JS -->
-    <script src="assets/js/vendor/bootstrap.min.js"></script>
-    <script src="assets/js/plugins/owl-carousel.js"></script>
-    <script src="assets/js/plugins/slick.js"></script>
-    <script src="assets/js/plugins/jarallax.min.js"></script>
-    <script src="assets/js/plugins/countdown.js"></script>
-    <script src="assets/js/plugins/magnific-popup.js"></script>
-    <script src="assets/js/plugins/instafeed.js"></script>
-    <script src="assets/js/plugins/tilt.js"></script>
-    <script src="assets/js/plugins/images-loaded.js"></script>
-    <script src="assets/js/plugins/isotope.js"></script>
-    <script src="assets/js/plugins/scrolloverflow-fullpage.js"></script>
-    <script src="assets/js/plugins/fullpage.js"></script>
-    <script src="assets/js/plugins/jquery-ui.js"></script>
-    <script src="assets/js/plugins/jquery-ui-touch-punch.js"></script>
-    <script src="assets/js/plugins/easyzoom.js"></script>
-    <script src="assets/js/plugins/resizesensor.js"></script>
-    <script src="assets/js/plugins/sticky-sidebar.js"></script>
-    <script src="assets/js/plugins/scrollup.js"></script>
-    <script src="assets/js/plugins/select2.min.js"></script>
-    <script src="assets/js/plugins/cookie.js"></script>
-    <script src="assets/js/plugins/bpopup.js"></script>
-    <script src="assets/js/plugins/wow.js"></script>
-    <script src="assets/js/plugins/ajax-mail.js"></script>
+    <script src="/assets/js/vendor/bootstrap.min.js"></script>
+    <script src="/assets/js/plugins/owl-carousel.js"></script>
+    <script src="/assets/js/plugins/slick.js"></script>
+    <script src="/assets/js/plugins/jarallax.min.js"></script>
+    <script src="/assets/js/plugins/countdown.js"></script>
+    <script src="/assets/js/plugins/magnific-popup.js"></script>
+    <script src="/assets/js/plugins/instafeed.js"></script>
+    <script src="/assets/js/plugins/tilt.js"></script>
+    <script src="/assets/js/plugins/images-loaded.js"></script>
+    <script src="/assets/js/plugins/isotope.js"></script>
+    <script src="/assets/js/plugins/scrolloverflow-fullpage.js"></script>
+    <script src="/assets/js/plugins/fullpage.js"></script>
+    <script src="/assets/js/plugins/jquery-ui.js"></script>
+    <script src="/assets/js/plugins/jquery-ui-touch-punch.js"></script>
+    <script src="/assets/js/plugins/easyzoom.js"></script>
+    <script src="/assets/js/plugins/resizesensor.js"></script>
+    <script src="/assets/js/plugins/sticky-sidebar.js"></script>
+    <script src="/assets/js/plugins/scrollup.js"></script>
+    <script src="/assets/js/plugins/select2.min.js"></script>
+    <script src="/assets/js/plugins/cookie.js"></script>
+    <script src="/assets/js/plugins/bpopup.js"></script>
+    <script src="/assets/js/plugins/wow.js"></script>
+    <script src="/assets/js/plugins/ajax-mail.js"></script>
     <!-- Main JS -->
-    <script src="assets/js/main.js"></script>
+    <script src="/assets/js/main.js"></script>
   </body>
+  <%- include('footer') %>
 
   <!-- Mirrored from template.hasthemes.com/toro/toro/shop-sidebar.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 09 Feb 2024 11:19:25 GMT -->
 </html>

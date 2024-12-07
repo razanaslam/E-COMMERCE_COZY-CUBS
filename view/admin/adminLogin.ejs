@@ -20,6 +20,7 @@
         justify-content: center;
         align-items: center;
         height: 100vh;
+        padding: 10px;
       }
 
       /* Container for the form */
@@ -27,10 +28,10 @@
         width: 100%;
         max-width: 400px;
         padding: 20px;
-        margin: auto;
         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
         background-color: #fff;
         border-radius: 8px;
+        overflow: hidden;
       }
 
       .login-box h2 {
@@ -75,6 +76,7 @@
         border-radius: 4px;
         color: white;
         cursor: pointer;
+        transition: background-color 0.3s, color 0.3s;
       }
 
       .login-btn:hover {
@@ -85,16 +87,50 @@
 
       /* Additional styling for the form */
       .login-box {
-        background-color: #fff;
-        padding: 30px;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         text-align: left;
       }
 
+      /* Media queries for responsiveness */
+      @media (max-width: 768px) {
+        .login-container {
+          width: 90%;
+          max-width: none;
+          padding: 15px;
+        }
+
+        .login-box h2 {
+          font-size: 24px;
+        }
+
+        .input-group label {
+          font-size: 13px;
+        }
+
+        .input-group input {
+          font-size: 14px;
+        }
+
+        .login-btn {
+          font-size: 14px;
+        }
+      }
+
       @media (max-width: 500px) {
+        body {
+          flex-direction: column;
+        }
+
         .login-container {
           padding: 10px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .login-box h2 {
+          font-size: 20px;
+        }
+
+        .login-btn {
+          padding: 8px;
         }
       }
     </style>

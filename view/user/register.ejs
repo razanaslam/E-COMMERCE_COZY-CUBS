@@ -2,137 +2,29 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>RegistrationForm_v1 by Colorlib</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-    <!-- MATERIAL DESIGN ICONIC FONT -->
-    <link
-      rel="stylesheet"
-      href="fonts/material-design-iconic-font/css/material-design-iconic-font.min.css"
-    />
-
-    <!-- STYLE CSS -->
-    <link rel="stylesheet" href="css/style.css" />
-
-    <!-- Add Google Sign-In API -->
-    <script src="https://apis.google.com/js/platform.js" async defer></script>
-    <meta
-      name="google-signin-client_id"
-      content="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
-    />
-
-    <!-- Add Facebook SDK -->
-    <script
-      async
-      defer
-      crossorigin="anonymous"
-      src="https://connect.facebook.net/en_US/sdk.js"
-    ></script>
-
+    <title>Responsive Registration Form</title>
+    <link rel="stylesheet" href="/css/style.css" />
     <style>
-      body {
-        font-family: Arial, sans-serif;
-        background-color: #f4f4f4;
-        margin: 0;
-        padding: 0;
-      }
-      .wrapper {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        background-size: cover;
-      }
-      .inner {
-        background: white;
-        padding: 40px;
-        max-width: 850px;
-        display: flex;
-        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-      }
-      .image-holder {
-        width: 50%;
-      }
-      .image-holder img {
-        width: 100%;
-        height: auto;
-      }
-      form {
-        width: 50%;
-        padding-left: 45px;
-      }
-      h3 {
-        text-align: center;
-        margin-bottom: 40px;
-        color: #333;
-      }
-      .form-wrapper {
-        position: relative;
-        margin-bottom: 17px;
-      }
-      .form-control {
-        border: 1px solid #333;
-        border-radius: 3px;
-        display: block;
-        width: 100%;
-        height: 40px;
-        padding: 0 20px;
-        font-size: 13px;
-      }
-      .form-wrapper i {
-        position: absolute;
-        bottom: 9px;
-        right: 20px;
-        font-size: 20px;
-      }
-      button[type="submit"] {
-        border: none;
-        width: 100%;
-        height: 49px;
-        margin-top: 50px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0;
-        background: #333;
-        color: #fff;
-        text-transform: uppercase;
-        font-family: "Muli-SemiBold";
-        font-size: 15px;
-        letter-spacing: 2px;
-        transition: all 0.5s;
-        position: relative;
-        overflow: hidden;
-      }
-      button[type="submit"]:hover {
-        background: #555;
-      }
-      .social-auth-buttons {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 20px;
-      }
-      .social-auth-button {
-        width: 48%;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: white;
-        border: 1px solid black;
-        border-radius: 4px;
-        color: black;
-        font-size: 17px;
-        cursor: pointer;
-        transition: background-color 0.3s;
-      }
-      .social-auth-button:hover {
-        background-color: #f0f0f0;
-      }
-      .social-auth-button i {
-        margin-right: 10px;
-        font-size: 24px;
+      /* Add custom styles to make the form responsive on smaller screens */
+      @media (max-width: 768px) {
+        .wrapper {
+          background-image: none; /* Disable background image for smaller screens */
+          padding: 20px;
+        }
+
+        .inner {
+          width: 100%;
+          padding: 20px;
+        }
+
+        .form-wrapper {
+          width: 100%;
+        }
+
+        .image-holder img {
+          display: none; /* Hide image on smaller screens */
+        }
       }
     </style>
   </head>
@@ -140,48 +32,20 @@
   <body>
     <div
       class="wrapper"
-      style="background-image: url('images/bg-registration-form-1.jpg')"
+      style="background-image: url('/images/bg-registration-form-1.jpg')"
     >
       <div class="inner">
         <div class="image-holder">
-          <img src="images/registration-form-1.jpg" alt="" />
+          <img src="/images/registration-form-1.jpg" alt="Registration" />
         </div>
-
         <form id="registerForm" method="post" action="/registerUser">
           <h3>Registration Form</h3>
 
-          <!-- Add Google and Facebook authentication buttons -->
-          <div class="social-auth-buttons">
-            <!-- <button
-              type="button"
-              class="social-auth-button"
-              onclick="onGoogleSignIn()"
-            >
-              <i class="zmdi zmdi-google"></i>Google
-            </button>
-            <button
-              type="button"
-              class="social-auth-button"
-              onclick="onFacebookLogin()"
-            >
-              <i class="zmdi zmdi-facebook"></i>Facebook
-            </button> -->
-            <p style="margin-left: 50px">
-              Already have an account ?<a href="/login">Login</a>
-            </p>
-          </div>
-
           <div class="form-wrapper">
-            <p style="color: red; font-size: medium; margin-left: 48px">
-              <%= errorPassword %>
-            </p>
-            <p style="color: red; font-size: medium; margin-left: 48px">
-              <%= errorEmail %>
-            </p>
             <input
               type="text"
               id="name"
-              placeholder="Name"
+              placeholder="Full Name"
               name="name"
               class="form-control"
             />
@@ -189,7 +53,7 @@
           </div>
           <div class="form-wrapper">
             <input
-              type="text"
+              type="email"
               id="email"
               placeholder="Email Address"
               name="email"
@@ -204,6 +68,7 @@
               placeholder="Mobile Number"
               name="number"
               class="form-control"
+              pattern="[0-9]{10}"
             />
             <i class="zmdi zmdi-phone"></i>
           </div>
@@ -214,6 +79,7 @@
               placeholder="Password"
               name="password"
               class="form-control"
+              minlength="6"
             />
             <i class="zmdi zmdi-lock"></i>
           </div>
@@ -228,96 +94,43 @@
             <i class="zmdi zmdi-lock"></i>
           </div>
 
-          <p id="errorMessage" style="color: red"></p>
+          <div id="error-container" style="color: red"></div>
+
           <button type="submit">
             Register
             <i class="zmdi zmdi-arrow-right"></i>
           </button>
+
+          <p style="text-align: center; margin-top: 10px">
+            Already have an account? <a href="/login">Login Here</a>
+          </p>
         </form>
       </div>
     </div>
 
     <script>
-      // Initialize Facebook SDK
-      window.fbAsyncInit = function () {
-        FB.init({
-          appId: "YOUR_FACEBOOK_APP_ID",
-          cookie: true,
-          xfbml: true,
-          version: "v11.0",
-        });
-      };
-
-      // Google Sign-In callback
-      function onGoogleSignIn() {
-        // Implement Google Sign-In logic here
-        console.log("Google Sign-In initiated");
-      }
-
-      // Facebook Login callback
-      function onFacebookLogin() {
-        FB.login(
-          function (response) {
-            if (response.authResponse) {
-              console.log("Welcome! Fetching your information.... ");
-              FB.api("/me", { fields: "name, email" }, function (response) {
-                console.log("Facebook Name: " + response.name);
-                console.log("Facebook Email: " + response.email);
-                // Here you would typically send this data to your server
-              });
-            } else {
-              console.log("User cancelled login or did not fully authorize.");
-            }
-          },
-          { scope: "public_profile,email" }
-        );
-      }
-
-      // Existing form validation script
       document
         .getElementById("registerForm")
         .addEventListener("submit", function (event) {
-          event.preventDefault(); // Prevent form from submitting
-
-          const username = document.getElementById("name").value;
-          const email = document.getElementById("email").value;
-          const number = document.getElementById("number").value;
           const password = document.getElementById("password").value;
           const confirmPassword =
             document.getElementById("confirmPassword").value;
-          const errorMessage = document.getElementById("errorMessage");
 
-          errorMessage.textContent = "";
+          const errorContainer = document.getElementById("error-container");
+          errorContainer.textContent = "";
 
-          if (username.length < 5) {
-            errorMessage.textContent =
-              "Name must be at least 5 characters long.";
-            return;
+          let errorMessage = "";
+
+          if (password !== confirmPassword) {
+            errorMessage = "Passwords do not match.";
+          } else if (!password || !confirmPassword) {
+            errorMessage = "Please fill out both password fields.";
           }
 
-          if (!email.includes("@")) {
-            errorMessage.textContent = "Please enter a valid email address.";
-            return;
+          if (errorMessage) {
+            errorContainer.textContent = errorMessage;
+            event.preventDefault();
           }
-
-          if (number.length < 10 || isNaN(number)) {
-            errorMessage.textContent =
-              "Please enter a valid 10-digit mobile number.";
-            return;
-          }
-
-          if (password.length < 8) {
-            errorMessage.textContent =
-              "Password must be at least 8 characters long.";
-            return;
-          }
-
-          // if (password !== confirmPassword) {
-          //   errorMessage.textContent = "Passwords do not match.";
-          //   return;
-          // }
-
-          this.submit();
         });
     </script>
   </body>
