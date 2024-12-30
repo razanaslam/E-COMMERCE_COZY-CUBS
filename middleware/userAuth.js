@@ -14,7 +14,7 @@ const isUser = async (req, res, next) => {
       }
       next();
     } catch (error) {
-      console.error("Error fetching user:", err);
+      console.error("Error fetching user:", error);
       res.redirect("/landing-page");
     }
 
