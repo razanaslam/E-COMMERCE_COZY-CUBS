@@ -1,0 +1,86 @@
+<style>
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+  }
+
+  .page-link {
+    margin: 0 5px;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    text-decoration: none;
+    color: #000000;
+    transition: all 0.3s ease;
+  }
+
+  .page-link.active {
+    background-color: #000000;
+    color: white;
+    border-color: #000000;
+  }
+
+  .page-link:hover {
+    background-color: #ffffff;
+    color: rgb(0, 0, 0);
+  }
+
+  .page-dots {
+    margin: 0 5px;
+    color: #777;
+    font-size: 16px;
+  }
+</style>
+
+<div class="pagination">
+  <% if (totalPages > 1) { %> <% const maxPagesToShow = 5; let startPage =
+  Math.max(1, currentPage - Math.floor(maxPagesToShow / 2)); let endPage =
+  Math.min(totalPages, startPage + maxPagesToShow - 1); if (endPage - startPage
+  + 1 < maxPagesToShow) { startPage = Math.max(1, endPage - maxPagesToShow + 1);
+  } %>
+
+  <!-- Previous Button -->
+  <% if (currentPage > 1) { %>
+  <a
+    href="?page=<%= currentPage - 1 %>&limit=<%= itemsPerPage %>"
+    class="page-link"
+    >Previous</a
+  >
+  <% } %>
+
+  <!-- First Page and Ellipsis -->
+  <% if (startPage > 1) { %>
+  <a href="?page=1&limit=<%= itemsPerPage %>" class="page-link">1</a>
+  <% if (startPage > 2) { %>
+  <span class="page-dots">...</span>
+  <% } %> <% } %>
+
+  <!-- Page Numbers -->
+  <% for (let i = startPage; i <= endPage; i++) { %>
+  <a
+    href="?page=<%= i %>&limit=<%= itemsPerPage %>"
+    class="page-link <%= currentPage === i ? 'active' : '' %>"
+  >
+    <%= i %>
+  </a>
+  <% } %>
+
+  <!-- Last Page and Ellipsis -->
+  <% if (endPage < totalPages) { %> <% if (endPage < totalPages - 1) { %>
+  <span class="page-dots">...</span>
+  <% } %>
+  <a href="?page=<%= totalPages %>&limit=<%= itemsPerPage %>" class="page-link"
+    ><%= totalPages %></a
+  >
+  <% } %>
+
+  <!-- Next Button -->
+  <% if (currentPage < totalPages) { %>
+  <a
+    href="?page=<%= currentPage + 1 %>&limit=<%= itemsPerPage %>"
+    class="page-link"
+    >Next</a
+  >
+  <% } %> <% } %>
+</div>

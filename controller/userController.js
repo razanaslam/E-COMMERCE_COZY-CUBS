@@ -1398,12 +1398,12 @@ const cancelOrder = async (req, res) => {
         .json({ success: false, message: "Order not found" });
     }
     if (updatedOrder.status === "Delivered") {
-      order.status = "Returned";
+      updatedOrder.status = "Returned";
     } else {
-      order.status = "Cancelled";
+      updatedOrder.status = "Cancelled";
     }
 
-    await order.save();
+    await updatedOrder.save();
     const userId = updatedOrder.userId;
 
     // const totalRefundAmount = updatedOrder.items.reduce((total, item) => {

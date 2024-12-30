@@ -123,16 +123,11 @@
           </div>
         </div>
 
-        <div class="pagination">
-          <% for (let i = 1; i <= totalPages; i++) { %>
-          <a
-            href="?page=<%= i %>"
-            class="page-link <%= currentPage === i ? 'active' : '' %>"
-          >
-            <%= i %>
-          </a>
-          <% } %>
-        </div>
+        <%- include('pagination.ejs', {
+            currentPage: currentPage,
+            totalPages: totalPages,
+            itemsPerPage: itemsPerPage
+          }) %>
       </section>
 
       <footer class="main-footer font-xs">
@@ -154,33 +149,7 @@
       </footer>
     </main>
 
-    <style>
-      .pagination {
-        display: flex;
-        justify-content: center;
-        margin-top: 20px;
-        gap: 8px;
-      }
-
-      .page-link {
-        display: inline-block;
-        padding: 8px 12px;
-        background-color: #f0f0f0;
-        color: #333;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        text-decoration: none;
-      }
-
-      .page-link.active {
-        background-color: #007bff;
-        color: white;
-      }
-
-      .page-link:hover {
-        background-color: #e0e0e0;
-      }
-    </style>
+   
     <script>
   // Function to handle status change
   function handleStatusChange(orderId) {

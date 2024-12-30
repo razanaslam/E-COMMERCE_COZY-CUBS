@@ -14,10 +14,10 @@
     <link
       rel="shortcut icon"
       type="image/x-icon"
-      href="/assets/imgs/theme/favicon1.svg"
+      href="/admin/assets/imgs/theme/favicon1.svg"
     />
     <!-- Template CSS -->
-    <link href="/assets/css/main.css" rel="stylesheet" type="text/css" />
+    <link href="/admin/assets/css/main.css" rel="stylesheet" type="text/css" />
     <!-- Material Icons -->
     <link
       href="https://fonts.googleapis.com/icon?family=Material+Icons"
@@ -77,7 +77,7 @@
       <div class="aside-top">
         <a href="dashboard" class="brand-wrap">
           <img
-            src="/assets/imgs/theme/logo1.svg"
+            src="/admin/assets/imgs/theme/logo1.svg"
             class="logo"
             alt="Evara Dashboard"
             style="width: 50px; height: auto"
@@ -91,17 +91,23 @@
       </div>
       <nav>
         <ul class="menu-aside">
-          <% const menuItems = [ { link: 'dashboard', icon: 'dashboard', text:
-          'Dashboard' }, { link: 'productsList', icon: 'inventory_2', text:
-          'Products' }, { link: 'userList', icon: 'people', text: 'Users' }, {
-          link: 'brand', icon: 'branding_watermark', text: 'Brands' }, { link:
-          'catagory', icon: 'category', text: 'Category' }, { link: 'offer',
-          icon: 'local_offer', text: 'Offers' }, { link: 'sales-report', icon:
-          'bar_chart', text: 'Sales Report' }, { link: 'coupons', icon:
-          'loyalty', text: 'Coupons' }, { link: 'orders', icon: 'shopping_cart',
-          text: 'Orders' } ]; %> <% menuItems.forEach(item => { %>
+          <% const menuItems = [ { link: '/admin/dashboard', icon: 'dashboard',
+          text: 'Dashboard' }, { link: '/admin/productsList', icon:
+          'inventory_2', text: 'Products' }, { link: '/admin/userList', icon:
+          'people', text: 'Users' }, { link: '/admin/brand', icon:
+          'branding_watermark', text: 'Brands' }, { link: '/admin/catagory',
+          icon: 'category', text: 'Category' }, { link: '/admin/offer', icon:
+          'local_offer', text: 'Offers' }, { link: '/admin/sales-report', icon:
+          'bar_chart', text: 'Sales Report' }, { link: '/admin/coupons', icon:
+          'loyalty', text: 'Coupons' }, { link: '/admin/orders', icon:
+          'shopping_cart', text: 'Orders' } ]; %> <% menuItems.forEach(item => {
+          %>
           <li class="menu-item <%= item.active ? 'active' : '' %>">
-            <a class="menu-link" href="<%= item.link %>">
+            <a
+              class="menu-link"
+              href="<%= item.link %>"
+              onclick="navigateTo(event, '<%= item.link %>')"
+            >
               <i class="material-icons"><%= item.icon %></i>
               <span class="text"><%= item.text %></span>
             </a>
@@ -110,5 +116,12 @@
         </ul>
       </nav>
     </aside>
+
+    <script>
+      function navigateTo(event, link) {
+        event.preventDefault();
+        window.location.href = link;
+      }
+    </script>
   </body>
 </html>

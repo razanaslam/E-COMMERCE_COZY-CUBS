@@ -45,10 +45,11 @@ adminRoute.post(
   adminController.upload,
   adminController.editProduct
 );
-adminRoute.get(
+adminRoute.delete(
   "/deleteProductImage/:id/:filename",
   adminController.deleteProductImage
 );
+
 adminRoute.post("/listProduct/:id", adminController.listProduct);
 adminRoute.post("/unlistProduct/:id", adminController.unlistProduct);
 adminRoute.post("/deleteProduct/:id", adminController.deleteProduct);

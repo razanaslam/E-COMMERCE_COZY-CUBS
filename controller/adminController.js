@@ -20,6 +20,7 @@ const dayjs = require("dayjs");
 const PDFDocument = require("pdfkit");
 const ExcelJS = require("exceljs");
 const moment = require("moment");
+const mongoose = require("mongoose");
 //---------------------------------------------------------------multer----------------------------------------------------------
 
 let storage = multer.diskStorage({
@@ -35,12 +36,28 @@ let upload = multer({
   storage: storage,
 }).array("image_url", 10);
 
+//---------------------------------------------------------------pagination----------------------------------------------------------
+
+const getPaginationData = async (model, page, limit) => {
+  const skip = (page - 1) * limit;
+
+  // Total count of documents
+  const totalDocuments = await model.countDocuments();
+  const totalPages = Math.ceil(totalDocuments / limit);
+
+  // Fetch the documents with pagination
+  const data = await model.find().skip(skip).limit(limit);
+
+  return { data, totalPages };
+};
+
 //---------------------------------------------------------------login of Admin----------------------------------------------------------
 
 const loadLogin = (req, res) => {
   try {
     // console.log("haiii");
     if (req.session.admin) {
+      console.log("hi");
       res.redirect("/admin/dashboard");
     } else {
       const loginError = req.flash("loginError");
@@ -118,7 +135,6 @@ const loadDashboard = async (req, res) => {
       },
     ]);
 
-
     const topCategories = await orderModel.aggregate([
       {
         $match: {
@@ -157,7 +173,6 @@ const loadDashboard = async (req, res) => {
       { $sort: { totalSales: -1 } },
       { $limit: 10 },
     ]);
-
 
     const topProducts = await orderModel.aggregate([
       {
@@ -210,30 +225,45 @@ const loadDashboard = async (req, res) => {
 
 // const loadProductList = async (req, res) => {
 //   try {
-//     const products = await productModel.find();
-//     res.render("productsList", { products });
+//     const page = parseInt(req.query.page) || 1;
+//     const limit = parseInt(req.query.limit) || 4;
+//     const skip = (page - 1) * limit;
+
+//     const products = await productModel.find().skip(skip).limit(limit);
+//     const totalProducts = await productModel.countDocuments();
+//     const totalPages = Math.ceil(totalProducts / limit);
+
+//     res.render("productsList", {
+//       products,
+//       currentPage: page,
+//       totalPages,
+//     });
 //   } catch (error) {
 //     console.log(error);
+//     res.status(500).send("An error occurred while loading products.");
 //   }
 // };
 
 const loadProductList = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 4;
-    const skip = (page - 1) * limit;
+    const page = parseInt(req.query.page) || 1; // Current page
+    const limit = parseInt(req.query.limit) || 4; // Items per page
 
-    const products = await productModel.find().skip(skip).limit(limit);
-    const totalProducts = await productModel.countDocuments();
-    const totalPages = Math.ceil(totalProducts / limit);
+    // Get paginated data and total pages using the helper
+    const { data: products, totalPages } = await getPaginationData(
+      productModel,
+      page,
+      limit
+    );
 
     res.render("productsList", {
-      products,
+      products, // Paginated product data
       currentPage: page,
       totalPages,
+      itemsPerPage: limit,
     });
   } catch (error) {
-    console.log(error);
+    console.error("Error loading product list:", error);
     res.status(500).send("An error occurred while loading products.");
   }
 };
@@ -305,28 +335,27 @@ const addProduct = async (req, res) => {
 const loadEditProduct = async (req, res) => {
   try {
     const id = req.params.id;
-    // console.log(id, "iiiiiiiiidddd");
+
+    // Validate ObjectId
+    if (!mongoose.isValidObjectId(id)) {
+      console.log("Invalid ID:", id);
+      return res.status(400).send("Invalid Product ID");
+    }
 
     const product = await productModel
       .findById(id)
       .populate("category", "name");
-
     const category = await catagoryModel.find();
-    // console.log(category, "caaatttt");
-    // console.log(product);
     const brand = await brandModel.find();
 
-    if (!category || !brand) {
+    if (!product) return res.status(404).send("Product not found");
+    if (!category || !brand)
       return res.status(404).send("Category or brand data not found");
-    }
 
-    if (!product) {
-      return res.status(404).send("Product not found");
-    }
-    // const error = req.flash("error");
     res.render("editProduct", { product, category, brand });
   } catch (error) {
-    console.log(error);
+    console.error("Error occurred:", error);
+    res.status(500).send("Server Error");
   }
 };
 
@@ -382,8 +411,35 @@ const editProduct = async (req, res) => {
   }
 };
 
+// const deleteProductImage = async (req, res) => {
+//   console.log("hy");
+//   const { id, filename } = req.params;
+
+//   try {
+//     const product = await productModel.findById(id);
+
+//     if (!product) {
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "Product not found" });
+//     }
+
+//     const updatedImages = product.image_url.filter((img) => img !== filename);
+
+//     await productModel.findByIdAndUpdate(id, { image_url: updatedImages });
+
+//     // return res.json({ success: true, message: "Image deleted successfully" });
+//     // res.redirect("/admin/editProduct");
+//   } catch (error) {
+//     console.log(error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "An error occurred while deleting the image",
+//     });
+//   }
+// };
+
 const deleteProductImage = async (req, res) => {
-  console.log("hy");
   const { id, filename } = req.params;
 
   try {
@@ -396,13 +452,13 @@ const deleteProductImage = async (req, res) => {
     }
 
     const updatedImages = product.image_url.filter((img) => img !== filename);
-
     await productModel.findByIdAndUpdate(id, { image_url: updatedImages });
 
-    // return res.json({ success: true, message: "Image deleted successfully" });
-    // res.redirect("/admin/editProduct");
+    return res
+      .status(200)
+      .json({ success: true, message: "Image deleted successfully" });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return res.status(500).json({
       success: false,
       message: "An error occurred while deleting the image",
@@ -436,15 +492,30 @@ const unlistProduct = async (req, res) => {
   }
 };
 
+// const deleteProduct = async (req, res) => {
+//   try {
+//     const id = req.params.id;
+//     await productModel.findByIdAndDelete(id);
+//     res.redirect("/admin/productsList");
+//   } catch (error) {
+//     console.log(error);
+//   }
+//   // res.status(500).send("Error deleting product");
+// };
+
+/**
+ * for delete
+ */
+
 const deleteProduct = async (req, res) => {
   try {
     const id = req.params.id;
     await productModel.findByIdAndDelete(id);
-    res.redirect("/admin/productsList");
+    res.json({ success: true, message: "Product deleted successfully!" });
   } catch (error) {
     console.log(error);
+    res.status(500).json({ success: false, message: "Error deleting product" });
   }
-  // res.status(500).send("Error deleting product");
 };
 
 const isNew = async (req, res) => {
@@ -475,8 +546,23 @@ const isNew = async (req, res) => {
 
 const loadCatagory = async (req, res) => {
   try {
-    const catagory = await catagoryModel.find();
-    res.render("catagory", { catagory });
+    const { page = 1, limit = 5 } = req.query;
+
+    const currentPage = Math.max(1, parseInt(page, 10));
+    const itemsPerPage = Math.max(1, parseInt(limit, 10));
+
+    const skip = (currentPage - 1) * itemsPerPage;
+    const totalCategory = await catagoryModel.countDocuments();
+    const totalPages = Math.ceil(totalCategory / itemsPerPage);
+    console.log(page, "ghh");
+
+    const catagory = await catagoryModel
+      .find()
+      .skip(skip)
+      .limit(itemsPerPage)
+      .sort({ createdAt: -1 });
+
+    res.render("catagory", { catagory, currentPage, totalPages, itemsPerPage });
   } catch (error) {
     console.log(error);
   }
@@ -564,12 +650,43 @@ const unlistCategory = async (req, res) => {
 
 //---------------------------------------------------------------Brand----------------------------------------------------------
 
+// const loadBrand = async (req, res) => {
+//   try {
+//     const brand = await brandModel.find();
+//     res.render("brand", { brand });
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
+
 const loadBrand = async (req, res) => {
   try {
-    const brand = await brandModel.find();
-    res.render("brand", { brand });
+    const { page = 1, limit = 5 } = req.query;
+
+    const currentPage = Math.max(1, parseInt(page, 10));
+    const itemsPerPage = Math.max(1, parseInt(limit, 10));
+
+    const skip = (currentPage - 1) * itemsPerPage;
+
+    const totalBrand = await brandModel.countDocuments();
+    const totalPages = Math.ceil(totalBrand / itemsPerPage);
+    console.log(page, "ghh");
+
+    const brand = await brandModel
+      .find()
+      .skip(skip)
+      .limit(itemsPerPage)
+      .sort({ createdAt: -1 });
+
+    res.render("brand", {
+      brand,
+      currentPage,
+      totalPages,
+      itemsPerPage,
+    });
   } catch (error) {
-    console.log(error);
+    console.error("Error loading brand:", error);
+    res.status(500).send("Internal Server Error");
   }
 };
 
@@ -608,6 +725,10 @@ const addBrand = async (req, res) => {
 const loadEditBrand = async (req, res) => {
   try {
     const id = req.params.id;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).send("Invalid Brand ID");
+    }
+
     const brand = await brandModel.findById(id);
     res.render("editBrand", { brand });
   } catch (error) {
@@ -665,21 +786,24 @@ const unlistBrand = async (req, res) => {
 
 const loadUser = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 4;
-    const skip = (page - 1) * limit;
+    const page = parseInt(req.query.page) || 1; // Current page
+    const limit = parseInt(req.query.limit) || 4; // Items per page
 
-    const user = await userModel.find().skip(skip).limit(limit);
-    const totalUsers = await userModel.countDocuments();
-    const totalPages = Math.ceil(totalUsers / limit);
+    // Get paginated user data and total pages
+    const { data: user, totalPages } = await getPaginationData(
+      userModel,
+      page,
+      limit
+    );
 
     res.render("userList", {
-      user,
+      user, // Paginated user data
       currentPage: page,
       totalPages,
+      itemsPerPage: limit,
     });
   } catch (error) {
-    console.log(error);
+    console.error("Error loading user list:", error);
     res.status(500).send("An error occurred while loading users.");
   }
 };
@@ -720,14 +844,21 @@ const unblockUser = async (req, res) => {
 // };
 const loadOrder = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 4;
-    const skip = (page - 1) * limit;
+    const { page = 1, limit = 5 } = req.query;
+
+    const currentPage = Math.max(1, parseInt(page, 10));
+    const itemsPerPage = Math.max(1, parseInt(limit, 10));
+
+    const skip = (currentPage - 1) * itemsPerPage;
+
+    const totalOrders = await orderModel.countDocuments();
+    const totalPages = Math.ceil(totalOrders / itemsPerPage);
+    console.log(page, "ghh");
 
     const orders = await orderModel
       .find()
       .skip(skip)
-      .limit(limit)
+      .limit(itemsPerPage)
       .populate("items.product")
       .lean()
       .sort({ createdAt: -1 });
@@ -755,15 +886,15 @@ const loadOrder = async (req, res) => {
       })
     );
 
-    const totalOrders = await orderModel.countDocuments();
-    const totalPages = Math.ceil(totalOrders / limit);
-
     res.render("orders", {
       order: updatedOrders,
-      currentPage: page,
+      // currentPage: page,
+      // totalPages,
+      // limit,
+      // maxPagesToShow: 5,
+      currentPage,
       totalPages,
-      limit,
-      maxPagesToShow: 5,
+      itemsPerPage,
     });
   } catch (error) {
     console.error(error.message);
@@ -967,8 +1098,24 @@ const verifyReturn = async (req, res) => {
 
 const loadCoupons = async (req, res) => {
   try {
-    const coupons = await couponModel.find();
-    res.render("coupons", { coupons });
+    const { page = 1, limit = 5 } = req.query;
+
+    const currentPage = Math.max(1, parseInt(page, 10));
+    const itemsPerPage = Math.max(1, parseInt(limit, 10));
+
+    const skip = (currentPage - 1) * itemsPerPage;
+
+    const totalcoupon = await couponModel.countDocuments();
+    const totalPages = Math.ceil(totalcoupon / itemsPerPage);
+    console.log(page, "ghh");
+
+    const coupons = await couponModel
+      .find()
+      .skip(skip)
+      .limit(itemsPerPage)
+      .sort({ createdAt: -1 });
+
+    res.render("coupons", { coupons, currentPage, totalPages, itemsPerPage });
   } catch (error) {
     console.log(error);
   }
@@ -1051,10 +1198,29 @@ const unlistCoupons = async (req, res) => {
 const loadOffers = async (req, res) => {
   try {
     // const offers = await offerModel.find();
-    const activeOffers = await offerModel.find({
-      endDate: { $gt: Date.now() },
+    const { page = 1, limit = 5 } = req.query;
+
+    const currentPage = Math.max(1, parseInt(page, 10));
+    const itemsPerPage = Math.max(1, parseInt(limit, 10));
+
+    const skip = (currentPage - 1) * itemsPerPage;
+
+    const totalOffer = await offerModel.countDocuments();
+    const totalPages = Math.ceil(totalOffer / itemsPerPage);
+    console.log(page, "ghh");
+    const activeOffers = await offerModel
+      .find({
+        endDate: { $gt: Date.now() },
+      })
+      .skip(skip)
+      .limit(itemsPerPage)
+      .sort({ createdAt: -1 });
+    res.render("offer", {
+      offers: activeOffers,
+      currentPage,
+      totalPages,
+      itemsPerPage,
     });
-    res.render("offer", { offers: activeOffers });
   } catch (error) {
     console.log(error);
   }
@@ -1656,8 +1822,7 @@ const downloadSalesReportPDF = async (req, res) => {
       .populate("userId", "email")
       .populate("items.product", "name")
       .populate("billingDetails", "address")
-      .sort({ createdAt: -1 }); 
-
+      .sort({ createdAt: -1 });
 
     const doc = new PDFDocument({ margin: 50, size: "A4" });
     res.setHeader(
@@ -1666,7 +1831,6 @@ const downloadSalesReportPDF = async (req, res) => {
     );
     res.setHeader("Content-Type", "application/pdf");
 
-   
     const drawTableCell = (
       x,
       y,
@@ -1696,7 +1860,6 @@ const downloadSalesReportPDF = async (req, res) => {
       .text("Sales Report", { align: "center" })
       .moveDown(0.5);
 
-
     doc
       .fontSize(12)
       .font("Helvetica")
@@ -1710,7 +1873,6 @@ const downloadSalesReportPDF = async (req, res) => {
         .moveDown(0.5);
     }
 
- 
     doc
       .fontSize(10)
       .text(`Report generated on: ${dayjs().format("DD/MM/YYYY HH:mm")}`, {
@@ -1718,14 +1880,13 @@ const downloadSalesReportPDF = async (req, res) => {
       })
       .moveDown(1);
 
- 
     const tableTop = 180;
     const tableLeft = 50;
     const colWidths = [40, 200, 110, 110];
     const rowHeight = 30;
     const headers = ["No.", "Customer", "Total Amount", "Date"];
 
-        doc.fillColor("#e6f2ff");
+    doc.fillColor("#e6f2ff");
     headers.forEach((header, i) => {
       let x =
         tableLeft +
@@ -1755,7 +1916,6 @@ const downloadSalesReportPDF = async (req, res) => {
 
       doc.fillColor("#ffffff");
 
-      
       drawTableCell(
         tableLeft,
         currentTop,
@@ -1766,7 +1926,6 @@ const downloadSalesReportPDF = async (req, res) => {
         "center"
       );
 
-      
       drawTableCell(
         tableLeft + colWidths[0],
         currentTop,
@@ -1775,7 +1934,6 @@ const downloadSalesReportPDF = async (req, res) => {
         order.userId.email || "N/A"
       );
 
-      
       drawTableCell(
         tableLeft + colWidths[0] + colWidths[1],
         currentTop,
@@ -1786,7 +1944,6 @@ const downloadSalesReportPDF = async (req, res) => {
         "right"
       );
 
-      
       drawTableCell(
         tableLeft + colWidths[0] + colWidths[1] + colWidths[2],
         currentTop,

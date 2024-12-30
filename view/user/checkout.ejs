@@ -761,60 +761,60 @@
 
 
 });</script>
-<script>
-  const paymentMethodSelect = document.getElementById('payment-method');
-    const razorpayForm = document.getElementById('razorpay-form');
-    const razorpayButton = document.getElementById('razorpay-payment-button');
+// <script>
+//   const paymentMethodSelect = document.getElementById('payment-method');
+//     const razorpayForm = document.getElementById('razorpay-form');
+//     const razorpayButton = document.getElementById('razorpay-payment-button');
 
-    paymentMethodSelect.addEventListener('change', function () {
-        if (paymentMethodSelect.value === 'razorpay') {
-            razorpayForm.style.display = 'block';
-        } else {
-            razorpayForm.style.display = 'none';
-        }
-    });
+//     paymentMethodSelect.addEventListener('change', function () {
+//         if (paymentMethodSelect.value === 'razorpay') {
+//             razorpayForm.style.display = 'block';
+//         } else {
+//             razorpayForm.style.display = 'none';
+//         }
+//     });
 
 
-    razorpayButton.addEventListener('click', function () {
-        fetch('/create-order', {
-            method: 'POST',
-            body: JSON.stringify({
-                amount: "<%= totalPrice * 100 %>",  // Total price in paise
-            }),
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        })
-        .then(response => response.json())
-        .then(data => {
-            var options = {
-                key:  "<%= process.env.RAZORPAY_KEY_ID %>", // Razorpay Key ID passed from the server
-                amount: data.amount,  // Amount in paise
-                currency: 'INR',
-                order_id: data.orderId,
-                handler: function (response) {
-                    // Handle success (e.g., save payment details in the database)
-                    alert('Payment successful');
-                    // Optionally, send a request to the backend to update the order status
-                },
-                prefill: {
-                    name: 'Customer Name',
-                    email: 'customer@example.com',
-                    contact: '9999999999',
-                },
-                notes: {
-                    address: 'Customer Address',
-                },
-            };
+//     razorpayButton.addEventListener('click', function () {
+//         fetch('/create-order', {
+//             method: 'POST',
+//             body: JSON.stringify({
+//                 amount: "<%= totalPrice * 100 %>",  // Total price in paise
+//             }),
+//             headers: {
+//                 'Content-Type': 'application/json',
+//             },
+//         })
+//         .then(response => response.json())
+//         .then(data => {
+//             var options = {
+//                 key:  "<%= process.env.RAZORPAY_KEY_ID %>", // Razorpay Key ID passed from the server
+//                 amount: data.amount,  // Amount in paise
+//                 currency: 'INR',
+//                 order_id: data.orderId,
+//                 handler: function (response) {
+//                     // Handle success (e.g., save payment details in the database)
+//                     alert('Payment successful');
+//                     // Optionally, send a request to the backend to update the order status
+//                 },
+//                 prefill: {
+//                     name: 'Customer Name',
+//                     email: 'customer@example.com',
+//                     contact: '9999999999',
+//                 },
+//                 notes: {
+//                     address: 'Customer Address',
+//                 },
+//             };
 
-            var rzp1 = new Razorpay(options);
-            rzp1.open();
-        })
-        .catch(error => {
-            console.error('Error creating Razorpay order:', error);
-        });
-    });
-</script>
+//             var rzp1 = new Razorpay(options);
+//             rzp1.open();
+//         })
+//         .catch(error => {
+//             console.error('Error creating Razorpay order:', error);
+//         });
+//     });
+// </script>
 
 
     <script>

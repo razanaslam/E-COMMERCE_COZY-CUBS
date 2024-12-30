@@ -1,22 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-  <!-- Mirrored from wp.alithemes.com/html/evara/evara-backend/page-categories.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 01 Aug 2021 15:33:21 GMT -->
-  <head>
-    <meta charset="utf-8" />
-    <title>Evara Dashboard</title>
-    <meta http-equiv="x-ua-compatible" content="ie=edge" />
-    <meta name="description" content="" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta property="og:title" content="" />
-    <meta property="og:type" content="" />
-    <meta property="og:url" content="" />
-    <meta property="og:image" content="" />
-    <!-- Favicon -->
-    <link
-      rel="shortcut icon"
-      type="image/x-icon"
-      href="/admin/assets/imgs/theme/favicon.svg"
-    />
+<%- include('headers.ejs') %>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" />
   <style>
     /* crop */
@@ -86,7 +68,7 @@
       padding: 20px;
       border: 1px solid #ccc;
       border-radius: 8px;
-      z-index: 10;
+      z-index: 999;
       box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
     }
 
@@ -157,52 +139,8 @@
       margin-right: 10px;
     }
   </style>
-  </head>
-
-
-  <body>
-    <div class="screen-overlay"></div>
-    <aside
-      class="navbar-aside"
-      id="offcanvas_aside"
-      style="width: 338px !important"
-    >
-      <div class="aside-top">
-        <a href="dashboard" class="brand-wrap">
-          <img
-            src="assets/imgs/theme/logo1.svg"
-            class="logo"
-            alt="Evara Dashboard"
-            style="width: 50px; height: auto"
-          />
-        </a>
-        <div>
-          <button class="btn btn-icon btn-aside-minimize">
-            <i class="material-icons">menu_open</i>
-          </button>
-        </div>
-      </div>
-      <nav>
-        <ul class="menu-aside">
-          <% const menuItems = [ { link: 'dashboard', icon: 'dashboard', text:
-          'Dashboard' }, { link: 'productsList', icon: 'inventory_2', text:
-          'Products' }, { link: 'userList', icon: 'people', text: 'Users' }, {
-          link: 'brand', icon: 'branding_watermark', text: 'Brands' }, { link:
-          'catagory', icon: 'category', text: 'Category' }, { link: 'offer',
-          icon: 'local_offer', text: 'Offers' }, { link: 'sales-report', icon:
-          'bar_chart', text: 'Sales Report' }, { link: 'coupons', icon:
-          'loyalty', text: 'Coupons' }, { link: 'orders', icon: 'shopping_cart',
-          text: 'Orders' } ]; %> <% menuItems.forEach(item => { %>
-          <li class="menu-item <%= item.active ? 'active' : '' %>">
-            <a class="menu-link" href="<%= item.link %>">
-              <i class="material-icons"><%= item.icon %></i>
-              <span class="text"><%= item.text %></span>
-            </a>
-          </li>
-          <% }); %>
-        </ul>
-      </nav>
-    </aside>
+  
+ 
     <main class="main-wrap">
       <header class="main-header navbar">
         <div class="col-search">
@@ -449,24 +387,37 @@
                         <span id="imageError" class="text-danger"></span>
                     </div>
                     <div id="imagePreview" style="width: 108px; display: flex;" class="mt-3">
-                        <% if (product.image_url) { %>
-                            <% for(let i = 0; i < product.image_url.length; i++) { %>
-                                <img style="margin-left: 33px; cursor: pointer;" src="/uploads/<%= product.image_url[i] %>" alt="Product Image" onclick="previewExistingImage('/uploads/<%= product.image_url[i] %>', this)" />
-                                <button type="button" onclick="deleteImage('<%= product._id %>', '<%= product.image_url[i] %>')">Delete</button>
-                            <% }} else { %>
-                                <p>No image available</p>
-                            <% } %>
-                    </div>
+                      <% if (product.image_url) { %>
+                          <% for(let i = 0; i < product.image_url.length; i++) { %>
+                              <img style="margin-left: 33px; cursor: pointer;" src="/uploads/<%= product.image_url[i] %>" alt="Product Image" onclick="previewExistingImage('/uploads/<%= product.image_url[i] %>', this)" />
+                              <button type="button"style=" background-color: transparent !important; border-color: transparent !important;" onclick="deleteImage('<%= product._id %>', '<%= product.image_url[i] %>')">X</button>
+
+                              
+                          <% }} else { %>
+                              <p>No image available</p>
+                          <% } %>
+                  </div>
+                  
                 </div>
             
                 <button type="submit" class="btn btn-primary">Edit Product</button>
             
                 <!-- Crop Modal -->
-                <div id="cropModal" style="display: none;">
+                <!-- <div id="cropModal" style="display: none;">
                     <img id="croppingImage" />
                     <button type="button" id="cropButton" onclick="cropImage()">Crop Image</button>
-                </div>
-                <div id="overlay" style="display: none;"></div>
+                </div> -->
+                <!-- Modal and Overlay -->
+<div id="cropModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; background: white; padding: 20px; border-radius: 10px;">
+  <img id="croppingImage" style="max-width: 100%; max-height: 300px;" />
+  <button type="button" id="cropButton" style="margin-top: 10px;">Crop Image</button>
+</div>
+<div id="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 5;"></div>
+
+                
+                <!-- <button type="button" id="cropButton">Crop Image</button> -->
+
+                <!-- <div id="overlay" style="display: none;"></div> -->
             
             </form>
 </div>
@@ -491,97 +442,103 @@
     </main>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
- <script>
-  let cropper;
-let currentFile;
-let currentImgElement;
-let filesArray = []; 
-let existingImagesArray = [];
-let croppedFileIndex;
-
-
-function handleFiles(event) {
-    const imagePreviewContainer = document.getElementById("imagePreview");
-    const existingImages = imagePreviewContainer.querySelectorAll('img');
-
+<script>let cropper;
+  let currentFile;
+  let currentImgElement;
+  let filesArray = [];
+  let existingImagesArray = [];
+  let croppedFileIndex;
   
-    existingImages.forEach(img => {
-        img.style.border = '';
-    });
-
-    const files = event.target.files;
-    const newFilesArray = Array.from(files); 
-
-    newFilesArray.forEach((file, index) => {
-        const reader = new FileReader();
-
-        reader.onload = (e) => {
-            currentFile = file;
-            const img = document.createElement("img");
-            img.src = e.target.result;
-            img.style.width = "100px";
-            img.style.marginRight = "10px";
-            img.style.cursor = "pointer";
-            img.onclick = () => openCropper(e.target.result, img, index);
-            imagePreviewContainer.appendChild(img);
-        };
-
-        reader.readAsDataURL(file);
-    });
-
-   
-    filesArray.push(...newFilesArray);
-}
-
-
-function openCropper(imageSrc, imgElement, index) {
-    const cropModal = document.getElementById("cropModal");
-    const croppingImage = document.getElementById("croppingImage");
-    const overlay = document.getElementById("overlay");
-
-    currentImgElement = imgElement;
-    croppedFileIndex = index;
-
-    croppingImage.src = imageSrc;
-    cropModal.style.display = "block";
-    overlay.style.display = "block";
-
-    if (cropper) {
-        cropper.destroy();
+  function handleFiles(event) {
+      const imagePreviewContainer = document.getElementById("imagePreview");
+      const files = event.target.files;
+      const newFilesArray = Array.from(files);
+  
+      newFilesArray.forEach((file, index) => {
+          const reader = new FileReader();
+  
+          reader.onload = (e) => {
+              currentFile = file;
+              const img = document.createElement("img");
+              img.src = e.target.result;
+              img.style.width = "100px";
+              img.style.marginRight = "10px";
+              img.style.cursor = "pointer";
+              img.dataset.index = filesArray.length + index; // Assign unique index
+              img.onclick = () => openCropper(e.target.result, img, parseInt(img.dataset.index));
+              imagePreviewContainer.appendChild(img);
+          };
+  
+          reader.readAsDataURL(file);
+      });
+  
+      filesArray.push(...newFilesArray);
+  }
+  
+  function openCropper(imageSrc, imgElement, index) {
+      const cropModal = document.getElementById("cropModal");
+      const croppingImage = document.getElementById("croppingImage");
+      const overlay = document.getElementById("overlay");
+  
+      // Close any active cropper
+      if (cropper) {
+          cropper.destroy();
+          cropper = null;
+      }
+  
+      currentImgElement = imgElement;
+      croppedFileIndex = index;
+  
+      croppingImage.src = imageSrc;
+      cropModal.style.display = "block";
+      overlay.style.display = "block";
+  
+      // Initialize Cropper
+      croppingImage.onload = () => {
+          cropper = new Cropper(croppingImage, {
+              viewMode: 1,
+              dragMode: 'move',
+              autoCropArea: 0.8,
+              responsive: true,
+              background: false,
+          });
+      };
+  }
+  
+  document.addEventListener("DOMContentLoaded", () => {
+      const cropButton = document.getElementById("cropButton");
+  
+      if (cropButton) {
+        cropButton.addEventListener("click", () => {
+    if (!cropper) {
+        console.error("Cropper is not initialized.");
+        return;
     }
 
-    cropper = new Cropper(croppingImage, {
-        viewMode: 1,
-        dragMode: 'move',
-        autoCropArea: 0.8,
-        responsive: true,
-    });
-}
-
-
-function cropImage() {
     const canvas = cropper.getCroppedCanvas();
 
-    canvas.toBlob((blob) => {
-        const croppedFile = new File([blob], currentFile.name, { type: 'image/png' });
+    if (!canvas) {
+        console.error("Canvas not created.");
+        return;
+    }
 
-       
+    canvas.toBlob((blob) => {
+        // Fallback in case currentFile is not set
+        const fileName = currentFile ? currentFile.name : `cropped_image_${Date.now()}.png`;
+
+        const croppedFile = new File([blob], fileName, { type: 'image/png' });
+
         filesArray[croppedFileIndex] = croppedFile;
 
         const dataTransfer = new DataTransfer();
-   
-        existingImagesArray.forEach((image) => {
-            dataTransfer.items.add(image); 
-        });
-        
-        filesArray.forEach((file) => {
-            dataTransfer.items.add(file);
-        });
+
+        existingImagesArray.forEach((image) => dataTransfer.items.add(image));
+        filesArray.forEach((file) => dataTransfer.items.add(file));
 
         const fileInput = document.getElementById('product_image');
-        fileInput.files = dataTransfer.files; 
+        fileInput.files = dataTransfer.files;
 
-        currentImgElement.src = URL.createObjectURL(croppedFile); 
+        currentImgElement.src = URL.createObjectURL(croppedFile);
 
         document.getElementById("cropModal").style.display = "none";
         document.getElementById("overlay").style.display = "none";
@@ -589,27 +546,32 @@ function cropImage() {
         cropper.destroy();
         cropper = null;
     }, 'image/png');
-}
-
-function previewExistingImage(imageSrc, imgElement) {
- 
-    openCropper(imageSrc, imgElement, null);
-}
-function initializeExistingImages(existingImages) {
-    existingImagesArray = existingImages; 
-        const imagePreviewContainer = document.getElementById("imagePreview");
-
-    existingImagesArray.forEach((image) => {
-        const img = document.createElement("img");
-        img.src = image; 
-        img.style.width = "100px";
-        img.style.marginRight = "10px";
-        img.onclick = () => previewExistingImage(image, img);
-        imagePreviewContainer.appendChild(img);
-    });
-}
-
-</script>
+});
+} else {
+          console.error("Crop button not found in the DOM.");
+      }
+  });
+  
+  function previewExistingImage(imageSrc, imgElement) {
+      openCropper(imageSrc, imgElement, null);
+  }
+  
+  function initializeExistingImages(existingImages) {
+      existingImagesArray = existingImages;
+      const imagePreviewContainer = document.getElementById("imagePreview");
+  
+      existingImagesArray.forEach((image) => {
+          const img = document.createElement("img");
+          img.src = image;
+          img.style.width = "100px";
+          img.style.marginRight = "10px";
+          img.style.cursor = "pointer";
+          img.onclick = () => previewExistingImage(image, img);
+          imagePreviewContainer.appendChild(img);
+      });
+  }
+  </script>
+    
 
 <script>
     // Validation function
@@ -641,15 +603,12 @@ function initializeExistingImages(existingImages) {
         return isValid;
     }
 </script>
-<!-- Include SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
-<script>
-
-function deleteImage(productId, filename) {
-
+<!-- <script>
+  function deleteImage(productId, filename) {
     Swal.fire({
         title: 'Are you sure?',
         text: "Do you want to delete this image?",
@@ -661,13 +620,97 @@ function deleteImage(productId, filename) {
         cancelButtonText: 'Cancel'
     }).then((result) => {
         if (result.isConfirmed) {
-            // Redirect to delete route if confirmed
-            window.location.href = `/admin/deleteProductImage/${productId}/${filename}`;
+            // Send DELETE request to the server
+            fetch(`/admin/deleteProductImage/${productId}/${filename}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire('Deleted!', data.message, 'success');
+
+                    // Remove the deleted image from the DOM
+                    const imgElement = document.querySelector(`[data-filename="${filename}"]`);
+                    if (imgElement) {
+                        imgElement.parentElement.remove(); // Remove the container
+                    }
+                } else {
+                    Swal.fire('Error', data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting image:', error);
+                Swal.fire('Error', 'An error occurred while deleting the image.', 'error');
+            });
         } else {
             console.log("User canceled the deletion.");
         }
     });
 }
+
+</script> -->
+
+
+
+
+
+
+
+
+<script>
+  function deleteImage(productId, filename) {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "Do you want to delete this image?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+
+        Swal.fire({
+          title: 'Processing...',
+          text: 'Please wait while we delete the image.',
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+
+        fetch(`/admin/deleteProductImage/${productId}/${filename}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+        .then(response => response.json())
+        .then(data => {
+          Swal.close(); 
+          if (data.success) {
+            Swal.fire('Deleted!', data.message, 'success');
+           
+            window.location.reload()
+          
+          } else {
+            Swal.fire('Error', data.message, 'error');
+          }
+        })
+        .catch(error => {
+          Swal.close(); 
+          console.error('Error deleting image:', error);
+          Swal.fire('Error', 'An error occurred while deleting the image.', 'error');
+        });
+      } else {
+        console.log("User canceled the deletion.");
+      }
+    });
+  }
 </script>
 
 
@@ -677,7 +720,6 @@ function deleteImage(productId, filename) {
     <script src="/admin/assets/js/vendors/select2.min.js"></script>
     <script src="/admin/assets/js/vendors/perfect-scrollbar.js"></script>
     <script src="/admin/assets/js/vendors/jquery.fullscreen.min.js"></script>
-    <!-- Main Script -->
     <script
       src="/admin/assets/js/main.js"
       type="text/javascript"
@@ -685,5 +727,4 @@ function deleteImage(productId, filename) {
   
   </body>
 
-  <!-- Mirrored from wp.alithemes.com/html/evara/evara-backend/page-categories.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 01 Aug 2021 15:33:21 GMT -->
 </html>

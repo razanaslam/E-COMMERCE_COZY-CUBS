@@ -218,7 +218,11 @@
         </div>
       </div>
     </div>
-    
+    <%- include('pagination.ejs', {
+      currentPage: currentPage,
+      totalPages: totalPages,
+      itemsPerPage: itemsPerPage
+    }) %>
     <a href="/admin/addCoupons" class="btn btn-add">Add Coupons</a>
   </section>
 

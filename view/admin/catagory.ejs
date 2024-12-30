@@ -191,6 +191,11 @@
         </div>
       </div>
     </div>
+    <%- include('pagination.ejs', {
+      currentPage: currentPage,
+      totalPages: totalPages,
+      itemsPerPage: itemsPerPage
+    }) %>
     
     <a href="/admin/addCatagory" class="btn btn-add">Add Categories</a>
   </section>

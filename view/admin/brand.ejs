@@ -1,5 +1,7 @@
 <%- include('headers.ejs') %>
 <style>
+
+
   /* Base styles */
   body {
     font-family: Arial, sans-serif;
@@ -191,6 +193,13 @@
         </div>
       </div>
     </div>
+
+   
+    <%- include('pagination.ejs', {
+      currentPage: currentPage,
+      totalPages: totalPages,
+      itemsPerPage: itemsPerPage
+    }) %>
     
     <a href="/admin/addBrand" class="btn btn-add">Add Brand</a>
   </section>
