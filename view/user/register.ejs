@@ -95,6 +95,7 @@
           </div>
 
           <div id="error-container" style="color: red"></div>
+          <div style="color: red"><%= errorEmail %></div>
 
           <button type="submit">
             Register
@@ -120,11 +121,10 @@
           errorContainer.textContent = "";
 
           let errorMessage = "";
-
           if (password !== confirmPassword) {
             errorMessage = "Passwords do not match.";
           } else if (!password || !confirmPassword) {
-            errorMessage = "Please fill out both password fields.";
+            errorMessage = "Please fill the fields.";
           }
 
           if (errorMessage) {
