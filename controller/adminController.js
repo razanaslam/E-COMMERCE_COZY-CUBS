@@ -1230,7 +1230,7 @@ const loadAddOffer = async (req, res) => {
   try {
     const products = await productModel.find();
     const categories = await catagoryModel.find();
-    res.render("addoffers", { products, categories });
+    res.render("addOffers", { products, categories });
   } catch (error) {
     console.log(error);
 
