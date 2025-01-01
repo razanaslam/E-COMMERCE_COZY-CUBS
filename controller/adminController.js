@@ -1511,7 +1511,7 @@ const loadSalesReport = async (req, res) => {
 
     let filterOptions = {};
     const today = dayjs().startOf("day");
-    console.log(today, "toooo");
+    // console.log(today, "toooo");
 
     if (filter === "daily") {
       filterOptions.createdAt = {
@@ -1554,7 +1554,7 @@ const loadSalesReport = async (req, res) => {
       }
     }
 
-    console.log("Filter options:", filterOptions);
+    // console.log("Filter options:", filterOptions);
 
     const totalOrders = await orderModel.countDocuments(filterOptions);
     const totalPages = Math.ceil(totalOrders / limit);

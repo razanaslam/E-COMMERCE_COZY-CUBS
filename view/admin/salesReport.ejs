@@ -153,7 +153,8 @@
                               <%= orderIdCounter++ %> <!-- Display incrementing Order ID -->
                             </td>
                             <td>
-                              <%= order.userId.email %>
+                              <% console.log("hh",order)%>
+                              <%= order.userId?.email %>
                             </td>
                             <td>
                               <%= new Date(order.createdAt).toLocaleDateString() %>

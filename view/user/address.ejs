@@ -677,15 +677,15 @@ async function returnOrder(orderId) {
     if (messages.addressSuccess.length > 0) {
         showAlert('success', 'Success', messages.addressSuccess);
     }
-            // Function to validate form fields
+          
             function validateForm(fullName, city, state, postalCode, country, mobileNumber, email) {
-                // Check if any of the required fields are empty
+               
                 if (!fullName || !city || !state || !postalCode || !country || !mobileNumber) {
                     showAlert('error', 'Missing Fields', 'Please fill in all required fields.');
-                    return false; // Invalid
+                    return false; 
                 }
         
-                // Validate postal code to be numeric
+     
                 const postalCodePattern = /^[0-9]+$/;
                 if (!postalCodePattern.test(postalCode)) {
                     showAlert('error', 'Invalid Postal Code', 'Postal Code must contain only numbers.');
