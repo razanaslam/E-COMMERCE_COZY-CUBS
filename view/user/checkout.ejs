@@ -700,35 +700,123 @@
                   <div id="payment-container">
   <div class="mb-3">
     <label for="payment-method" class="form-label">Payment Method</label>
-    <%if ( subtotal>=1000){%>
+    <% if (subtotal >= 1000) { %>
       <p style="color: red;">Cash On Delivery Not Available</p>
-    <%}%>
-  
+    <% } %>
+
     <select id="payment-method" name="payment-method" class="form-select">
-    <%if ( subtotal<1000){%>
-      <option  value="cod">Cash on Delivery</option>
-      
-        <%}%>
+      <% if (subtotal < 1000) { %>
+        <option value="cod">Cash on Delivery</option>
+      <% } %>
       <option value="razorpay">Razorpay</option>
+      <option value="wallet">Wallet </option>
     </select>
   </div>
 
-
-  
-
-  
   <div id="cod-form" style="display: none;">
     <form id="cod-payment-form" action="/order-confirmed">
       <button id="placeOrderButton" class="btn btn-primary btn-lg w-100">Place Order</button>
     </form>
   </div>
-  
+
   <div id="razorpay-form" style="display: none;">
     <button type="button" id="razorpay-payment-button" class="btn btn-primary btn-lg w-100">
       Pay with Razorpay
     </button>
   </div>
+
+  <div id="wallet-form" style="display: none;">
+    <button type="button" id="wallet-payment-button" class="btn btn-primary btn-lg w-100">
+      Pay with Wallet
+    </button>
+  </div>
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const paymentMethodSelect = document.getElementById("payment-method");
+
+    const codForm = document.getElementById("cod-form");
+    const razorpayForm = document.getElementById("razorpay-form");
+    const walletForm = document.getElementById("wallet-form");
+
+    const updatePaymentForms = () => {
+      const selectedMethod = paymentMethodSelect.value;
+      codForm.style.display = selectedMethod === "cod" ? "block" : "none";
+      razorpayForm.style.display = selectedMethod === "razorpay" ? "block" : "none";
+      walletForm.style.display = selectedMethod === "wallet" ? "block" : "none";
+    };
+
+    paymentMethodSelect.addEventListener("change", updatePaymentForms);
+    updatePaymentForms(); // Initialize visibility on page load
+
+    const placeOrder = async (paymentMethod) => {
+      const selectedAddressID = document.querySelector("input[name='addressID']:checked")?.value;
+      const couponCode = document.getElementById("couponCodeInput").value || "";
+
+      if (!selectedAddressID || !paymentMethod) {
+        alert("Please select an address and payment method.");
+        return;
+      }
+
+      // if (paymentMethod === "wallet") {
+        // Ensure the wallet has sufficient balance
+        // const walletBalance = 500; // Example value; replace with actual balance logic
+        // const totalCost = 600; // Replace with actual subtotal logic
+
+        // if (walletBalance < totalCost) {
+        //   alert("Insufficient wallet balance. Please use another payment method.");
+        //   return;
+        // }
+      // }
+
+      try {
+        const response = await fetch("/placeorder", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            addressID: selectedAddressID,
+            paymentMethod,
+            couponCode,
+          }),
+        });
+        if (razorpayButton) {
+      razorpayButton.addEventListener("click", (e) => {
+        e.preventDefault();
+
+        // Trigger Razorpay Payment Gateway
+        const paymentMethod = "razorpay";
+        placeOrder(paymentMethod);
+      });
+    }
+
+        const result = await response.json();
+        if (response.ok) {
+          window.location.href = "/order-confirmed";
+        } else {
+          alert("Error: " + result.message);
+        }
+      } catch (error) {
+        console.error("An error occurred:", error);
+      }
+    };
+
+    const codButton = document.getElementById("placeOrderButton");
+    // if (codButton) {
+    //   codButton.addEventListener("click", () => placeOrder("cod"));
+    // }
+
+    const razorpayButton = document.getElementById("razorpay-payment-button");
+   
+    const walletButton = document.getElementById("wallet-payment-button");
+    if (walletButton) {
+      walletButton.addEventListener("click", () => placeOrder("wallet"));
+    }
+  });
+</script>
+
 
 
                 </div>
@@ -742,25 +830,25 @@
 
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-  const paymentMethodSelect = document.getElementById('payment-method');
-  const codForm = document.getElementById('cod-form');
-  const razorpayForm = document.getElementById('razorpay-form');
+//     <script>
+//       document.addEventListener('DOMContentLoaded', function() {
+//   const paymentMethodSelect = document.getElementById('payment-method');
+//   const codForm = document.getElementById('cod-form');
+//   const razorpayForm = document.getElementById('razorpay-form');
 
-  function updatePaymentForms() {
-    const selectedMethod = paymentMethodSelect.value;
-    codForm.style.display = selectedMethod === 'cod' ? 'block' : 'none';
-    razorpayForm.style.display = selectedMethod === 'razorpay' ? 'block' : 'none';
-  }
+//   function updatePaymentForms() {
+//     const selectedMethod = paymentMethodSelect.value;
+//     codForm.style.display = selectedMethod === 'cod' ? 'block' : 'none';
+//     razorpayForm.style.display = selectedMethod === 'razorpay' ? 'block' : 'none';
+//   }
 
-  paymentMethodSelect.addEventListener('change', updatePaymentForms);
-
-
-  updatePaymentForms();
+//   paymentMethodSelect.addEventListener('change', updatePaymentForms);
 
 
-});</script>
+//   updatePaymentForms();
+
+
+// });</script>
 // <script>
 //   const paymentMethodSelect = document.getElementById('payment-method');
 //     const razorpayForm = document.getElementById('razorpay-form');
@@ -947,6 +1035,8 @@ console.log("yyyyy");
         alert("Error: " + result.message);
       }
     } catch (error) {
+      console.log("njnjn");
+      
       console.error("An error occurred:", error);
     
     }
@@ -1320,17 +1410,31 @@ console.log("yyyyy");
           const couponDetails = document.getElementById("couponDetails");
           couponDetails.innerHTML = ""; // Clear previous content
 
+          // if (data.coupons && data.coupons.length > 0) {
+          //   data.coupons.forEach((coupon) => {
+          //     couponDetails.innerHTML += `
+          //       <div class="card mb-2">
+          //         <div class="card-body">
+          //           <h5 class="card-title">${coupon.couponCode}</h5>
+          //           <p class="card-text">${coupon.description}</p>
+          //         </div>
+          //       </div>`;
+          //   });
+          // }
           if (data.coupons && data.coupons.length > 0) {
-            data.coupons.forEach((coupon) => {
-              couponDetails.innerHTML += `
-                <div class="card mb-2">
-                  <div class="card-body">
-                    <h5 class="card-title">${coupon.couponCode}</h5>
-                    <p class="card-text">${coupon.description}</p>
-                  </div>
-                </div>`;
-            });
-          } else {
+  data.coupons.forEach((coupon) => {
+    couponDetails.innerHTML += `
+      <div class="card mb-3 shadow-sm border-0">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="card-title text-danger mb-0">${coupon.couponCode}</h5>
+            <span class="badge bg-success">${coupon.discountPercentage}% Off</span>
+          </div>
+          <p class="card-text text-muted mt-2">${coupon.description}</p>
+        </div>
+      </div>`;
+  });
+}else {
             Swal.fire({
               icon: 'info',
               title: 'No Coupons Available',
@@ -1529,3 +1633,28 @@ console.log("yyyyy");
   </body>
   <%- include('footer') %>
 </html>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  function confirmLogout() {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You will be logged out!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, logout!',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: 'black',  // Green button for confirmation
+  cancelButtonColor: 'black',   // Red button for cancellation
+  background: '#f8f9fa',  // Light background
+  iconColor: '#dc3545',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Redirect to logout page
+        window.location.href = '/logout';
+      }
+    });
+  }
+</script>
+
+

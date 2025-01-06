@@ -575,14 +575,7 @@
                     <h2 class="uppercase"><%= product.product_title %></h2>
                     <p>category : <%= product.category.name %></p>
                     <p>brand : <%= product.brand.name %></p>
-                    <div class="product-details-ratting-wrap">
-                      <div class="product-details-ratting">
-                        <i class="yellow fa fa-star"></i>
-                        <i class="yellow fa fa-star"></i>
-                        <i class="yellow fa fa-star"></i>
-                        <i class="yellow fa fa-star"></i>
-                        <i class="fa fa-star"></i>
-                      </div>
+                 
                       <!-- <a href="#"> (1 customer review)</a> -->
                     </div>
                     <div class="product-price">
@@ -636,7 +629,7 @@
 
                       <% } %>
                       
-                      <!-- <div class="product-details-wishlist">
+                      <!-- <div class="product0.-details-wishlist">
                         <a title="Add to wishlist" href="/addToWhishlist?id=<%= product._id %>"
                           ><% if(product.inWishlist==false) {%>
                           <i style="color: black;" class="fa fa-heart"></i
@@ -962,3 +955,27 @@
 
   <!-- Mirrored from template.hasthemes.com/toro/toro/product-details-2.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 09 Feb 2024 11:19:52 GMT -->
 </html>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  function confirmLogout() {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You will be logged out!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, logout!',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: 'black',  // Green button for confirmation
+  cancelButtonColor: 'black',   // Red button for cancellation
+  background: '#f8f9fa',  // Light background
+  iconColor: '#dc3545',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Redirect to logout page
+        window.location.href = '/logout';
+      }
+    });
+  }
+</script>
+

@@ -261,22 +261,19 @@ background-color: #f6f6e6;
                   Po Box: <%= orders.billingDetails.postalCode %>
                 </p>
               </div>
-              <% if (orders.status === "Delivered" && orders.paymentStatus === "Paid") { %>
-
-              <button onclick="window.location.href='/download-invoice/<%= orders._id %>'" 
-                class="btn btn-primary" 
-                style="background-color: white; border-color: #088178; color: #088178;">
-            Download Invoice
-        </button>
-        <% } %>
+           
             </article>
           </div>
         </div>
     
         <div class="table-responsive mt-4">
           <table class="table table-bordered">
+          <% let total=0 %>
             <tbody>
               <% orders.items.forEach(item => { %>
+             <%    total +=  (item.price * item.quantity).toFixed(2) %>
+             <% console.log(total,"totallll");
+              %>
               <tr style="background-color: white;">
                 <td>
                   <div class="d-flex align-items-center">
@@ -316,6 +313,11 @@ background-color: #f6f6e6;
               <td colspan="2" class="text-start"><%= orders.totalPrice.toFixed(2) %></td>
             </tr>
             <tr class="table-light">
+              <td colspan="2" class="text-end"><strong>Coupon Discount:</strong></td>
+             <% var number=total-orders.totalPrice %>
+              <td colspan="2" class="text-start"><%=number.toFixed(2) %></td>
+            </tr>
+            <tr class="table-light">
               <td colspan="2" class="text-end"><strong>Discount:</strong></td>
               <td colspan="2" class="text-start"><%= orders.discount || 0 %></td>
             </tr>
@@ -343,7 +345,14 @@ background-color: #f6f6e6;
             
           </table>
     
-         
+          <% if (orders.status === "Delivered" && orders.paymentStatus === "Paid") { %>
+
+            <button onclick="window.location.href='/download-invoice/<%= orders._id %>?number=<%= number %>'" 
+              class="btn btn-primary" 
+              style="background-color: white; border-color: #088178; color: #088178;">
+          Download Invoice
+      </button>
+      <% } %>
         </div>
       </div>
     </div>
@@ -681,8 +690,9 @@ background-color: #f6f6e6;
           </div>
         </div>
       </div>
-    </div>
-
+    </div>  
+  <br><br><br><br><br><br>
+    <%- include('footer') %>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/assets/js/vendor/modernizr-3.11.7.min.js"></script>
@@ -717,10 +727,32 @@ background-color: #f6f6e6;
     <!-- Main JS -->
     <script src="/assets/js/main.js"></script>
   </body>
-  <br><br><br><br><br><br>
-  <%- include('footer') %>
   <!-- Mirrored from template.hasthemes.com/toro/toro/my-account.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 09 Feb 2024 11:20:00 GMT -->
 </html>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  function confirmLogout() {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You will be logged out!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, logout!',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: 'black',  // Green button for confirmation
+  cancelButtonColor: 'black',   // Red button for cancellation
+  background: '#f8f9fa',  // Light background
+  iconColor: '#dc3545',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Redirect to logout page
+        window.location.href = '/logout';
+      }
+    });
+  }
+</script>
+
 
 
 

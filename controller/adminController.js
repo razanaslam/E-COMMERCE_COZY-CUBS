@@ -909,8 +909,8 @@ const loadadminOrderDetails = async (req, res) => {
       .findById(orderId)
       .populate("items.product")
       .lean();
-
-    console.log(orderId, "Order details:", order);
+    const coupon = await couponModel.findById(orderId);
+    console.log(coupon, "coupon");
 
     if (order.billingDetails) {
       const address = await addressModel.findOne({ userId: order.userId });
@@ -1238,58 +1238,6 @@ const loadAddOffer = async (req, res) => {
   }
 };
 
-// const insertOffer = async (req, res) => {
-//   try {
-//     const {
-//       offerName,
-//       offerType,
-//       discountPercentage,
-//       startDate,
-//       endDate,
-//       applicableProducts,
-//       applicableCategories,
-//     } = req.body;
-
-//     const offer = new Offer({
-//       offerName,
-//       offerType,
-//       discountPercentage,
-//       startDate,
-//       endDate,
-//       applicableProducts,
-//       applicableCategories,
-//     });
-
-//     const offerAdded = await offer.save();
-//     const percentage = offerAdded.discountPercentage;
-//     if (offerAdded.offerType === "product") {
-//       for (const product of offerAdded.applicableProducts) {
-//         let productOffer = await productModel.findById(product);
-//         if (productOffer) {
-//           productOffer.isDiscounted = true;
-//           productOffer.offerId = offerAdded._id;
-//           productOffer.offerPercentage = percentage;
-//           await productOffer.save();
-//         }
-//       }
-//     } else {
-//       for (const category of offerAdded.applicableCategories) {
-//         let categoryProducts = await Product.find({ category });
-//         for (const productOffer of categoryProducts) {
-//           productOffer.isDiscounted = true;
-//           productOffer.offerId = offerAdded._id;
-//           productOffer.offerPercentage = percentage;
-//           await productOffer.save();
-//         }
-//       }
-//     }
-
-//     if (offerAdded) res.redirect("/offer");
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
-
 const createOffers = async (req, res) => {
   const {
     offerName,
@@ -1503,15 +1451,101 @@ const deleteOffer = async (req, res) => {
 
 //---------------------------------------------------------------sales report----------------------------------------------------------
 
+// const loadSalesReport = async (req, res) => {
+//   try {
+//     const { filter = "all", startDate, endDate, page = 1 } = req.query;
+//     const limit = 5;
+//     const skip = (page - 1) * limit;
+
+//     let filterOptions = {};
+//     const today = dayjs().startOf("day");
+//     // console.log(today, "toooo");
+
+//     if (filter === "daily") {
+//       filterOptions.createdAt = {
+//         $gte: today.toDate(),
+//         $lte: today.endOf("day").toDate(),
+//       };
+//     } else if (filter === "weekly") {
+//       const lastWeek = today.subtract(7, "days");
+//       filterOptions.createdAt = {
+//         $gte: lastWeek.toDate(),
+//         $lte: today.endOf("day").toDate(),
+//       };
+//     } else if (filter === "monthly") {
+//       const lastMonth = today.subtract(1, "month");
+//       filterOptions.createdAt = {
+//         $gte: lastMonth.toDate(),
+//         $lte: today.endOf("day").toDate(),
+//       };
+//     } else if (filter === "yearly") {
+//       const lastYear = today.subtract(1, "year");
+//       filterOptions.createdAt = {
+//         $gte: lastYear.toDate(),
+//         $lte: today.endOf("day").toDate(),
+//       };
+//     } else if (filter === "custom") {
+//       if (startDate && endDate) {
+//         const parsedStartDate = dayjs(startDate).startOf("day");
+//         const parsedEndDate = dayjs(endDate).endOf("day");
+
+//         if (parsedStartDate.isValid() && parsedEndDate.isValid()) {
+//           filterOptions.createdAt = {
+//             $gte: parsedStartDate.toDate(),
+//             $lte: parsedEndDate.toDate(),
+//           };
+//         } else {
+//           return res.status(400).send("Invalid date range.");
+//         }
+//       } else {
+//         return res.status(400).send("Custom date range is required.");
+//       }
+//     }
+
+//     // console.log("Filter options:", filterOptions);
+
+//     const totalOrders = await orderModel.countDocuments(filterOptions);
+//     const totalPages = Math.ceil(totalOrders / limit);
+
+//     const orders = await orderModel
+//       .find(filterOptions)
+//       .populate("userId", "email")
+//       .populate("items.product", "name")
+//       .populate("billingDetails", "address")
+//       .sort({ createdAt: -1 })
+//       .skip(skip)
+//       .limit(limit);
+
+//     console.log("Orders fetched:", orders);
+
+//     res.render("salesReport", {
+//       orders,
+//       filter,
+//       startDate,
+//       endDate,
+//       currentPage: parseInt(page),
+//       totalPages,
+//       // currentPage: page,
+//       // totalPages,
+//       limit,
+//       maxPagesToShow: 10,
+//     });
+//   } catch (error) {
+//     console.error("Error:", error);
+//     res.status(500).send("Internal Server Error");
+//   }
+// };
+
 const loadSalesReport = async (req, res) => {
   try {
     const { filter = "all", startDate, endDate, page = 1 } = req.query;
     const limit = 5;
     const skip = (page - 1) * limit;
 
-    let filterOptions = {};
+    let filterOptions = {
+      status: { $nin: ["Cancelled", "Failed", "Returned"] },
+    };
     const today = dayjs().startOf("day");
-    // console.log(today, "toooo");
 
     if (filter === "daily") {
       filterOptions.createdAt = {
@@ -1554,8 +1588,6 @@ const loadSalesReport = async (req, res) => {
       }
     }
 
-    // console.log("Filter options:", filterOptions);
-
     const totalOrders = await orderModel.countDocuments(filterOptions);
     const totalPages = Math.ceil(totalOrders / limit);
 
@@ -1568,8 +1600,6 @@ const loadSalesReport = async (req, res) => {
       .skip(skip)
       .limit(limit);
 
-    console.log("Orders fetched:", orders);
-
     res.render("salesReport", {
       orders,
       filter,
@@ -1577,8 +1607,6 @@ const loadSalesReport = async (req, res) => {
       endDate,
       currentPage: parseInt(page),
       totalPages,
-      // currentPage: page,
-      // totalPages,
       limit,
       maxPagesToShow: 10,
     });
@@ -1587,6 +1615,7 @@ const loadSalesReport = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
+
 // const downloadSalesReportPDF = async (req, res) => {
 //   try {
 //     const { filter = "all", startDate, endDate } = req.query;

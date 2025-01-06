@@ -12,12 +12,10 @@ const transactionSchema = new mongoose.Schema({
     required: true,
   },
   status: {
-    //  success or fail
     type: String,
     required: true,
   },
   type: {
-    //  credit or debit
     type: String,
     required: true,
   },

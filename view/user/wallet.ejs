@@ -244,7 +244,13 @@ button:hover {
               <span style="background-color: rgb(77, 150, 77);" class="badge badge-success"><%= transaction.status %></span>
               <% } %>
             </td>
-            <td><%= transaction.type %></td>
+            <% if(transaction.type=="Credit") {%>
+            <td style="color: green;">
+              <%= transaction.type %></td>
+              <% }else{ %>
+                <td style="color: red;">
+                <%= transaction.type %></td>
+                <% } %>
           </tr>
           <% }) %>
         </tbody>
@@ -311,3 +317,27 @@ button:hover {
 </body>
 <%- include("footer.ejs") %>
 </html>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  function confirmLogout() {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You will be logged out!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, logout!',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: 'black',  // Green button for confirmation
+  cancelButtonColor: 'black',   // Red button for cancellation
+  background: '#f8f9fa',  // Light background
+  iconColor: '#dc3545',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Redirect to logout page
+        window.location.href = '/logout';
+      }
+    });
+  }
+</script>
+

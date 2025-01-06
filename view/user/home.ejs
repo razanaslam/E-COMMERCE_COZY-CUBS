@@ -1,7 +1,5 @@
 <%- include('header.ejs') %>
-    
-    
-      </div>
+</div>
       <div class="notification-section bg-theme-color section-padding-1" style="background-color: #ecad89 !important;">
         <div class="container-fluid">
           <div class="notification-wrapper">
@@ -1835,3 +1833,28 @@
 
   <!-- Mirrored from template.hasthemes.com/toro/toro/index-3.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 09 Feb 2024 11:17:24 GMT -->
 </html>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  function confirmLogout() {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You will be logged out!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, logout!',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: 'black',  // Green button for confirmation
+  cancelButtonColor: 'black',   // Red button for cancellation
+  background: '#f8f9fa',  // Light background
+  iconColor: '#dc3545',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Redirect to logout page
+        window.location.href = '/logout';
+      }
+    });
+  }
+</script>
+
+

@@ -186,8 +186,11 @@
                       <th>Total</th>
                     </tr>
                   </thead>
+                  <% let total=0 %>
                   <tbody>
-                    <% order.items.forEach(item => { %>
+                    <% order.items.forEach(item => { %> <% total += (item.price
+                    * item.quantity).toFixed(2) %> <%
+                    console.log(total,"totallll"); %>
                     <tr>
                       <td>
                         <div class="d-flex align-items-center">
@@ -241,6 +244,16 @@
                         <td class="text-end"><strong>Discount:</strong></td>
                         <td class="text-end"><%= order.discount || 0 %></td>
                       </tr>
+                      <tr>
+                        <td class="text-end">
+                          <strong>Coupon Discount:</strong>
+                        </td>
+                        <% var number=total-order.totalPrice %>
+                        <td colspan="2" class="text-end">
+                          <%=number.toFixed(2) %>
+                        </td>
+                      </tr>
+
                       <tr>
                         <td class="text-end">
                           <strong>Shipping Cost:</strong>

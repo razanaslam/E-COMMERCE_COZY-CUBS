@@ -158,7 +158,8 @@
     const currentStatus = selectElement.getAttribute("data-current-status");
 
     // Prevent changes from 'Cancelled' or 'Delivered' state
-    if (currentStatus === "Cancelled" || currentStatus === "Delivered") {
+    if (currentStatus === "Cancelled" || currentStatus === "Delivered" || currentStatus === "Returned") 
+      {
       Swal.fire({
         icon: "warning",
         title: "Action not allowed",
@@ -242,6 +243,7 @@
       Shipped: ["Delivered"],
       Delivered: [],
       Cancelled: [],
+      Returned:[]
     };
 
     // Add options based on the new status

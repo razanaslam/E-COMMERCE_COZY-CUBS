@@ -24,6 +24,7 @@ const { NOTFOUND } = require("dns");
 const PDFDocument = require("pdfkit");
 const path = require("path");
 const fs = require("fs");
+const coupon = require("../model/coupon");
 require("dotenv").config();
 const generateOtp = () => {
   const otp = Math.floor(100000 + Math.random() * 900000);
@@ -1191,17 +1192,142 @@ const cancelOrder = async (req, res) => {
   }
 };
 
+// const orderPlaced = async (req, res) => {
+//   try {
+//     const { paymentMethod, addressID, couponCode } = req.body;
+//     console.log(paymentMethod, addressID, couponCode, "where ?");
+
+//     const userId = req.session?.user?._id;
+
+//     const cart = await cartModel.findOne({ userId }).populate("items.product");
+//     if (!cart || cart.items.length === 0) {
+//       return res.status(400).json({ message: "Your cart is empty." });
+//     }
+
+//     const userAddresses = await addressModel.findOne({ userId });
+//     const selectedAddress = userAddresses?.addressDetails.find(
+//       (address) => address._id.toString() === addressID.toString()
+//     );
+//     if (!selectedAddress) {
+//       return res.status(400).json({ message: "Invalid address selected." });
+//     }
+
+//     let totalPrice = 0;
+//     const orderItems = cart.items.map((item) => {
+//       const product = item.product;
+//       const basePrice = product.price;
+//       const discountAmount =
+//         product.discountedPrice != null
+//           ? basePrice - product.discountedPrice
+//           : 0;
+//       const finalPrice = basePrice - discountAmount;
+
+//       totalPrice += finalPrice * item.qty;
+
+//       return {
+//         product: product._id,
+//         price: basePrice,
+//         discountAmount,
+//         finalPrice,
+//         quantity: item.qty,
+//       };
+//     });
+
+//     let couponDiscount = 0;
+//     let appliedCoupon = null;
+//     console.log(couponCode, "couponcode of this");
+
+//     if (couponCode) {
+//       const coupon = await couponModel.findOne({
+//         couponCode,
+//         isListed: true,
+//         expiryDate: { $gte: new Date() },
+//         usedBy: { $ne: userId },
+//       });
+//       console.log(totalPrice, "total price ");
+//       console.log(
+//         totalPrice * coupon.discountPercentage,
+//         "total price * discount "
+//       );
+
+//       if (!coupon) {
+//         return res.status(400).json({ message: "Invalid or expired coupon." });
+//       }
+
+//       if (totalPrice < coupon.minAmount) {
+//         return res.status(400).json({
+//           message: `Minimum order value for this coupon is ${coupon.minAmount}.`,
+//         });
+//       }
+
+//       couponDiscount = (totalPrice * coupon.discountPercentage) / 100;
+//       if (
+//         coupon.maxDiscountAmount &&
+//         couponDiscount > coupon.maxDiscountAmount &&
+//         coupon.discountPercentage <= 0
+//       ) {
+//         couponDiscount = coupon.maxDiscountAmount;
+//       }
+
+//       totalPrice -= couponDiscount;
+//       appliedCoupon = coupon._id;
+//     }
+//     console.log(couponDiscount, "coupon ");
+
+//     console.log(totalPrice, "total price of coupon");
+
+//     const order = new orderModel({
+//       userId,
+//       items: orderItems,
+//       totalPrice: totalPrice,
+//       billingDetails: selectedAddress,
+//       paymentMethod: paymentMethod === "cod" ? "COD" : "wallet",
+//       status: paymentMethod === "cod" ? "Pending" : "Delivered",
+//       paymentStatus: paymentMethod === "cod" ? "Pending" : "Paid",
+//       offerApplied: appliedCoupon,
+//       discounts: {
+//         couponDiscount,
+//         productDiscounts: orderItems.reduce(
+//           (acc, item) => acc + item.discountAmount * item.quantity,
+//           0
+//         ),
+//       },
+//     });
+
+//     await order.save();
+
+//     for (const item of orderItems) {
+//       await productModel.findByIdAndUpdate(item.product, {
+//         $inc: { stock: -item.quantity },
+//       });
+//     }
+
+//     await cartModel.updateOne(
+//       { userId },
+//       { $set: { items: [], totalPrice: 0 } }
+//     );
+
+//     res.status(200).json({
+//       message: "Order placed successfully!",
+//       order,
+//     });
+//   } catch (error) {
+//     console.error("Error while placing order:", error);
+//     res
+//       .status(500)
+//       .json({ message: "An error occurred while placing the order.", error });
+//   }
+// };
+
 const orderPlaced = async (req, res) => {
   try {
     const { paymentMethod, addressID, couponCode } = req.body;
-    console.log(paymentMethod, addressID, couponCode, "where ?");
-
     const userId = req.session?.user?._id;
 
     const cart = await cartModel.findOne({ userId }).populate("items.product");
-    if (!cart || cart.items.length === 0) {
-      return res.status(400).json({ message: "Your cart is empty." });
-    }
+    // if (!cart || cart.items.length === 0) {
+    //   return res.status(400).json({ message: "Your cart is empty." });
+    // }
 
     const userAddresses = await addressModel.findOne({ userId });
     const selectedAddress = userAddresses?.addressDetails.find(
@@ -1234,8 +1360,6 @@ const orderPlaced = async (req, res) => {
 
     let couponDiscount = 0;
     let appliedCoupon = null;
-    console.log(couponCode, "couponcode of this");
-
     if (couponCode) {
       const coupon = await couponModel.findOne({
         couponCode,
@@ -1243,12 +1367,6 @@ const orderPlaced = async (req, res) => {
         expiryDate: { $gte: new Date() },
         usedBy: { $ne: userId },
       });
-      console.log(totalPrice, "total price ");
-      console.log(
-        totalPrice * coupon.discountPercentage,
-        "total price * discount "
-      );
-
       if (!coupon) {
         return res.status(400).json({ message: "Invalid or expired coupon." });
       }
@@ -1262,8 +1380,7 @@ const orderPlaced = async (req, res) => {
       couponDiscount = (totalPrice * coupon.discountPercentage) / 100;
       if (
         coupon.maxDiscountAmount &&
-        couponDiscount > coupon.maxDiscountAmount &&
-        coupon.discountPercentage <= 0
+        couponDiscount > coupon.maxDiscountAmount
       ) {
         couponDiscount = coupon.maxDiscountAmount;
       }
@@ -1271,18 +1388,37 @@ const orderPlaced = async (req, res) => {
       totalPrice -= couponDiscount;
       appliedCoupon = coupon._id;
     }
-    console.log(couponDiscount, "coupon ");
 
-    console.log(totalPrice, "total price of coupon");
+    // Wallet Payment Logic
+    if (paymentMethod === "wallet") {
+      const wallet = await walletModel.findOne({ userId });
+      if (!wallet || wallet.balance < totalPrice) {
+        return res
+          .status(400)
+          .json({ message: "Insufficient wallet balance." });
+      }
+
+      // Deduct from wallet
+      wallet.balance -= totalPrice;
+      await wallet.save();
+
+      // Log transaction
+      await transactionModel.create({
+        userId,
+        amount: totalPrice,
+        status: "Success",
+        type: "Debit",
+      });
+    }
 
     const order = new orderModel({
       userId,
       items: orderItems,
-      totalPrice: totalPrice,
+      totalPrice,
       billingDetails: selectedAddress,
       paymentMethod: paymentMethod === "cod" ? "COD" : "wallet",
-      status: paymentMethod === "cod" ? "Pending" : "Delivered",
-      paymentStatus: paymentMethod === "cod" ? "Pending" : "Paid",
+      status: paymentMethod === "cod" || "wallet" ? "Pending" : "Delivered",
+      paymentStatus: paymentMethod === "cod" || "wallet" ? "Pending" : "Paid",
       offerApplied: appliedCoupon,
       discounts: {
         couponDiscount,
@@ -3244,8 +3380,187 @@ const cancelRazorpayOrder = async (req, res) => {
 //   }
 // };
 
+// const downloadInvoice = async (req, res) => {
+//   const { orderId } = req.params;
+//   const { number } = req.query;
+//   console.log("hai", number, "nummber");
+
+//   try {
+//     const order = await orderModel
+//       .findById(orderId)
+//       .populate("items.product")
+//       .lean();
+
+//     if (!order) {
+//       return res.status(404).send("Order not found");
+//     }
+
+//     const address = await addressModel.findOne({ userId: order.userId });
+
+//     if (address && address.addressDetails.length > 0) {
+//       const billingAddress = address.addressDetails.find(
+//         (addr) => addr._id.toString() === order.billingDetails.toString()
+//       );
+
+//       if (billingAddress) {
+//         order.billingDetails = { ...billingAddress.toObject() };
+//       } else {
+//         order.billingDetails = null;
+//       }
+//     }
+
+//     const doc = new PDFDocument({ margin: 50, size: "A4" });
+//     const filePath = path.join("Downloads", `invoice-${order._id}.pdf`);
+//     const writeStream = fs.createWriteStream(filePath);
+//     doc.pipe(writeStream);
+
+//     const drawLine = (y) => {
+//       doc.moveTo(50, y).lineTo(550, y).stroke("#D3D3D3");
+//     };
+
+//     // doc.image("path/to/logo.png", 50, 45, { width: 50 });
+//     doc.fontSize(20).font("Helvetica-Bold").text("CozyCubs", 120, 50);
+//     doc
+//       .fontSize(10)
+//       .font("Helvetica")
+//       .text("Edapally, Kochi, Kerala, 217231", 120, 75);
+//     doc.text("Phone: +91 89893927433 | Email: support@cozyCubs.com", 120, 90);
+//     drawLine(110);
+
+//     doc.fontSize(16).font("Helvetica-Bold").text("INVOICE", 250, 130);
+
+//     const detailsTop = 150;
+//     doc.rect(50, detailsTop, 240, 100).fill("#F0F0F0");
+//     doc
+//       .fontSize(12)
+//       .font("Helvetica-Bold")
+//       .text("Order Details", 60, detailsTop + 10);
+//     doc
+//       .fontSize(10)
+//       .font("Helvetica")
+//       .fillColor("black")
+//       .text(`Order Number: ${order._id}`, 60, detailsTop + 30)
+//       .text(
+//         `Date: ${new Date(order.createdAt).toLocaleDateString()}`,
+//         60,
+//         detailsTop + 50
+//       );
+
+//     doc.rect(310, detailsTop, 240, 100).fill("#F0F0F0");
+//     doc
+//       .fontSize(12)
+//       .font("Helvetica-Bold")
+//       .text("Billing Details", 320, detailsTop + 10);
+
+//     if (order.billingDetails) {
+//       doc
+//         .fontSize(10)
+//         .font("Helvetica")
+//         .fillColor("black")
+//         .text(`${order.billingDetails.fullName}`, 320, detailsTop + 30)
+//         .text(`${order.billingDetails.email}`, 320, detailsTop + 45)
+//         .text(
+//           `${order.billingDetails.city}, ${order.billingDetails.state}, ${order.billingDetails.postalCode}`,
+//           320,
+//           detailsTop + 60
+//         )
+//         .text(`${order.billingDetails.country}`, 320, detailsTop + 75);
+//     } else {
+//       doc
+//         .fontSize(10)
+//         .font("Helvetica")
+//         .fillColor("black")
+//         .text("No billing details available", 320, detailsTop + 30);
+//     }
+
+//     drawLine(260);
+
+//     const tableTop = 280;
+//     doc.fillColor("black").fontSize(12).font("Helvetica-Bold");
+//     const headers = ["Product Name", "Qty", "Price", "Total"];
+//     const cols = [50, 250, 320, 420];
+
+//     headers.forEach((header, i) => {
+//       doc.text(header, cols[i], tableTop, { width: 100, align: "left" });
+//     });
+
+//     drawLine(tableTop + 15);
+
+//     let currentY = tableTop + 25;
+//     doc.fontSize(10).font("Helvetica");
+
+//     order.items.forEach((item) => {
+//       const data = [
+//         item.product.product_title,
+//         item.quantity.toString(),
+//         `₹${item.price.toFixed(2)}`,
+//         `₹${(item.quantity * item.price).toFixed(2)}`,
+//       ];
+//       data.forEach((value, index) => {
+//         doc.text(value, cols[index], currentY, { width: 100, align: "left" });
+//       });
+//       currentY += 20;
+//     });
+
+//     drawLine(currentY);
+
+//     currentY += 10;
+//     doc.fontSize(12).font("Helvetica-Bold").text("Summary:", 350, currentY);
+//     doc.fontSize(10).font("Helvetica");
+//     doc.text(`Subtotal: ₹${order.totalPrice.toFixed(2)}`, 350, currentY + 15);
+//     doc.text(
+//       `Discount Applied: ₹${order.discountApplied.toFixed(2)}`,
+//       350,
+//       currentY + 30
+//     );
+//     doc.text(
+//       `Coupon Discount: ₹${parseFloat(number).toFixed(2)}`,
+//       350,
+//       currentY + 45
+//     );
+
+//     doc
+//       .font("Helvetica-Bold")
+//       .text(
+//         `Total: ₹${(order.totalPrice - order.discountApplied).toFixed(2)}`,
+//         350,
+//         currentY + 60
+//       );
+
+//     const footerY = doc.page.height - 50;
+//     doc
+//       .fontSize(10)
+//       .font("Helvetica")
+//       .fillColor("#666666")
+//       .text("Thank you for your purchase!", 50, footerY, {
+//         align: "center",
+//         width: doc.page.width - 100,
+//       });
+
+//     doc.end();
+
+//     writeStream.on("finish", () => {
+//       res.download(filePath, `invoice-${order._id}.pdf`, (err) => {
+//         if (err) {
+//           console.error("Error downloading the invoice:", err);
+//         }
+//         fs.unlinkSync(filePath);
+//       });
+//     });
+
+//     writeStream.on("error", (err) => {
+//       console.error("Error writing PDF:", err);
+//       res.status(500).send("Error generating the invoice.");
+//     });
+//   } catch (error) {
+//     console.error("Error fetching order or generating invoice:", error);
+//     res.status(500).send("Internal server error.");
+//   }
+// };
+
 const downloadInvoice = async (req, res) => {
   const { orderId } = req.params;
+  const { number } = req.query;
 
   try {
     const order = await orderModel
@@ -3258,17 +3573,13 @@ const downloadInvoice = async (req, res) => {
     }
 
     const address = await addressModel.findOne({ userId: order.userId });
-
     if (address && address.addressDetails.length > 0) {
       const billingAddress = address.addressDetails.find(
         (addr) => addr._id.toString() === order.billingDetails.toString()
       );
-
-      if (billingAddress) {
-        order.billingDetails = { ...billingAddress.toObject() };
-      } else {
-        order.billingDetails = null;
-      }
+      order.billingDetails = billingAddress
+        ? { ...billingAddress.toObject() }
+        : null;
     }
 
     const doc = new PDFDocument({ margin: 50, size: "A4" });
@@ -3280,27 +3591,25 @@ const downloadInvoice = async (req, res) => {
       doc.moveTo(50, y).lineTo(550, y).stroke("#D3D3D3");
     };
 
-    // doc.image("path/to/logo.png", 50, 45, { width: 50 });
+    doc.fillColor("black");
     doc.fontSize(20).font("Helvetica-Bold").text("CozyCubs", 120, 50);
     doc
       .fontSize(10)
       .font("Helvetica")
-      .text("Edapally, Kochi, Kerala, 217231", 120, 75);
-    doc.text("Phone: +91 89893927433 | Email: support@cozyCubs.com", 120, 90);
+      .text("Edapally, Kochi, Kerala, 217231", 120, 75)
+      .text("Phone: +91 89893927433 | Email: support@cozyCubs.com", 120, 90);
     drawLine(110);
 
     doc.fontSize(16).font("Helvetica-Bold").text("INVOICE", 250, 130);
 
     const detailsTop = 150;
-    doc.rect(50, detailsTop, 240, 100).fill("#F0F0F0");
+    doc.rect(50, detailsTop, 240, 100).fill("#F0F0F0").stroke();
     doc
+      .fillColor("black")
       .fontSize(12)
-      .font("Helvetica-Bold")
       .text("Order Details", 60, detailsTop + 10);
     doc
       .fontSize(10)
-      .font("Helvetica")
-      .fillColor("black")
       .text(`Order Number: ${order._id}`, 60, detailsTop + 30)
       .text(
         `Date: ${new Date(order.createdAt).toLocaleDateString()}`,
@@ -3308,17 +3617,15 @@ const downloadInvoice = async (req, res) => {
         detailsTop + 50
       );
 
-    doc.rect(310, detailsTop, 240, 100).fill("#F0F0F0");
+    doc.rect(310, detailsTop, 240, 100).fill("#F0F0F0").stroke();
     doc
+      .fillColor("black")
       .fontSize(12)
-      .font("Helvetica-Bold")
       .text("Billing Details", 320, detailsTop + 10);
 
     if (order.billingDetails) {
       doc
         .fontSize(10)
-        .font("Helvetica")
-        .fillColor("black")
         .text(`${order.billingDetails.fullName}`, 320, detailsTop + 30)
         .text(`${order.billingDetails.email}`, 320, detailsTop + 45)
         .text(
@@ -3328,70 +3635,62 @@ const downloadInvoice = async (req, res) => {
         )
         .text(`${order.billingDetails.country}`, 320, detailsTop + 75);
     } else {
-      doc
-        .fontSize(10)
-        .font("Helvetica")
-        .fillColor("black")
-        .text("No billing details available", 320, detailsTop + 30);
+      doc.text("No billing details available", 320, detailsTop + 30);
     }
 
     drawLine(260);
 
     const tableTop = 280;
-    doc.fillColor("black").fontSize(12).font("Helvetica-Bold");
-    const headers = ["Product Name", "Qty", "Price", "Total"];
-    const cols = [50, 250, 320, 420];
-
-    headers.forEach((header, i) => {
-      doc.text(header, cols[i], tableTop, { width: 100, align: "left" });
-    });
+    doc.fontSize(12).text("Product Name", 50, tableTop);
+    doc.text("Qty", 250, tableTop);
+    doc.text("Price", 320, tableTop);
+    doc.text("Total", 420, tableTop);
 
     drawLine(tableTop + 15);
 
     let currentY = tableTop + 25;
-    doc.fontSize(10).font("Helvetica");
+    doc.fontSize(10);
 
     order.items.forEach((item) => {
-      const data = [
-        item.product.product_title,
-        item.quantity.toString(),
-        `₹${item.price.toFixed(2)}`,
-        `₹${(item.quantity * item.price).toFixed(2)}`,
-      ];
-      data.forEach((value, index) => {
-        doc.text(value, cols[index], currentY, { width: 100, align: "left" });
-      });
-      currentY += 20;
+      doc.text(item.product.product_title, 50, currentY);
+      doc.text(item.quantity.toString(), 250, currentY);
+      doc.text(`INR ${item.price.toFixed(2)}`, 320, currentY);
+      doc.text(`INR ${(item.quantity * item.price).toFixed(2)}`, 420, currentY);
+      currentY += 15;
     });
 
     drawLine(currentY);
 
     currentY += 10;
-    doc.fontSize(12).font("Helvetica-Bold").text("Summary:", 350, currentY);
-    doc.fontSize(10).font("Helvetica");
-    doc.text(`Subtotal: ₹${order.totalPrice.toFixed(2)}`, 350, currentY + 15);
-    doc.text(
-      `Discount Applied: ₹${order.discountApplied.toFixed(2)}`,
-      350,
-      currentY + 30
-    );
+    doc.fontSize(12).text("Summary:", 350, currentY);
     doc
-      .font("Helvetica-Bold")
+      .fontSize(10)
       .text(
-        `Total: ₹${(order.totalPrice - order.discountApplied).toFixed(2)}`,
+        `Subtotal: INR ${(order.totalPrice + parseFloat(number)).toFixed(2)}`,
+        350,
+        currentY + 15
+      )
+      .text(
+        `Discount Applied: INR ${order.discountApplied.toFixed(2)}`,
+        350,
+        currentY + 30
+      )
+      .text(
+        `Coupon Discount: INR ${parseFloat(number).toFixed(2)}`,
         350,
         currentY + 45
+      )
+      .text(
+        `Total: INR ${(order.totalPrice - order.discountApplied).toFixed(2)}`,
+        350,
+        currentY + 60
       );
 
     const footerY = doc.page.height - 50;
-    doc
-      .fontSize(10)
-      .font("Helvetica")
-      .fillColor("#666666")
-      .text("Thank you for your purchase!", 50, footerY, {
-        align: "center",
-        width: doc.page.width - 100,
-      });
+    doc.fontSize(10).text("Thank you for your purchase!", 50, footerY, {
+      align: "center",
+      width: doc.page.width - 100,
+    });
 
     doc.end();
 
