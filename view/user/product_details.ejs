@@ -1,4 +1,16 @@
 <%- include('header.ejs') %>
+<style>
+  .product-details-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.product-details-wishlist i {
+  font-size: 24px;
+}
+
+</style>
     <link
       rel="stylesheet"
       href="/assets/css/vendor/bootstrap.min.css"
@@ -432,7 +444,7 @@
           </div>
         </div>
       </div>
-   
+   <br><br>
       <div class="product-details-area section-padding-1 pb-90">
         <div class="container-fluid">
           <div class="row">
@@ -602,58 +614,50 @@
                        
                         <a title="Add to cart" href="/addToCart?id=<%# product._id %>">Add to cart</a>
                       </div> -->
-                      <div class="product-details-cart">
-                        <button 
-                          class="btn-add-to-cart" 
-                          onclick="addToCart('<%= product._id %>')" style="
-                       
-                          width: 170px;
-                          height: 54px;
-                         
-                          border-color: #000000;
-                          color: #000000;
-                         
-                          background-color: transparent;
-                      ">
-                          Add to Cart
-                        </button>
+                      <div class="product-details-row" style="display: flex; align-items: center; gap: 20px;">
+                        <!-- Add to Cart Button -->
+                        <div class="product-details-cart">
+                          <button 
+                            class="btn-add-to-cart" 
+                            onclick="addToCart('<%= product._id %>')" 
+                            style="
+                              width: 170px;
+                              height: 54px;
+                              border-color: #000000;
+                              color: #000000;
+                              background-color: transparent;
+                            ">
+                            Add to Cart
+                          </button>
+                        </div>
+                        <%  } %>
+                    
+                        <!-- Wishlist -->
+                        <div class="product-details-wishlist">
+                          <a title="Add to wishlist" href="javascript:void(0)" id="wishlist-link">
+                            <% if (product.inWishlist == false) { %>
+                              <i style="color: black; font-size: 24px;" class="fa fa-heart"></i>
+                            <% } else { %>
+                              <i style="color: red; font-size: 24px;" class="fa fa-heart"></i>
+                            <% } %>
+                          </a>
+                        </div>
                       </div>
                       
                       
-
-                      <% } %>
-                      
-                      <!-- <div class="product0.-details-wishlist">
-                        <a title="Add to wishlist" href="/addToWhishlist?id=<%= product._id %>"
-                          ><% if(product.inWishlist==false) {%>
-                          <i style="color: black;" class="fa fa-heart"></i
-                        >
-                      <% }else{ %>
-                      <p> <i style="color: rgb(255, 0, 0);" class="fa fa-heart"></i
-                        ></p>
-                    <% } %></a>
-                      </div> -->
-                      <div class="product-details-wishlist">
-                        <a title="Add to wishlist" href="javascript:void(0)" id="wishlist-link"
-                          ><% if(product.inWishlist==false) {%>
-                            <i style="color: black;" class="fa fa-heart"></i>
-                          <% } else { %>
-                            <p><i style="color: rgb(255, 0, 0);" class="fa fa-heart"></i></p>
-                          <% } %>
-                        </a>
-                      </div>
                       
                     </div>
+                    <br>
                     <div class="product-details-info">
                       <a href="#"
-                        ><i class="dlicon location_pin"></i>Store
+                        ><i class="dlicon location_pin"></i> Store
                         availability</a
                       >
                       <a href="#"
-                        ><i class="dlicon envir_car"></i>Delivery and return</a
+                        ><i class="dlicon envir_car"></i> Delivery and return</a
                       >
                       <a href="#"
-                        ><i class="dlicon design_measure-17"></i>Size Guide</a
+                        ><i class="dlicon design_measure-17"></i> Size Guide</a
                       >
                     </div>
                     <div class="product-details-meta">
@@ -667,13 +671,7 @@
                       <span
                         >brand:<%# brand.brand.name %>, -->
                         
-                      <span
-                        >Tags: <a href="#">Blazer</a>, <a href="#">chair</a>,
-                        <a href="#">Coat</a>, <a href="#">dress</a>,
-                        <a href="#">light</a>, <a href="#">Living</a>,
-                        <a href="#">Main 01</a></span
-                      >
-                    </div>
+                    <br>
                     <div class="social-icon-style-3">
                       <a class="facebook" href="#"
                         ><i class="fa fa-facebook"></i

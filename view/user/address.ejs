@@ -759,6 +759,64 @@ async function returnOrder(orderId) {
                 });
             });
         </script>
+        <script>
+            document.getElementById('addressForm').addEventListener('submit', function (event) {
+    event.preventDefault(); // Prevent form submission
+
+    const errorMessageDiv = document.getElementById('error-message');
+    errorMessageDiv.innerText = ''; // Clear any existing error messages
+
+    // Get form fields
+    const fullName = document.getElementById('fullName').value.trim();
+    const city = document.getElementById('city').value.trim();
+    const state = document.getElementById('state').value.trim();
+    const postalCode = document.getElementById('postalCode').value.trim();
+    const country = document.getElementById('country').value.trim();
+    const mobileNumber = document.getElementById('mobileNumber').value.trim();
+    const email = document.getElementById('email').value.trim();
+
+    // Validation checks
+    if (!fullName) {
+        errorMessageDiv.innerText = 'Full Name is required.';
+        return;
+    }
+
+    if (!city) {
+        errorMessageDiv.innerText = 'City is required.';
+        return;
+    }
+
+    if (!state) {
+        errorMessageDiv.innerText = 'State/Province/Region is required.';
+        return;
+    }
+
+    if (!postalCode || postalCode.length < 5 || isNaN(postalCode)) {
+    errorMessageDiv.innerText = 'Postal Code must be a numeric value with at least 5 digits.';
+    return;
+}
+
+
+    if (!country) {
+        errorMessageDiv.innerText = 'Country is required.';
+        return;
+    }
+
+    if (!mobileNumber || !/^\d{10}$/.test(mobileNumber)) {
+        errorMessageDiv.innerText = 'Mobile Number must be 10 digits.';
+        return;
+    }
+
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errorMessageDiv.innerText = 'Invalid Email Address format.';
+        return;
+    }
+
+    // If validation passes, submit the form
+    this.submit();
+});
+
+        </script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/assets/js/vendor/modernizr-3.11.7.min.js"></script>
