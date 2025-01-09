@@ -69,11 +69,17 @@ userRoute.post(
   isUser,
   userController.accountDetails
 );
+// userRoute.post(
+//   "/accountDetails/updatepassword",
+//   isUser,
+//   userController.updatePassword
+// );
 userRoute.post(
   "/accountDetails/updatepassword",
   isUser,
   userController.updatePassword
 );
+
 userRoute.get("/userAddress", isUser, userController.loadAddress);
 userRoute.post("/userAddress", userController.addAddress);
 userRoute.post("/userAddress/edit", userController.editAddress);

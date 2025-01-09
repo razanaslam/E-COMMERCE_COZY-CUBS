@@ -1682,48 +1682,40 @@ const updatePassword = async (req, res) => {
     const { currentPassword, newPassword, confirmPassword } = req.body;
 
     const user = await userModel.findById(id);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
 
     const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) {
-      console.log("hyyy");
-      req.flash("errorPassword", "Incorrect current password.");
-      setTimeout(() => {
-        return res.redirect("/accountDetails");
-      }, 3000);
+      return res
+        .status(400)
+        .json({ success: false, message: "Incorrect current password" });
     }
 
-    // if (newPassword !== confirmPassword) {
-    //   req.flash(
-    //     "errorPassword",
-    //     "New password and confirm password do not match."
-    //   );
-    //   return res.redirect("/accountDetails");
-    // }
-    console.log(newPassword, "hy password");
-
-    const newPass = await bcrypt.hash(newPassword, 10);
-    console.log(newPass, "new password");
-
-    const userdata = await userModel.findByIdAndUpdate(
-      id,
-      { $set: { password: newPass } },
-      { new: true }
-    );
-
-    if (userdata) {
-      req.flash("successPass", "Password changed successfully.");
-      setTimeout(() => {
-        return res.redirect("/accountDetails");
-      }, 3000);
+    if (newPassword !== confirmPassword) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Passwords do not match" });
     }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Password updated successfully" });
   } catch (error) {
-    req.flash(
-      "errorPassword",
-      "An error occurred while changing the password."
-    );
-    setTimeout(() => {
-      return res.redirect("/accountDetails");
-    }, 3000);
+    console.error("Error updating password:", error);
+    return res
+      .status(500)
+      .json({
+        success: false,
+        message: "An error occurred. Please try again.",
+      });
   }
 };
 

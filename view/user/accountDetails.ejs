@@ -234,76 +234,77 @@ button:hover {
 <h1>Acc Details</h1>
 
 
-  <div class="container-fluid">
-    <form action="/accountDetails/userDetails" method="post" id="userDetailsForm">
-      <div class="row justify-content-center align-items-center" >
-        <div class="col-12 col-md-8 col-lg-6">
-          <p style="color: green"><%= success %></p>
-  
-          <div class="single-input-item">
-            <label for="email" class="required" style="display: block; margin-bottom: 5px">Email Address *</label>
-            <input
-              name="email"
-              style="border-color: black; background-color: transparent; width: 100%; display: block; margin-bottom: 15px"
-              type="email"
-              id="email"
-              value="<%= acc.email %>"
-              disabled
-            />
-          </div>
-  
-          <div class="single-input-item">
-            <label for="display-name" class="required" style="display: block; margin-bottom: 5px">User Name *</label>
-            <input
-              name="name"
-              style="border-color: black; background-color: transparent; width: 100%; display: block; margin-bottom: 15px"
-              type="text"
-              id="display-name"
-              value="<%= acc.name %>"
-              pattern="^[a-zA-Z\s]+$" 
-              title="User name must only contain letters and spaces"
-              required
-            />
-          </div>
-  
-          <div class="single-input-item">
-            <label for="phone-number" class="required" style="display: block; margin-bottom: 5px">Phone Number *</label>
-            <input
-              name="number"
-              style="border-color: black; background-color: transparent; width: 100%; display: block; margin-bottom: 15px"
-              type="text"
-              id="phone-number"
-              value="<%= acc.number %>"
-              pattern="^\d+$" 
-              title="Phone number must contain digits only"
-            />
-          </div>
-  
-          <div class="single-input-item text-center">
-            <button
-              type="submit"
-              id="saveChangesBtn"
-              class="check-btn sqr-btn"
-              style="background-color: #636348; color: white; border: none; padding: 10px 20px; display: block; margin: 20px auto; text-align: center; cursor: pointer;"
-            >
-              Save Changes
-            </button>
-          </div>
+<div class="container-fluid">
+  <form action="/accountDetails/userDetails" method="post" id="userDetailsForm">
+    <div class="row justify-content-center align-items-center">
+      <div class="col-12 col-md-8 col-lg-6">
+        <p style="color: green"><%= success %></p>
+
+        <!-- Email Address (disabled) -->
+        <div class="single-input-item">
+          <label for="email" class="required" style="display: block; margin-bottom: 5px">Email Address *</label>
+          <input
+            name="email"
+            style="border-color: black; background-color: transparent; width: 100%; display: block; margin-bottom: 15px"
+            type="email"
+            id="email"
+            value="<%= acc.email %>"
+            disabled
+          />
+        </div>
+
+        <!-- User Name -->
+        <div class="single-input-item">
+          <label for="display-name" class="required" style="display: block; margin-bottom: 5px">User Name *</label>
+          <input
+            name="name"
+            style="border-color: black; background-color: transparent; width: 100%; display: block; margin-bottom: 15px"
+            type="text"
+            id="display-name"
+            value="<%= acc.name %>"
+            required
+          />
+        </div>
+
+        <!-- Phone Number -->
+        <div class="single-input-item">
+          <label for="phone-number" class="required" style="display: block; margin-bottom: 5px">Phone Number *</label>
+          <input
+            name="number"
+            style="border-color: black; background-color: transparent; width: 100%; display: block; margin-bottom: 15px"
+            type="text"
+            id="phone-number"
+            value="<%= acc.number %>"
+            required
+          />
+        </div>
+
+        <!-- Save Changes Button -->
+        <div class="single-input-item text-center">
+          <button
+            type="submit"
+            id="saveChangesBtn"
+            class="check-btn sqr-btn"
+            style="background-color: #636348; color: white; border: none; padding: 10px 20px; display: block; margin: 20px auto; text-align: center; cursor: pointer;"
+          >
+            Save Changes
+          </button>
         </div>
       </div>
-    </form>
-
-  
+    </div>
+  </form>
 </div>
+
 <div class="container-fluid">
-  <form action="/accountDetails/updatepassword" method="post" onsubmit="return validation(event)">
-    <div class="row justify-content-center align-items-center" >
+  <form id="update-password-form" action="/accountDetails/updatepassword" method="post">
+    <div class="row justify-content-center align-items-center">
       <div class="col-12 col-md-8 col-lg-6">
         <h2 class="text-center">Change Password</h2>
+        <!-- Server-Side Success/Error Messages -->
         <p style="color: green"><%= successPass %></p>
         <p style="color: red"><%= errorPassword %></p>
 
-        <!-- Error Message -->
+        <!-- Error Message Container -->
         <span
           id="errorPass"
           class="error-message"
@@ -318,6 +319,7 @@ button:hover {
             style="border-color: black; background-color: transparent; width: 100%; display: block; margin-bottom: 15px;"
             type="password"
             id="current-password"
+            
           />
         </div>
 
@@ -329,6 +331,7 @@ button:hover {
             style="border-color: black; background-color: transparent; width: 100%; display: block; margin-bottom: 15px;"
             type="password"
             id="new-password"
+            
           />
         </div>
 
@@ -340,6 +343,7 @@ button:hover {
             style="border-color: black; background-color: transparent; width: 100%; display: block; margin-bottom: 15px;"
             type="password"
             id="confirm-password"
+            
           />
         </div>
 
@@ -358,67 +362,83 @@ button:hover {
   </form>
 </div>
 
-<!-- SweetAlert CDN -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 <script>
-  function validation(event) {
+  document.getElementById("update-password-form").addEventListener("submit", async function (event) {
+    event.preventDefault();
+
+    const currentPassword = document.getElementById("current-password").value.trim();
+    const newPassword = document.getElementById("new-password").value.trim();
+    const confirmPassword = document.getElementById("confirm-password").value.trim();
+
+    const errorElement = document.getElementById("errorPass");
+    errorElement.textContent = ""; 
+
     let isValid = true;
 
-    const currentPassword = document
-      .getElementById("current-password")
-      .value.trim();
-    const newPassword = document.getElementById("new-password").value.trim();
-    const confirmPassword = document
-      .getElementById("confirm-password")
-      .value.trim();
-
-    // Clear previous error messages
-    const errorElement = document.getElementById("errorPass");
-    errorElement.textContent = "";
-
-    // Check if any fields are empty
+    // Validation
     if (!currentPassword || !newPassword || !confirmPassword) {
       errorElement.textContent = "All fields are required!";
       isValid = false;
     }
 
-    // Validate new password pattern
-    const passwordPattern =
-      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
+    const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
     if (!passwordPattern.test(newPassword)) {
-      errorElement.textContent =
-        "Password must be at least 8 characters long, contain at least one letter, one number, and one special character!";
+      errorElement.textContent = "Password must be at least 8 characters, include one letter, one number, and one special character!";
       isValid = false;
     }
-    
 
-    // Check if new password matches confirm password
     if (newPassword !== confirmPassword) {
-      errorElement.textContent =
-        "Confirm password does not match the new password!";
+      errorElement.textContent = "Confirm password does not match the new password!";
       isValid = false;
     }
 
-    // Prevent form submission if validation fails
-    if (!isValid) {
-      event.preventDefault();
-    } else {
-      // SweetAlert Toast message for successful validation
-      Swal.fire({
-        toast: true,
-        position: 'top-end',
-        icon: 'success',
-        title: 'Password updated successfully!',
-        showConfirmButton: false,
-        timer: 3000, // The toast will show for 3 seconds
-        timerProgressBar: true,
-      });
-      window.location.href=`/accountDetails`    }
+    if (!isValid) return;
 
-    return isValid;
-  }
+    // Submit form data
+    try {
+      const response = await fetch("/accountDetails/updatepassword", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currentPassword, newPassword, confirmPassword }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        Swal.fire({
+          icon: "success",
+          title: "Success!",
+          text: result.message || "Password updated successfully!",
+          confirmButtonText: "OK",
+        }).then(() => {
+          window.location.href = "/accountDetails";
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: result.message || "Something went wrong. Please try again.",
+          confirmButtonText: "OK",
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "An unexpected error occurred. Please try again later.",
+        confirmButtonText: "OK",
+      });
+    }
+  });
 </script>
+
+
+<!-- SweetAlert CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+
+
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
@@ -428,40 +448,46 @@ button:hover {
     const phoneInput = document.getElementById("phone-number");
     let formChanged = false;
 
-    // Detect changes in the form fields
     form.addEventListener('input', function () {
       formChanged = true;
     });
 
     form.addEventListener("submit", function (event) {
-      event.preventDefault(); // Prevent default submission initially
+      event.preventDefault();
 
-      // Check if name contains only letters and spaces
-      const namePattern = /^[a-zA-Z\s]+$/;
+      const namePattern = /^[a-zA-Z]+$/;
       if (!namePattern.test(nameInput.value)) {
         Swal.fire({
           icon: 'error',
           title: 'Invalid Input',
-          text: 'User name must only contain letters and spaces.',
+          text: 'User name must only contain letters.',
           confirmButtonText: 'OK'
         });
         return;
       }
 
-      // Check if phone number contains only digits
-      const phonePattern = /^\d+$/;
+      const phonePattern = /^\d{10}$/;
       if (!phonePattern.test(phoneInput.value)) {
         Swal.fire({
           icon: 'error',
           title: 'Invalid Input',
-          text: 'Phone number must contain digits only.',
+          text: 'Phone number must be exactly 10 digits long and contain numbers only.',
+          confirmButtonText: 'OK'
+        });
+        return;
+      }
+
+      if (!nameInput.value || !phoneInput.value) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Missing Information',
+          text: 'All fields are required.',
           confirmButtonText: 'OK'
         });
         return;
       }
 
       if (formChanged) {
-        // SweetAlert Toast notification for changes
         Swal.fire({
           toast: true,
           position: 'top-end',
@@ -472,12 +498,10 @@ button:hover {
           timerProgressBar: true,
         });
 
-        // Submit the form after a short delay
         setTimeout(() => {
           form.submit();
         }, 1000);
       } else {
-        // If no changes, alert the user
         Swal.fire({
           toast: true,
           position: 'top-end',
