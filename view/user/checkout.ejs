@@ -714,9 +714,8 @@
   </div>
 
   <div id="cod-form" style="display: none;">
-    <form id="cod-payment-form" action="/order-confirmed">
       <button id="placeOrderButton" class="btn btn-primary btn-lg w-100">Place Order</button>
-    </form>
+
   </div>
 
   <div id="razorpay-form" style="display: none;">
@@ -748,66 +747,57 @@
     };
 
     paymentMethodSelect.addEventListener("change", updatePaymentForms);
-    updatePaymentForms(); // Initialize visibility on page load
+    updatePaymentForms(); 
 
     const placeOrder = async (paymentMethod) => {
-      const selectedAddressID = document.querySelector("input[name='addressID']:checked")?.value;
-      const couponCode = document.getElementById("couponCodeInput").value || "";
+  const selectedAddressID = document.querySelector("input[name='addressID']:checked")?.value;
+  const couponCode = document.getElementById("couponCodeInput").value || "";
 
-      if (!selectedAddressID || !paymentMethod) {
-        alert("Please select an address and payment method.");
-        return;
-      }
+  if (!selectedAddressID || !paymentMethod) {
+  Swal.fire({
+    icon: 'warning', 
+    title: 'Missing Information',
+    text: 'Please select an address and payment method.',
+    confirmButtonText: 'Okay',
+  });
+  return;
+}
 
-      // if (paymentMethod === "wallet") {
-        // Ensure the wallet has sufficient balance
-        // const walletBalance = 500; // Example value; replace with actual balance logic
-        // const totalCost = 600; // Replace with actual subtotal logic
+  try {
+    const response = await fetch("/placeorder", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        addressID: selectedAddressID,
+        paymentMethod,
+        couponCode,
+      }),
+    });
 
-        // if (walletBalance < totalCost) {
-        //   alert("Insufficient wallet balance. Please use another payment method.");
-        //   return;
-        // }
-      // }
-
-      try {
-        const response = await fetch("/placeorder", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            addressID: selectedAddressID,
-            paymentMethod,
-            couponCode,
-          }),
-        });
-        if (razorpayButton) {
-      razorpayButton.addEventListener("click", (e) => {
-        e.preventDefault();
-
-        // Trigger Razorpay Payment Gateway
-        const paymentMethod = "razorpay";
-        placeOrder(paymentMethod);
+    const result = await response.json();
+    if (response.ok) {
+      window.location.href = "/order-confirmed";
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Order Failed",
+        text: result.message || "Something went wrong.",
       });
     }
-
-        const result = await response.json();
-        if (response.ok) {
-          window.location.href = "/order-confirmed";
-        } else {
-          alert("Error: " + result.message);
-        }
-      } catch (error) {
-        console.error("An error occurred:", error);
-      }
-    };
+  } catch (error) {
+    console.error("An error occurred:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Order Failed",
+      text: "Unable to place order due to a network error.",
+    });
+  }
+};
 
     const codButton = document.getElementById("placeOrderButton");
-    // if (codButton) {
-    //   codButton.addEventListener("click", () => placeOrder("cod"));
-    // }
-
+   
     const razorpayButton = document.getElementById("razorpay-payment-button");
    
     const walletButton = document.getElementById("wallet-payment-button");
@@ -830,79 +820,7 @@
 
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-//     <script>
-//       document.addEventListener('DOMContentLoaded', function() {
-//   const paymentMethodSelect = document.getElementById('payment-method');
-//   const codForm = document.getElementById('cod-form');
-//   const razorpayForm = document.getElementById('razorpay-form');
 
-//   function updatePaymentForms() {
-//     const selectedMethod = paymentMethodSelect.value;
-//     codForm.style.display = selectedMethod === 'cod' ? 'block' : 'none';
-//     razorpayForm.style.display = selectedMethod === 'razorpay' ? 'block' : 'none';
-//   }
-
-//   paymentMethodSelect.addEventListener('change', updatePaymentForms);
-
-
-//   updatePaymentForms();
-
-
-// });</script>
-// <script>
-//   const paymentMethodSelect = document.getElementById('payment-method');
-//     const razorpayForm = document.getElementById('razorpay-form');
-//     const razorpayButton = document.getElementById('razorpay-payment-button');
-
-//     paymentMethodSelect.addEventListener('change', function () {
-//         if (paymentMethodSelect.value === 'razorpay') {
-//             razorpayForm.style.display = 'block';
-//         } else {
-//             razorpayForm.style.display = 'none';
-//         }
-//     });
-
-
-//     razorpayButton.addEventListener('click', function () {
-//         fetch('/create-order', {
-//             method: 'POST',
-//             body: JSON.stringify({
-//                 amount: "<%= totalPrice * 100 %>",  // Total price in paise
-//             }),
-//             headers: {
-//                 'Content-Type': 'application/json',
-//             },
-//         })
-//         .then(response => response.json())
-//         .then(data => {
-//             var options = {
-//                 key:  "<%= process.env.RAZORPAY_KEY_ID %>", // Razorpay Key ID passed from the server
-//                 amount: data.amount,  // Amount in paise
-//                 currency: 'INR',
-//                 order_id: data.orderId,
-//                 handler: function (response) {
-//                     // Handle success (e.g., save payment details in the database)
-//                     alert('Payment successful');
-//                     // Optionally, send a request to the backend to update the order status
-//                 },
-//                 prefill: {
-//                     name: 'Customer Name',
-//                     email: 'customer@example.com',
-//                     contact: '9999999999',
-//                 },
-//                 notes: {
-//                     address: 'Customer Address',
-//                 },
-//             };
-
-//             var rzp1 = new Razorpay(options);
-//             rzp1.open();
-//         })
-//         .catch(error => {
-//             console.error('Error creating Razorpay order:', error);
-//         });
-//     });
-// </script>
 
 
     <script>
@@ -1005,7 +923,12 @@
     const couponCode = document.getElementById("couponCodeInput").value || "";
 
     if (!selectedAddressID || !paymentMethod) {
-      alert("Please select an address and payment method.");
+      Swal.fire({
+    icon: 'error', // Error icon for critical issues
+    title: 'Address Not Found',
+    text: 'Please select a valid address to proceed.',
+    confirmButtonText: 'Okay',
+  });
       return;
     }
 console.log("yyyyy");
@@ -1032,7 +955,11 @@ console.log("yyyyy");
       if (response.ok) {
         window.location.href = "/order-confirmed";
       } else {
-        alert("Error: " + result.message);
+        Swal.fire({
+            icon: 'error',
+            title: 'Order Failed',
+            text: result.message,
+          });
       }
     } catch (error) {
       console.log("njnjn");
@@ -1097,6 +1024,18 @@ console.log("yyyyy");
     try {
         const couponCode = document.getElementById("couponCodeInput").value || "";
         const addressID = document.querySelector("input[name='addressID']:checked")?.value || null;
+        console.log(addressID);
+        if (addressID === null) {
+  Swal.fire({
+    icon: 'error', 
+    title: 'Address Not Found',
+    text: 'Please select a valid address to proceed.',
+    confirmButtonText: 'Okay',
+  });
+  return;
+}
+
+        
         const paymentMethod = document.getElementById("payment-method").value || "razorpay";
 
         const response = await fetch("/create-order", {
@@ -1198,7 +1137,7 @@ console.log("yyyyy");
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
-                            text: 'An error occurred while cancelling the order. Please try again.',
+                            
                         });
                     }
                 }
@@ -1212,7 +1151,7 @@ console.log("yyyyy");
         Swal.fire({
             icon: 'error',
             title: 'Payment Failed',
-            text: 'An error occurred while processing your payment. Please try again later.',
+          
         });
     } finally {
         paymentButton.disabled = false;
@@ -1410,17 +1349,7 @@ console.log("yyyyy");
           const couponDetails = document.getElementById("couponDetails");
           couponDetails.innerHTML = ""; // Clear previous content
 
-          // if (data.coupons && data.coupons.length > 0) {
-          //   data.coupons.forEach((coupon) => {
-          //     couponDetails.innerHTML += `
-          //       <div class="card mb-2">
-          //         <div class="card-body">
-          //           <h5 class="card-title">${coupon.couponCode}</h5>
-          //           <p class="card-text">${coupon.description}</p>
-          //         </div>
-          //       </div>`;
-          //   });
-          // }
+      
           if (data.coupons && data.coupons.length > 0) {
   data.coupons.forEach((coupon) => {
     couponDetails.innerHTML += `
@@ -1457,68 +1386,6 @@ console.log("yyyyy");
     });
   }
 
-  // Apply Coupon
-  if (applyCouponBtn) {
-    applyCouponBtn.addEventListener("click", function () {
-      const couponCodeInput = document.getElementById("couponCodeInput");
-
-      if (!couponCodeInput || !totalPrice) {
-        console.error("Required elements are not found in the DOM.");
-        return;
-      }
-
-      const couponCode = couponCodeInput.value; // Coupon code value
-      const totalPriceValue = totalPrice.innerText; // Total price as string
-      console.log('sdsd',totalPriceValue);
-      
-
-      if (!couponCode) {
-        Swal.fire({
-          icon: "warning",
-          title: "Coupon Code Required",
-          text: "Please enter a coupon code before applying.",
-          confirmButtonText: "Okay",
-        });
-        return;
-      }
-
-      fetch(`/applycoupon?couponCode=${couponCode}&totalPrice=${totalPriceValue}`)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Failed to apply coupon");
-          }
-          return response.json();
-        })
-        .then((data) => {
-          console.log("",data);
-          
-          if (data.success) {
-            Swal.fire({
-              icon: "success",
-              title: "Coupon Applied Successfully",
-              text: `You've saved ${data.discountAmount}. Your new total is ${data.newTotal}.`,
-              confirmButtonText: "Great!",
-            });
-            totalPrice.innerText = data.newTotal;
-          } else {
-            Swal.fire({
-              icon: "error",
-              title: "Invalid Coupon",
-              text: data.message || "The coupon code is not valid.",
-              confirmButtonText: "Try Again",
-            });
-          }
-        })
-        .catch((error) => {
-          Swal.fire({
-            icon: "error",
-            title: "Error applying coupon",
-            text: error.message,
-            showConfirmButton: true,
-          });
-        });
-    });
-  }
 
   // Cancel Coupon
   if (cancelCouponBtn) {
@@ -1576,37 +1443,7 @@ console.log("yyyyy");
 
 
 
-  <!-- Modernizer JS -->
-    // <script src="/assets/js/vendor/modernizr-3.11.7.min.js"></script>
-    <!-- jquery -->
-    // <script src="/assets/js/vendor/jquery-v3.6.0.min.js"></script>
-    <!-- Popper JS -->
-    // <script src="/assets/js/vendor/popper.js"></script>
-    <!-- Bootstrap JS -->
-    // <script src="/assets/js/vendor/bootstrap.min.js"></script>
-    // <script src="/assets/js/plugins/owl-carousel.js"></script>
-    // <script src="/assets/js/plugins/slick.js"></script>
-    // <script src="/assets/js/plugins/jarallax.min.js"></script>
-    // <script src="/assets/js/plugins/countdown.js"></script>
-    // <script src="/assets/js/plugins/magnific-popup.js"></script>
-    // <script src="/assets/js/plugins/instafeed.js"></script>
-    // <script src="/assets/js/plugins/tilt.js"></script>
-    // <script src="/assets/js/plugins/images-loaded.js"></script>
-    // <script src="/assets/js/plugins/isotope.js"></script>
-    // <script src="/assets/js/plugins/scrolloverflow-fullpage.js"></script>
-    // <script src="/assets/js/plugins/fullpage.js"></script>
-    // <script src="/assets/js/plugins/jquery-ui.js"></script>
-    // <script src="/assets/js/plugins/jquery-ui-touch-punch.js"></script>
-    // <script src="/assets/js/plugins/easyzoom.js"></script>
-    // <script src="/assets/js/plugins/resizesensor.js"></script>
-    // <script src="/assets/js/plugins/sticky-sidebar.js"></script>
-    // <script src="/assets/js/plugins/scrollup.js"></script>
-    // <script src="/assets/js/plugins/select2.min.js"></script>
-    // <script src="/assets/js/plugins/cookie.js"></script>
-    // <script src="/assets/js/plugins/bpopup.js"></script>
-    // <script src="/assets/js/plugins/wow.js"></script>
-    // <script src="/assets/js/plugins/ajax-mail.js"></script>
-    <!-- Main JS -->
+
     <script src="/assets/js/main.js"></script>
     <!-- All CSS is here
 	============================================ -->

@@ -173,16 +173,17 @@
                   <td><%= brand.name %></td>
                   <td><%= brand.description %></td>
                   <td>
-                    <% if(brand.isListed) { %>
-                      <form action="/admin/unListBrand/<%= brand._id %>" method="post">
-                        <button type="submit" class="btn btn-unlist">Unlist</button>
+                    <% if (brand.isListed) { %>
+                      <form action="/admin/unListBrand/<%= brand._id %>" method="post" class="confirm-form">
+                        <button type="button" class="btn btn-unlist confirm-action">Unlist</button>
                       </form>
                     <% } else { %>
-                      <form action="/admin/listBrand/<%= brand._id %>" method="post">
-                        <button type="submit" class="btn btn-list">List</button>
+                      <form action="/admin/listBrand/<%= brand._id %>" method="post" class="confirm-form">
+                        <button type="button" class="btn btn-list confirm-action">List</button>
                       </form>
                     <% } %>
                   </td>
+                  
                   <td>
                     <a href="/admin/editBrand/<%= brand._id %>" class="btn btn-edit">Edit</a>
                   </td>
@@ -241,8 +242,69 @@
         changeColor(selectElement);
       };
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const buttons = document.querySelectorAll(".confirm-action");
+
+    buttons.forEach((button) => {
+      button.addEventListener("click", function () {
+        const form = this.closest(".confirm-form");
+        const isUnlist = this.classList.contains("btn-unlist");
+        const actionText = isUnlist ? "unlist" : "list";
+
+        Swal.fire({
+          title: `Are you sure you want to ${actionText} this brand?`,
+          text: `This action will ${actionText} the brand.`,
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: isUnlist ? "red" : "#088178",
+          cancelButtonColor: "#000",
+          confirmButtonText: `Yes, ${actionText} it!`,
+          cancelButtonText: "No, cancel",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // Send request to server
+            fetch(form.action, {
+              method: form.method,
+            })
+              .then((response) => {
+                if (response.ok) {
+                  Swal.fire({
+                    icon: "success",
+                    title: "Success!",
+                    text: `Brand ${actionText}ed successfully.`,
+                    confirmButtonColor: "#088178",
+                  }).then(() => {
+                    window.location.reload();
+                  });
+                } else {
+                  Swal.fire({
+                    icon: "error",
+                    title: "Error!",
+                    text: `Failed to ${actionText} the brand. Please try again.`,
+                    confirmButtonColor: "red",
+                  });
+                }
+              })
+              .catch(() => {
+                Swal.fire({
+                  icon: "error",
+                  title: "Error!",
+                  text: "An unexpected error occurred. Please try again.",
+                  confirmButtonColor: "red",
+                });
+              });
+          }
+        });
+      });
+    });
+  });
+</script>
+
+
   </body>
 
   <!-- Mirrored from wp.alithemes.com/html/evara/evara-backend/page-categories.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 01 Aug 2021 15:33:21 GMT -->

@@ -1,5 +1,32 @@
 <%- include('headers.ejs') %>
 <style>
+  .btn-unblock {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .swal2-icon.swal2-warning {
+    color: #000 !important;
+    border-color: #000 !important;
+  }
+
+  .btn-block {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .btn-unblock:hover,
+  .btn-block:hover {
+    opacity: 0.9;
+  }
+
   /* Base styles */
   body {
     font-family: Arial, sans-serif;
@@ -180,8 +207,13 @@
                   <form
                     action="/admin/UnblockUser/<%= userModel._id %>"
                     method="post"
+                    class="confirm-form"
                   >
-                    <button type="submit" class="btn btn-unblock">
+                    <button
+                      type="button"
+                      class="btn btn-unblock confirm-action"
+                      data-action="unblock"
+                    >
                       Unblock
                     </button>
                   </form>
@@ -189,8 +221,15 @@
                   <form
                     action="/admin/blockUser/<%= userModel._id %>"
                     method="post"
+                    class="confirm-form"
                   >
-                    <button type="submit" class="btn btn-block">Block</button>
+                    <button
+                      type="button"
+                      class="btn btn-block confirm-action"
+                      data-action="block"
+                    >
+                      Block
+                    </button>
                   </form>
                   <% } %>
                 </td>
@@ -219,6 +258,36 @@
     </div>
   </footer>
 </main>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const buttons = document.querySelectorAll(".confirm-action");
+
+    buttons.forEach((button) => {
+      button.addEventListener("click", function () {
+        const form = this.closest(".confirm-form");
+        const action = this.getAttribute("data-action");
+
+        Swal.fire({
+          title: `Are you sure you want to ${action} this product?`,
+          text: `You can always ${
+            action === "unlist" ? "list" : "unlist"
+          } it later.`,
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: action === "unlist" ? "red" : "#088178",
+          cancelButtonColor: "#000000", // Black for cancel button
+          confirmButtonText: `Yes, ${action} it!`,
+          cancelButtonText: "No, cancel",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            form.submit();
+          }
+        });
+      });
+    });
+  });
+</script>
 
 <script src="/assets/js/vendors/jquery-3.6.0.min.js"></script>
 <script src="/assets/js/vendors/bootstrap.bundle.min.js"></script>

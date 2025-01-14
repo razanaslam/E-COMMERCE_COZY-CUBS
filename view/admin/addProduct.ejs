@@ -419,20 +419,21 @@
               <div class="col-lg-6">
                 <label class="form-label">Category</label>
                 <select class="form-select" name="category">
-                  <% category.forEach(category => { %>
+                  <% category.forEach(category => { %> <% if(category.isListed)
+                  {%>
                   <option value="<%= category._id %>">
                     <%= category.name %>
                   </option>
-                  <% }) %>
+                  <% }}) %>
                 </select>
                 <span id="categoryError" class="text-danger"></span>
               </div>
               <div class="col-lg-6">
                 <label class="form-label">Brand</label>
                 <select class="form-select" name="brand">
-                  <% brand.forEach(brand => { %>
+                  <% brand.forEach(brand => { %> <% if(brand.isListed){ %>
                   <option value="<%= brand._id %>"><%= brand.name %></option>
-                  <% }) %>
+                  <% } %> <% }) %>
                 </select>
                 <span id="brandError" class="text-danger"></span>
               </div>

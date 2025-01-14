@@ -1,6 +1,7 @@
 <%- include('header.ejs') %>
 <style>
-  /* General styles */
+
+
   body {
     margin: 0;
     padding: 0;
@@ -9,8 +10,8 @@
 
   .shop-top-bar {
     display: flex;
-    flex-wrap: wrap; /* Allows wrapping for smaller screens */
-    gap: 10px; /* Adds space between elements */
+    flex-wrap: wrap; 
+    gap: 10px; 
     padding: 10px;
   }
 
@@ -18,99 +19,121 @@
   .shop-filter,
   .shop-short-by,
   form {
-    margin: 5px 0; /* Adds spacing for individual elements */
+    margin: 5px 0;
   }
-
-  /* Filter Modal */
   #filterModal {
-    display: none; /* Hidden by default */
+    display: none; 
   }
 
-  /* Responsive Styles */
-
-  /* For small screens (up to 768px) */
   @media (max-width: 768px) {
     .shop-top-bar {
-      flex-direction: column; /* Stack elements vertically */
-      align-items: center; /* Center-align content */
+      flex-direction: column; 
+      align-items: center;
     }
 
     .shop-filter,
     .shop-short-by,
     form {
-      width: 100%; /* Make elements full-width */
+      width: 100%; 
     }
 
     #filterModal div {
-      max-width: 90%; /* Shrink modal width for smaller screens */
+      max-width: 90%; 
     }
   }
-
-  /* For medium screens (769px to 991px) */
   @media (min-width: 769px) and (max-width: 991px) {
     .shop-top-bar {
-      flex-direction: row; /* Display elements in a row */
-      justify-content: space-evenly; /* Even spacing */
+      flex-direction: row; 
+      justify-content: space-evenly; 
     }
 
     .shop-filter,
     .shop-short-by {
-      flex: 1; /* Equal width for filter and sort options */
+      flex: 1; 
     }
 
     #filterModal div {
-      max-width: 80%; /* Adjust modal size */
+      max-width: 80%;
     }
   }
-
-  /* For large screens (992px and above) */
   @media (min-width: 992px) {
     .shop-top-bar {
-      justify-content: space-between; /* Space out elements */
+      justify-content: space-between;
     }
 
     .shop-filter,
     .shop-short-by {
-      margin: 0 10px; /* Add horizontal spacing */
+      margin: 0 10px; 
     }
 
     #filterModal div {
-      max-width: 600px; /* Default modal width for large screens */
+      max-width: 600px; 
     }
   }
-</style>
-
-<style>
+              .pagination {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                list-style-type: none;
+                padding: 0;
+                margin: 20px 0;
+                gap: 10px;
+              }
+            
+              .pagination a {
+                text-decoration: none;
+                color: #636336;
+                padding: 8px 16px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                transition: background-color 0.3s, color 0.3s;
+              }
+            
+              .pagination a:hover {
+                background-color: #636336;
+                color: #fff;
+              }
+            
+              .pagination a.active {
+                background-color: #636336;
+                color: #fff;
+                pointer-events: none;
+              }
+            
+              .pagination a.disabled {
+                color: #ccc;
+                pointer-events: none;
+              }
+            
   body{
    background-color:  #f3f3eb
   }
 </style>
 
     <style>
-      /* Customizing checkbox appearance */
 input[type="checkbox"] {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
   width: 20px;
   height: 20px;
-  border: 2px solid #ccc; /* Border color */
-  border-radius: 4px; /* Rounded corners */
+  border: 2px solid #ccc;
+  border-radius: 4px; 
   cursor: pointer;
   position: relative;
 }
 
 input[type="checkbox"]:checked {
-  background-color: #fc4f4f; /* Green color when checked */
-  border-color:#fc4f4f; /* Border color when checked */
+  background-color: #fc4f4f; 
+  border-color:#fc4f4f;
 }
 
 input[type="checkbox"]:checked::before {
-  content: '✔'; /* Checkmark symbol */
+  content: '✔'; 
   position: absolute;
   top: -1px;
   left: 5px;
-  color: white; /* Checkmark color */
+  color: white;
   font-size: 14px;
 }
 
@@ -118,7 +141,6 @@ input[type="checkbox"]:checked::before {
     
 
      
-      <!-- search start -->
       <div class="search-content-wrap main-search-active">
         <a class="search-close"><i class="dlicon ui-1_simple-remove"></i></a>
         <div class="search-content">
@@ -131,7 +153,6 @@ input[type="checkbox"]:checked::before {
           </form>
         </div>
       </div>
-      <!-- mini cart start -->
       <div class="sidebar-cart-active">
         <div class="sidebar-cart-all">
           <a class="cart-close" href="#"
@@ -204,7 +225,7 @@ input[type="checkbox"]:checked::before {
       </div>
       <ul>
         <li>
-          <a href="index.html">Home 01</a>
+          <a href="home">Home 01</a>
         </li>
         <li><span> &gt; </span></li>
         <li class="active">shop</li>
@@ -312,21 +333,7 @@ input[type="checkbox"]:checked::before {
                         </select>
                       </div>
                     </div>
-                      <!-- <div style="margin-right: 23px;">
-                        <form action="/search" method="GET" style="display: flex; align-items: center; width: 100%; max-width: 600px; margin: 0 auto ; margin-top: 26px;">
-                          <input 
-                            type="text" 
-                            name="query" 
-                            placeholder="Search..." 
-                            style="width: 100%; padding: 10px; border: 1px solid black; background-color: white; font-size: 16px; border-radius: 4px; outline: none; box-sizing: border-box;">
-                          <button 
-                            type="submit" 
-                            style="padding: 10px 15px; border: 1px solid black; background-color: white; color: black; font-size: 16px; cursor: pointer; border-radius: 4px; margin-left: 5px;">
-                            <i class="dlicon ui-1_zoom"></i>
-                          </button>
-                        </form>
-                      </div> -->
-                    <!-- Search Form -->
+                    
   <div style="margin-right: 23px;">
     <form action="/product" method="GET" style="display: flex; align-items: center; width: 100%; max-width: 600px; margin: 0 auto ; margin-top: 26px;">
       <!-- Search Input -->
@@ -358,7 +365,7 @@ input[type="checkbox"]:checked::before {
                         <% for (let i = 0; i < product.length; i++) { %>
                          <% if(product[i].isListed){ %>
                           <div class="col-xl-4 col-lg-6 col-md-6 col-sm-6" style="display: flex; justify-content: center;">
-                            <div class="product-wrap mb-50" style="width: 333px; display: flex; flex-direction: column;">
+                            <div class="product-wrap mb-50" style="width: 290px; display: flex; flex-direction: column;">
                               <div class="product-img default-overlay mb-25">
                                 <a href="/product-details/<%= product[i]._id %>">
                                   <img class="default-img" src="/uploads/<%= product[i].image_url[0] %>" alt="<%= product[i].product_title %>" />
@@ -372,7 +379,7 @@ input[type="checkbox"]:checked::before {
                                 <h3><a href="/product-details/<%= product[i]._id %>"><%= product[i].product_title %></a></h3>
                                 <div class="product-price">
                                   <% if (product[i].discountedPrice) { %>
-                                    <% console.log("hy");
+                                    <% console.log("ghjkhy");
                                      %>
                                     <span class="original-price" style="text-decoration: line-through; color: grey;">
                                       ₹<%= product[i].price.toFixed(2) %>
@@ -399,6 +406,27 @@ input[type="checkbox"]:checked::before {
                 
               </div>
             </div>
+          
+            
+            <div class="pagination">
+              <% if (currentPage > 1) { %>
+                <a href="?page=<%= currentPage - 1 %>&limit=<%= limit %>&query=<%= searchQuery %>&categories=<%= selectedCategories %>">Previous</a>
+              <% } else { %>
+                <a class="disabled">Previous</a>
+              <% } %>
+            
+              <% for (let i = 1; i <= totalPages; i++) { %>
+                <a href="?page=<%= i %>&limit=<%= limit %>&query=<%= searchQuery %>&categories=<%= selectedCategories %>" 
+                   class="<%= i === currentPage ? 'active' : '' %>"><%= i %></a>
+              <% } %>
+            
+              <% if (currentPage < totalPages) { %>
+                <a href="?page=<%= currentPage + 1 %>&limit=<%= limit %>&query=<%= searchQuery %>&categories=<%= selectedCategories %>">Next</a>
+              <% } else { %>
+                <a class="disabled">Next</a>
+              <% } %>
+            </div>
+            
         
            
             <div id="footer-container">
@@ -446,7 +474,6 @@ input[type="checkbox"]:checked::before {
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const sortDropdown = document.getElementById("sort-options");
-
     sortDropdown.addEventListener("change", function () {
       const sortType = this.value;
 
@@ -482,12 +509,10 @@ input[type="checkbox"]:checked::before {
         const productItem = document.createElement("div");
         productItem.className = "col-xl-4 col-lg-6 col-md-6 col-sm-6" ;
         if (!product.isListed) {
-          return; // Skip the product if it's not listed
+          return; 
         }
-        // Default price (if no discount)
         let priceHTML = `<span class="new-price">₹${product.price}</span>`;
 
-        // Check if discountedPrice exists
         if (product.discountedPrice) {
           priceHTML = `
             <span class="old-price" style="text-decoration: line-through;">₹${product.price}</span>
@@ -522,7 +547,6 @@ input[type="checkbox"]:checked::before {
         productList.appendChild(productItem);
       });
     } else {
-      // Display message if no products are available
       productList.innerHTML = "<p>No products available.</p>";
     }
   }
@@ -540,42 +564,11 @@ input[type="checkbox"]:checked::before {
 
     </script>
     
-    <!-- Modernizer JS -->
-    <!-- <script src="/assets/js/vendor/modernizr-3.11.7.min.js"></script> -->
-    <!-- jquery -->
-    <!-- <script src="/assets/js/vendor/jquery-v3.6.0.min.js"></script> -->
-    <!-- Popper JS -->
-    <!-- <script src="/assets/js/vendor/popper.js"></script> -->
-    <!-- Bootstrap JS -->
-    <!-- <script src="/assets/js/vendor/bootstrap.min.js"></script>
-    <script src="/assets/js/plugins/owl-carousel.js"></script>
-    <script src="/assets/js/plugins/slick.js"></script>
-    <script src="/assets/js/plugins/jarallax.min.js"></script>
-    <script src="/assets/js/plugins/countdown.js"></script>
-    <script src="/assets/js/plugins/magnific-popup.js"></script>
-    <script src="/assets/js/plugins/instafeed.js"></script>
-    <script src="/assets/js/plugins/tilt.js"></script>
-    <script src="/assets/js/plugins/images-loaded.js"></script>
-    <script src="/assets/js/plugins/isotope.js"></script>
-    <script src="/assets/js/plugins/scrolloverflow-fullpage.js"></script>
-    <script src="/assets/js/plugins/fullpage.js"></script>
-    <script src="/assets/js/plugins/jquery-ui.js"></script>
-    <script src="/assets/js/plugins/jquery-ui-touch-punch.js"></script>
-    <script src="/assets/js/plugins/easyzoom.js"></script>
-    <script src="/assets/js/plugins/resizesensor.js"></script>
-    <script src="/assets/js/plugins/sticky-sidebar.js"></script>
-    <script src="/assets/js/plugins/scrollup.js"></script>
-    <script src="/assets/js/plugins/select2.min.js"></script>
-    <script src="/assets/js/plugins/cookie.js"></script>
-    <script src="/assets/js/plugins/bpopup.js"></script>
-    <script src="/assets/js/plugins/wow.js"></script>
-    <script src="/assets/js/plugins/ajax-mail.js"></script> -->
-    <!-- Main JS -->
-    <!-- <script src="/assets/js/main.js"></script> -->
+ 
   </body>
 
-  <!-- Mirrored from template.hasthemes.com/toro/toro/shop-sidebar.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 09 Feb 2024 11:19:25 GMT -->
-</html>
+
+  </html>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
@@ -587,13 +580,12 @@ input[type="checkbox"]:checked::before {
       showCancelButton: true,
       confirmButtonText: 'Yes, logout!',
       cancelButtonText: 'Cancel',
-      confirmButtonColor: 'black',  // Green button for confirmation
-  cancelButtonColor: 'black',   // Red button for cancellation
-  background: '#f8f9fa',  // Light background
+      confirmButtonColor: 'black',  
+  cancelButtonColor: 'black',  
+  background: '#f8f9fa',  
   iconColor: '#dc3545',
     }).then((result) => {
       if (result.isConfirmed) {
-        // Redirect to logout page
         window.location.href = '/logout';
       }
     });

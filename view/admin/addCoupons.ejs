@@ -263,49 +263,75 @@
 </main>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  const form = document.getElementById('couponForm');
-  const couponCodeInput = document.getElementById('coupon_code');
-  const expiryDateInput = document.getElementById('expiry_date');
+  document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("couponForm");
 
-  form.addEventListener('submit', function(event) {
-    event.preventDefault();
-    if (validateForm()) {
-      this.submit();
+    form.addEventListener("submit", (event) => {
+      event.preventDefault(); // Prevent the default form submission
+      if (validateForm()) {
+        form.submit(); // Submit the form if validation passes
+      }
+    });
+
+    function validateForm() {
+      let isValid = true;
+
+      // Clear previous error messages
+      document.querySelectorAll(".error-message").forEach((el) => (el.textContent = ""));
+
+      // Coupon Code validation
+      const couponCodeInput = document.getElementById("coupon_code");
+      if (!couponCodeInput.value.trim()) {
+        document.getElementById("coupon_code_error").textContent = "Coupon code is required";
+        isValid = false;
+      }
+
+      // Discount Percentage validation
+      const discountPercentageInput = document.getElementById("discount_percentage");
+      const discountValue = parseFloat(discountPercentageInput.value);
+      if (isNaN(discountValue) || discountValue <= 0 || discountValue > 50) {
+        document.getElementById("discount_percentage_error").textContent =
+          "Discount percentage must be between 1 and 50";
+        isValid = false;
+      }
+
+      // Max Discount Amount validation
+      const maxDiscountAmountInput = document.getElementById("max_discount_amount");
+      if (maxDiscountAmountInput.value.trim() && parseFloat(maxDiscountAmountInput.value) <= 0) {
+        document.getElementById("max_discount_amount_error").textContent =
+          "Maximum discount amount must be greater than 0";
+        isValid = false;
+      }
+
+      // Minimum Purchase Amount validation
+      const minPurchaseAmountInput = document.getElementById("min_purchase_amount");
+      if (minPurchaseAmountInput.value.trim() && parseFloat(minPurchaseAmountInput.value) <= 0) {
+        document.getElementById("min_purchase_amount_error").textContent =
+          "Minimum purchase amount must be greater than 0";
+        isValid = false;
+      }
+
+      // Expiry Date validation
+      const expiryDateInput = document.getElementById("expiry_date");
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const expiryDate = new Date(expiryDateInput.value);
+      if (!expiryDateInput.value || expiryDate < today) {
+        document.getElementById("expiry_date_error").textContent =
+          "Expiry date must be today or a future date";
+        isValid = false;
+      }
+
+      return isValid;
     }
+
+    // Set min attribute for expiry date input to today's date
+    const expiryDateInput = document.getElementById("expiry_date");
+    const today = new Date().toISOString().split("T")[0];
+    expiryDateInput.min = today;
   });
-
-  function validateForm() {
-    let isValid = true;
-
-    // Clear previous error messages
-    document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
-
-    // Coupon Code validation
-    if (couponCodeInput.value.trim() === '') {
-      document.getElementById('coupon_code_error').textContent = 'Coupon code is required';
-      isValid = false;
-    }
-
-    // Expiry Date validation
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const expiryDate = new Date(expiryDateInput.value);
-    if (expiryDate < today) {
-      document.getElementById('expiry_date_error').textContent = 'Expiry date must be today or a future date';
-      isValid = false;
-    }
-
-    // Add more validations for other fields here
-
-    return isValid;
-  }
-
-  // Set min attribute for expiry date input to today's date
-  const today = new Date().toISOString().split('T')[0];
-  expiryDateInput.min = today;
-});
 </script>
+
 <script src="/assets/js/vendors/jquery-3.6.0.min.js"></script>
     <script src="/assets/js/vendors/bootstrap.bundle.min.js"></script>
     <script src="/assets/js/vendors/select2.min.js"></script>

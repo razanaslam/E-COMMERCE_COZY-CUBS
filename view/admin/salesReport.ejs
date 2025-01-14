@@ -1,4 +1,5 @@
 <%- include('headers.ejs') %>
+
     <style>
 
       /* pagination */
@@ -8,6 +9,42 @@
   justify-content: center;
   align-items: center;
   margin-top: 20px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border: 1px solid white;
+  border-radius: 5px;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.pagination-link {
+  color: rgb(0, 0, 0);
+  background-color: rgb(255, 255, 255);
+  text-decoration: none;
+  margin: 0 5px;
+  padding: 5px 10px;
+  border: 1px solid rgb(0, 0, 0);
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.pagination-link:hover {
+  background-color: rgb(0, 0, 0);
+  color: rgb(255, 255, 255);
+}
+
+.pagination-link.active {
+  background-color: rgb(0, 0, 0);
+  color: rgb(255, 255, 255);
+  font-weight: bold;
+  pointer-events: none;
+}
+
+.pagination-dots {
+  color: rgb(0, 0, 0);
+  margin: 0 5px;
+  font-weight: bold;
 }
 
 .page-link {
@@ -99,36 +136,35 @@
               <header class="card-header">
                   <div class="row gx-3">
                     
-                      <div class=row>
-                        <form action="/admin/sales-report" method="get">
-                          <label for="filter">Filter by:</label>
-                          <select name="filter" id="filter" style="
-                          width: 128px;
-                          height: 34px;">
-                            <option value="daily" <%= filter === "daily" ? "selected" : "" %>>Daily</option>
-                            <option value="weekly" <%= filter === "weekly" ? "selected" : "" %>>Weekly</option>
-                            <option value="monthly" <%= filter === "monthly" ? "selected" : "" %>>Monthly</option>
-                            <option value="yearly" <%= filter === "yearly" ? "selected" : "" %>>Yearly</option>
-                            <option value="custom" <%= filter === "custom" ? "selected" : "" %>>Custom</option>
-                          </select>
-                        
-                          <label for="startDate" >Start Date:</label>
-                          <input type="date" style="
-                          width: 128px;
-                          height: 34px;" name="startDate" id="startDate" value="<%= startDate || '' %>" />
+                    <div class="row">
+                      <form action="/admin/sales-report" method="get">
+                        <label for="filter">Filter by:</label>
+                        <select name="filter" id="filter" onchange="toggleDateFields()">
+                          <option value="daily" <%= filter === "daily" ? "selected" : "" %>>Daily</option>
+                          <option value="weekly" <%= filter === "weekly" ? "selected" : "" %>>Weekly</option>
+                          <option value="monthly" <%= filter === "monthly" ? "selected" : "" %>>Monthly</option>
+                          <option value="yearly" <%= filter === "yearly" ? "selected" : "" %>>Yearly</option>
+                          <option value="custom" <%= filter === "custom" ? "selected" : "" %>>Custom</option>
+                        </select>
+                    
+                        <div id="date-fields" style="display: none;">
+                          <label for="startDate">Start Date:</label>
+                          <input type="date" name="startDate" id="startDate" value="<%= startDate || '' %>" />
                         
                           <label for="endDate">End Date:</label>
-                          <input type="date"  style="
-                          width: 128px;
-                          height: 34px;" name="endDate" id="endDate" value="<%= endDate || '' %>" />
+                          <input type="date" name="endDate" id="endDate" value="<%= endDate || '' %>" />
+                          
+                        </div>
+
+    <% if (filter === 'custom') { %>
+                        <button type="submit" style="color: white; background-color: black;" id="applyFilter">Apply Filter</button>
+                        
+                    <% }else{ %>
+                        <button type="submit" style="color: white; background-color: black;">Apply Filter</button>
+                        <% } %>
+                      </form>
+                    </div>
                     
-                          <button  style="
-                          width: 128px; margin-left: 12px;
-                          height: 34px; color: white;background-color: black;" type="submit">Apply Filter</button>
-                        </form>
-                        
-                        
-                      </div>
                   </div>
               </header>
               <div class="card-body">
@@ -180,7 +216,8 @@
           </div> <!-- card end// -->
           <div class="pagination">
             <% if (totalPages > 1) { %>
-              <% const maxPagesToShow = 5; %> <!-- Change this value to control visible page links -->
+              <% const filterParams = `filter=${filter}&startDate=${startDate || ''}&endDate=${endDate || ''}&filterKey=${filterKey}&filterValue=${filterValue}`; %>
+              <% const maxPagesToShow = 5; %>
               <% let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2)); %>
               <% let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1); %>
               <% if (endPage - startPage + 1 < maxPagesToShow) { %>
@@ -188,37 +225,36 @@
               <% } %>
           
               <% if (currentPage > 1) { %>
-                <a href="?page=<%= currentPage - 1 %>&limit=<%= limit %>" class="page-link">Previous</a>
+                <a href="?page=<%= currentPage - 1 %>&limit=<%= limit %>&<%= filterParams %>" class="pagination-link">Previous</a>
               <% } %>
           
               <% if (startPage > 1) { %>
-                <a href="?page=1&limit=<%= limit %>" class="page-link">1</a>
+                <a href="?page=1&limit=<%= limit %>&<%= filterParams %>" class="pagination-link">1</a>
                 <% if (startPage > 2) { %>
-                  <span class="page-dots">...</span>
+                  <span class="pagination-dots">...</span>
                 <% } %>
               <% } %>
           
               <% for (let i = startPage; i <= endPage; i++) { %>
-                <a
-                  href="?page=<%= i %>&limit=<%= limit %>"
-                  class="page-link <%= currentPage === i ? 'active' : '' %>"
-                >
+                <a href="?page=<%= i %>&limit=<%= limit %>&<%= filterParams %>" class="pagination-link <%= currentPage === i ? 'active' : '' %>">
                   <%= i %>
                 </a>
               <% } %>
           
               <% if (endPage < totalPages) { %>
                 <% if (endPage < totalPages - 1) { %>
-                  <span class="page-dots">...</span>
+                  <span class="pagination-dots">...</span>
                 <% } %>
-                <a href="?page=<%= totalPages %>&limit=<%= limit %>" class="page-link"><%= totalPages %></a>
+                <a href="?page=<%= totalPages %>&limit=<%= limit %>&<%= filterParams %>" class="pagination-link"><%= totalPages %></a>
               <% } %>
           
               <% if (currentPage < totalPages) { %>
-                <a href="?page=<%= currentPage + 1 %>&limit=<%= limit %>" class="page-link">Next</a>
+                <a href="?page=<%= currentPage + 1 %>&limit=<%= limit %>&<%= filterParams %>" class="pagination-link">Next</a>
               <% } %>
             <% } %>
           </div>
+          
+
           
       </section>
 
@@ -273,36 +309,75 @@
       </script>    </main> -->
       <script>
     function downloadPDF() {
-  // Step 1: Get the current query parameters from the URL
   const params = new URLSearchParams(window.location.search);
   console.log("Query Parameters:", params.toString());
 
-  // Step 2: Construct the URL for downloading PDF
   const pdfUrl = `/admin/sales-report/download-pdf?${params.toString()}`;
 
-  // Step 3: Redirect to the constructed URL
   window.location.href = pdfUrl;
 }
 
 function downloadExcel() {
-  // Step 1: Get the current query parameters from the URL
   console.log("np");
   
   const params = new URLSearchParams(window.location.search);
 console.log("ysc");
 
-  // Step 2: Construct the URL for downloading Excel
   const excelUrl = `/admin/sales-report/download-excel?${params.toString()}`;
 console.log("ys");
 
-  // Step 3: Redirect to the constructed URL
   window.location.href = excelUrl;
 }
 
 
       </script>
-   
-   
+   <script>
+    function toggleDateFields() {
+      const filter = document.getElementById("filter").value;
+      const dateFields = document.getElementById("date-fields");
+  
+      if (filter === "custom") {
+        dateFields.style.display = "block"; 
+      } else {
+        dateFields.style.display = "none";
+      }
+    }
+  
+    window.onload = function () {
+      toggleDateFields();
+    };
+  </script>
+   <script>
+    function toggleDateFields() {
+      const filter = document.getElementById("filter").value;
+      const dateFields = document.getElementById("date-fields");
+      dateFields.style.display = filter === "custom" ? "block" : "none";
+    }
+  
+    window.onload = toggleDateFields;
+  </script>
+  
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    document.getElementById('applyFilter').addEventListener('click', function (event) {
+      const startDateInput = document.getElementById('startDate');
+      const endDateInput = document.getElementById('endDate');
+      const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+  
+      if (
+        (startDateInput.value && startDateInput.value > today) ||
+        (endDateInput.value && endDateInput.value > today)
+      ) {
+        event.preventDefault(); // Prevent form submission
+        Swal.fire({
+          icon: 'error',
+          title: 'Invalid Dates',
+          text: 'Start Date and End Date must be less than or equal to today.',
+          confirmButtonColor: '#000', // Black confirm button
+        });
+      }
+    });
+  </script>
       <script src="/assets/js/vendors/jquery-3.6.0.min.js"></script>
     <script src="/assets/js/vendors/bootstrap.bundle.min.js"></script>
     <script src="/assets/js/vendors/select2.min.js"></script>

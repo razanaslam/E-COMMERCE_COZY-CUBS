@@ -354,7 +354,7 @@
         const offerType = document.getElementById("offerType").value;
         const applicableProducts = document.getElementById("productSelect");
         const applicableCategories = document.getElementById("categorySelect");
-
+    
         if (offerType === "product") {
           applicableProducts.classList.remove("hidden");
           applicableCategories.classList.add("hidden");
@@ -363,14 +363,15 @@
           applicableCategories.classList.remove("hidden");
         }
       }
+    
       function validateOfferForm() {
         let isValid = true;
-
+    
         // Clear previous error messages
         document
           .querySelectorAll("span")
           .forEach((span) => (span.textContent = ""));
-
+    
         // Offer Name Validation
         const offerName = document.getElementById("offerName").value;
         if (!offerName) {
@@ -378,7 +379,7 @@
             "Offer Name is required.";
           isValid = false;
         }
-
+    
         // Offer Type Validation
         const offerType = document.getElementById("offerType").value;
         if (!offerType) {
@@ -386,7 +387,7 @@
             "Please select an offer type.";
           isValid = false;
         }
-
+    
         // Applicable Products/Categories Validation
         if (offerType === "product") {
           const productCheckboxes = document.querySelectorAll(
@@ -407,156 +408,77 @@
             isValid = false;
           }
         }
-
+    
         // Discount Type Validation
         const discountType = document.getElementById("discountType").value;
+        const discountValue = document.getElementById("discountValue").value;
         if (!discountType) {
           document.getElementById("discountTypeError").textContent =
             "Please select a discount type.";
           isValid = false;
         }
-
+    
         // Discount Value Validation
-        const discountValue = document.getElementById("discountValue").value;
         if (!discountValue || discountValue <= 0) {
           document.getElementById("discountValueError").textContent =
             "Discount value must be greater than 0.";
           isValid = false;
+        } else if (discountType === "percentage" && parseFloat(discountValue) > 50) {
+          document.getElementById("discountValueError").textContent =
+            "Discount percentage cannot exceed 50%.";
+          isValid = false;
         }
-        const currentDate = new Date().toISOString().split("T")[0];
-        console.log(currentDate,"currecntdate");
-        
+    
         // Start Date and End Date Validation
+        const currentDate = new Date().toISOString().split("T")[0];
         const startDate = document.getElementById("startDate").value;
         const endDate = document.getElementById("endDate").value;
+    
         if (!startDate) {
           document.getElementById("startDateError").textContent =
             "Please select a start date.";
           isValid = false;
+        } else if (startDate < currentDate) {
+          document.getElementById("startDateError").textContent =
+            "Start date must be today or a future date.";
+          isValid = false;
         }
-        
-
-        if(startDate < currentDate) {
-  // Check if start date is in the past
-  document.getElementById("startDateError").textContent =
-    "Start date must be today or a future date.";
-  isValid = false;
-} 
-
+    
         if (!endDate) {
           document.getElementById("endDateError").textContent =
             "Please select an end date.";
           isValid = false;
-        } else if (
-          startDate &&
-          endDate &&
-          new Date(startDate) > new Date(endDate)
-        ) {
+        } else if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
           document.getElementById("endDateError").textContent =
             "End date must be after the start date.";
           isValid = false;
         }
-
+    
         return isValid; // If true, form will be submitted; if false, submission will be blocked
       }
-    </script>
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        const form = document.getElementById('offerForm');
-        const offerNameInput = document.getElementById('offerName');
-        const startDateInput = document.getElementById('startDate');
-        const endDateInput = document.getElementById('endDate');
-      
-        form.addEventListener('submit', function(event) {
+    
+      document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("offerForm");
+        const startDateInput = document.getElementById("startDate");
+        const endDateInput = document.getElementById("endDate");
+    
+        form.addEventListener("submit", function (event) {
           event.preventDefault();
           if (validateOfferForm()) {
             this.submit();
           }
         });
-      
-        function validateOfferForm() {
-          let isValid = true;
-      
-          // Clear previous error messages
-          document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
-      
-          // Offer Name Validation
-          if (offerNameInput.value.trim() === '') {
-            document.getElementById('offerNameError').textContent = 'Offer Name is required.';
-            isValid = false;
-          }
-      
-          // Offer Type Validation
-          const offerType = document.getElementById('offerType').value;
-          if (offerType === '') {
-            document.getElementById('offerTypeError').textContent = 'Please select an offer type.';
-            isValid = false;
-          }
-      
-          // Applicable Products/Categories Validation
-          if (offerType === 'product') {
-            const productCheckboxes = document.querySelectorAll('input[name="applicableProducts"]:checked');
-            if (productCheckboxes.length === 0) {
-              document.getElementById('applicableProductsError').textContent = 'Please select at least one product.';
-              isValid = false;
-            }
-          } else if (offerType === 'category') {
-            const applicableCategory = document.getElementById('applicableCategories').value;
-            if (applicableCategory === '') {
-              document.getElementById('applicableCategoriesError').textContent = 'Please select a category.';
-              isValid = false;
-            }
-          }
-      
-          // Discount Value Validation
-          const discountValue = document.getElementById('discountValue').value;
-          if (discountValue === '' || parseFloat(discountValue) <= 0) {
-            document.getElementById('discountValueError').textContent = 'Discount value must be greater than 0.';
-            isValid = false;
-          }
-      
-          // Date Validation
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          const startDate = new Date(startDateInput.value);
-          const endDate = new Date(endDateInput.value);
-      
-          if (startDate < today) {
-            document.getElementById('startDateError').textContent = 'Start date must be today or a future date.';
-            isValid = false;
-          }
-      
-          if (endDate <= startDate) {
-            document.getElementById('endDateError').textContent = 'End date must be after the start date.';
-            isValid = false;
-          }
-      
-          return isValid;
-        }
-      
-        function toggleApplicableFields() {
-          const offerType = document.getElementById('offerType').value;
-          const applicableProducts = document.getElementById('productSelect');
-          const applicableCategories = document.getElementById('categorySelect');
-      
-          if (offerType === 'product') {
-            applicableProducts.classList.remove('hidden');
-            applicableCategories.classList.add('hidden');
-          } else if (offerType === 'category') {
-            applicableProducts.classList.add('hidden');
-            applicableCategories.classList.remove('hidden');
-          }
-        }
-      
+    
         // Set min attribute for date inputs to today's date
-        const today = new Date().toISOString().split('T')[0];
+        const today = new Date().toISOString().split("T")[0];
         startDateInput.min = today;
         endDateInput.min = today;
-      
+    
         // Initialize the form
         toggleApplicableFields();
       });
-      </script>
+    </script>
+    
   </body>
 
   <!-- Mirrored from wp.alithemes.com/html/evara/evara-backend/page-form-product-1.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 01 Aug 2021 15:33:32 GMT -->

@@ -636,8 +636,8 @@
                         <div class="product-details-wishlist">
                           <a title="Add to wishlist" href="javascript:void(0)" id="wishlist-link">
                             <% if (product.inWishlist == false) { %>
-                              <i style="color: black; font-size: 24px;" class="fa fa-heart"></i>
-                            <% } else { %>
+                              <i style="color: rgb(0, 0, 0); font-size: 24px;" class="fa fa-heart"></i>
+                            <% } else if(product.inWishlist==true) { %>
                               <i style="color: red; font-size: 24px;" class="fa fa-heart"></i>
                             <% } %>
                           </a>
@@ -827,22 +827,18 @@
 
 <script>
   document.getElementById('wishlist-link').addEventListener('click', async function (event) {
-    event.preventDefault(); // Prevent the default link action
-
-    // Get product ID from URL
+    event.preventDefault();
     const productId = "<%= product._id %>";
     const url = `/addToWhishlist?id=${productId}`;
 
     try {
-      // Send AJAX request to backend
       const response = await fetch(url, { method: 'GET' });
       const data = await response.json();
 
       if (data.success) {
-        // Display success message with two buttons
         Swal.fire({
           title: 'Success!',
-          text: data.message, // Success message from backend
+          text: data.message,
           icon: 'success',
           showCancelButton: true,
           confirmButtonText: 'Go to Wishlist',
@@ -854,19 +850,14 @@
           timerProgressBar: true,
         }).then((result) => {
           if (result.isConfirmed) {
-            // Redirect to wishlist page if "Go to Wishlist" is clicked
-            window.location.href = '/whishlist'; // Replace with your wishlist URL
+            window.location.href = '/whishlist'; 
           }
         });
 
-        // Optionally, change heart color to indicate product is in wishlist
-        const heartIcon = document.querySelector('.fa-heart');
-        heartIcon.style.color = 'rgb(255, 0, 0)'; // Change to red if added
       } else {
-        // Display message if product already exists in wishlist
         Swal.fire({
           title: 'Already in Wishlist',
-          text: data.message, // Message when already in wishlist
+          text: data.message, 
           icon: 'info',
           showCancelButton: true,
           confirmButtonText: 'Go to Wishlist',
@@ -878,14 +869,12 @@
           timerProgressBar: true,
         }).then((result) => {
           if (result.isConfirmed) {
-            // Redirect to wishlist page if "Go to Wishlist" is clicked
-            window.location.href = '/whishlist'; // Replace with your wishlist URL
+            window.location.href = '/whishlist'; 
           }
         });
       }
     } catch (error) {
       console.log(error);
-      // Handle errors if needed
     }
   });
 </script>

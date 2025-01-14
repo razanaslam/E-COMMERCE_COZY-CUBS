@@ -1,6 +1,9 @@
 <%- include('headers.ejs') %>
     <style>
-     
+         .swal2-icon.swal2-warning {
+    color: #000 !important;
+    border-color: #000 !important;
+  }
   /* Existing styles */
   table {
     width: 100%;
@@ -146,7 +149,7 @@
                     <th>Price</th>
                     <th>List/Unlist</th>
                     <th>Edit</th>
-                    <th>New Arrival</th>
+               
                     <th>Delete</th>
                   </tr>
                 </thead>
@@ -164,7 +167,6 @@
                     </td>
                     <td><%= product.product_title %></td>
                     <td><%= product.price %></td>
-
                     <td>
                       <% if(product.isListed){ %>
                       <form
@@ -213,30 +215,30 @@
 
                      
                     </td>
-                    <td>
-                      <button onclick="toggleIsNew('<%= product._id %>', '<%= product.isNewProduct %>')" class="btn btn-toggle">
-                        <%= product.isNewProduct ? 'Mark as New' : 'Mark as Old' %>
-                      </button>
-                    </td>
+                  
+                 
                     <td>
                       <form
-                      action="/admin/deleteProduct/<%= product._id %>"
-                      method="post"
-                    >
-                      <!-- Button will be red for unlisted products -->
-                      <button
-                        type="submit"
-                        style="
-                          background-color: red;
-                          color: white;
-                          width: 70px;
-                          border-color: red;
-                        "
+                        action="/admin/deleteProduct/<%= product._id %>"
+                        method="post"
+                        class="confirm-form"
                       >
-                        Delete
-                      </button>
-                    </form>
+                        <button
+                          type="button"
+                          class="confirm-action"
+                          style="background-color: red; color: white; width: 70px; border-color: red;"
+                        >
+                          Delete
+                        </button>
+                      </form>
                     </td>
+                    
+                    
+                    
+                    
+                
+                    
+                    
                   </tr>
                   <% }) %>
                 </tbody>
@@ -337,7 +339,95 @@
 </script>
 
 
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const buttons = document.querySelectorAll(".confirm-action");
+
+    buttons.forEach((button) => {
+      button.addEventListener("click", function () {
+        const form = this.closest(".confirm-form");
+        const action = this.getAttribute("data-action");
+
+        Swal.fire({
+          title: `Are you sure you want to ${action} this product?`,
+          text: `You can always ${action === "unlist" ? "list" : "unlist"} it later.`,
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: action === "unlist" ? "red" : "#088178",
+          cancelButtonColor: "#000000", // Black for cancel button
+          confirmButtonText: `Yes, ${action} it!`,
+          cancelButtonText: "No, cancel",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            form.submit();
+          }
+        });
+      });
+    });
+  });
 </script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const deleteButtons = document.querySelectorAll(".confirm-action");
+
+    deleteButtons.forEach((button) => {
+      button.addEventListener("click", async function () {
+        const form = this.closest(".confirm-form");
+        const action = form.getAttribute("action"); // Get the form action URL
+
+        Swal.fire({
+          title: "Are you sure?",
+          text: "This action cannot be undone. The product will be permanently deleted.",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "red",
+          cancelButtonColor: "#000",
+          confirmButtonText: "Yes, delete it!",
+          cancelButtonText: "No, cancel",
+        }).then(async (result) => {
+          if (result.isConfirmed) {
+            try {
+              const response = await fetch(action, {
+                method: "POST",
+              });
+              const result = await response.json();
+
+              if (result.success) {
+                Swal.fire({
+                  icon: "success",
+                  title: "Deleted!",
+                  text: result.message,
+                  confirmButtonColor: "#088178",
+                }).then(() => {
+                  // Optionally refresh the page or remove the product from the DOM
+                  location.reload();
+                });
+              } else {
+                Swal.fire({
+                  icon: "error",
+                  title: "Error",
+                  text: result.message,
+                  confirmButtonColor: "red",
+                });
+              }
+            } catch (error) {
+              Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "An unexpected error occurred.",
+                confirmButtonColor: "red",
+              });
+            }
+          }
+        });
+      });
+    });
+  });
+</script>
+
+
+
+
     <script src="/assets/js/vendors/jquery-3.6.0.min.js"></script>
     <script src="/assets/js/vendors/bootstrap.bundle.min.js"></script>
     <script src="/assets/js/vendors/select2.min.js"></script>

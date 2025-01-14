@@ -163,6 +163,9 @@
         </tr>
       </thead>
       <tbody>
+        <% if (wishlist.items.length === 0) { %>
+                  <p style="padding: 20px; margin: 0; color: #666;"> Your wishlist is empty 🙃...</p>
+              <% } else { %>
         <% wishlist.items.forEach((item) => { %>
           <tr>
             <td style="background-color: #e6e6dc !important;" data-label="Product">
@@ -170,7 +173,18 @@
              
             </td>
             <td style="background-color: #e6e6dc !important;"> <%= item.product.product_title %></td>
-            <td style="background-color: #e6e6dc !important;" data-label="Price">₹<%= item.product.price %></td>
+            <td style="background-color: #e6e6dc;">   <% if (item.product.discountedPrice) { %>
+                          <span class="original-price" style="text-decoration: line-through; color: grey; font-size: 14px;">
+                            ₹<%= item.product.price.toFixed(2) %>
+                          </span>
+                          <span class="new-price" style="color: green; font-size: 16px;">
+                            ₹<%= item.product.discountedPrice.toFixed(2) %>
+                          </span>
+                        <% } else { %>
+                          <span class="new-price" style="font-size: 16px;">
+                            ₹<%= item.product.price.toFixed(2) %>
+                          </span>
+                        <% } %></td>
             <td style="background-color: #e6e6dc !important;" data-label="Stock Status">
               <span class="stock-status <%= item.product.stock !== 0 ? 'in-stock' : 'out-of-stock' %>">
                 <%= item.product.stock !== 0 ? 'In Stock' : 'Out of Stock' %>
@@ -214,6 +228,7 @@
             </td>
           </tr>
         <% }) %>
+        <%}%>
       </tbody>
     </table>
 </div>

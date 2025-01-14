@@ -31,9 +31,21 @@ let storage = multer.diskStorage({
     cb(null, file.fieldname + "" + Date.now() + "" + file.originalname);
   },
 });
+const imageFilter = (req, file, cb) => {
+  const filetypes = /jpeg|jpg|png/;
+  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+  const mimetype = filetypes.test(file.mimetype);
+
+  if (mimetype && extname) {
+    return cb(null, true);
+  } else {
+    cb(new Error("Error: Images Only!"));
+  }
+};
 
 let upload = multer({
   storage: storage,
+  fileFilter: imageFilter,
 }).array("image_url", 10);
 
 //---------------------------------------------------------------pagination----------------------------------------------------------
@@ -510,10 +522,17 @@ const unlistProduct = async (req, res) => {
 const deleteProduct = async (req, res) => {
   try {
     const id = req.params.id;
-    await productModel.findByIdAndDelete(id);
+    const product = await productModel.findByIdAndDelete(id);
+
+    if (!product) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found" });
+    }
+
     res.json({ success: true, message: "Product deleted successfully!" });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).json({ success: false, message: "Error deleting product" });
   }
 };
@@ -580,11 +599,11 @@ const loadEditCatagory = async (req, res) => {
 
 const loadAddCatagory = async (req, res) => {
   try {
-    const catagErr = req.flash("catagError");
+    const CatagError = req.flash("CatagError");
     const success = req.flash("success");
-    console.log("catagErr:", catagErr, "success:", success);
+    console.log("CatagError", CatagError, "success:", success);
 
-    res.render("addCatagory", { catagErr: catagErr[0], success: success[0] });
+    res.render("addCatagory", { CatagError, success: success[0] });
   } catch (error) {
     console.log(error);
   }
@@ -593,10 +612,12 @@ const loadAddCatagory = async (req, res) => {
 const addCatagory = async (req, res) => {
   const { name, description } = req.body;
   try {
-    const existCatag = await catagoryModel.findOne({ name });
+    const existCatag = await catagoryModel.findOne({
+      name: { $regex: `^${name}$`, $options: "i" },
+    });
     console.log(req.body);
     if (existCatag) {
-      req.flash("catagError", "Catagory is already existed");
+      req.flash("CatagError", "Catagory is already existed");
       return res.redirect("/admin/addCatagory");
     }
     const newCatagory = new catagoryModel({
@@ -693,8 +714,8 @@ const loadBrand = async (req, res) => {
 const loadAddBrand = async (req, res) => {
   try {
     const brandError = req.flash("brandError");
-    const success = req.flash("success");
-    res.render("addBrand", { brandError, success });
+    const brandSuccess = req.flash("brandSuccess");
+    res.render("addBrand", { brandError, brandSuccess });
   } catch (error) {
     console.log(error);
   }
@@ -702,12 +723,14 @@ const loadAddBrand = async (req, res) => {
 
 const addBrand = async (req, res) => {
   const { name, description } = req.body;
-  console.log(req.body);
 
   try {
-    const existBrand = await brandModel.findOne({ name });
+    const existBrand = await brandModel.findOne({
+      name: { $regex: `^${name}$`, $options: "i" },
+    });
+
     if (existBrand) {
-      req.flash("brandError", "Already Existed");
+      req.flash("brandError", "Brand already exists.");
       return res.redirect("/admin/addBrand");
     }
     const newBrand = new brandModel({
@@ -715,10 +738,15 @@ const addBrand = async (req, res) => {
       description,
     });
     await newBrand.save();
-    req.flash("success", "Brand added successfully");
-    res.redirect("/admin/brand");
+
+    req.flash("brandSuccess", "Brand added successfully.");
+    return res.redirect("/admin/brand");
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while adding the brand.",
+    });
   }
 };
 
@@ -750,26 +778,70 @@ const editBrand = async (req, res) => {
   }
 };
 
-const listBrand = async (req, res) => {
-  try {
-    const id = req.params.id;
-    const brand = await brandModel.findByIdAndUpdate(id, { isListed: true });
-    console.log(brand);
-    await brand.save();
-    res.redirect("/admin/brand");
-  } catch (error) {
-    console.log(error);
-  }
-};
+// const listBrand = async (req, res) => {
+//   try {
+//     const id = req.params.id;
+//     const brand = await brandModel.findByIdAndUpdate(id, { isListed: true });
+//     console.log(brand);
+//     await brand.save();
+//     res.redirect("/admin/brand");
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
+
+// const unlistBrand = async (req, res) => {
+//   try {
+//     const id = req.params.id;
+//     console.log(id);
+//     await brandModel.findByIdAndUpdate(id, { isListed: false });
+//     res.redirect("/admin/brand");
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
 
 const unlistBrand = async (req, res) => {
   try {
     const id = req.params.id;
-    console.log(id);
-    await brandModel.findByIdAndUpdate(id, { isListed: false });
-    res.redirect("/admin/brand");
+    const brand = await brandModel.findByIdAndUpdate(id, { isListed: false });
+
+    if (!brand) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Brand not found" });
+    }
+
+    res
+      .status(200)
+      .json({ success: true, message: "Brand unlisted successfully" });
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    res
+      .status(500)
+      .json({ success: false, message: "Error unlisting the brand" });
+  }
+};
+
+const listBrand = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const brand = await brandModel.findByIdAndUpdate(id, { isListed: true });
+
+    if (!brand) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Brand not found" });
+    }
+
+    res
+      .status(200)
+      .json({ success: true, message: "Brand listed successfully" });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ success: false, message: "Error listing the brand" });
   }
 };
 
@@ -1433,17 +1505,14 @@ const deleteOffer = async (req, res) => {
           { _id: { $in: offer.applicableProducts } },
         ],
       });
-
       for (const product of products) {
         await applyBestOfferToProduct(product._id);
       }
-
-      req.flash(
-        "success-message",
-        "Offer deleted and products updated successfully."
-      );
-      return res.redirect("/admin/offer");
+      res
+        .json(200)
+        .json({ success: true, message: "offer deleted successfully" });
     }
+    return res.redirect("/admin/offer");
   } catch (error) {
     console.log(error);
   }
@@ -1538,15 +1607,24 @@ const deleteOffer = async (req, res) => {
 
 const loadSalesReport = async (req, res) => {
   try {
-    const { filter = "all", startDate, endDate, page = 1 } = req.query;
-    const limit = 5;
+    const {
+      filter = "all",
+      startDate,
+      endDate,
+      page = 1,
+      filterKey = "",
+      filterValue = "",
+    } = req.query;
+    const limit = 5; // Number of records per page
     const skip = (page - 1) * limit;
 
     let filterOptions = {
       status: { $nin: ["Cancelled", "Failed", "Returned"] },
     };
+
     const today = dayjs().startOf("day");
 
+    // Handle different filter types
     if (filter === "daily") {
       filterOptions.createdAt = {
         $gte: today.toDate(),
@@ -1588,9 +1666,16 @@ const loadSalesReport = async (req, res) => {
       }
     }
 
+    // Add additional filter key-value pairs if provided
+    if (filterKey && filterValue) {
+      filterOptions[filterKey] = filterValue;
+    }
+
+    // Fetch total orders and calculate total pages
     const totalOrders = await orderModel.countDocuments(filterOptions);
     const totalPages = Math.ceil(totalOrders / limit);
 
+    // Fetch paginated orders
     const orders = await orderModel
       .find(filterOptions)
       .populate("userId", "email")
@@ -1600,6 +1685,7 @@ const loadSalesReport = async (req, res) => {
       .skip(skip)
       .limit(limit);
 
+    // Render the EJS template with data
     res.render("salesReport", {
       orders,
       filter,
@@ -1608,10 +1694,12 @@ const loadSalesReport = async (req, res) => {
       currentPage: parseInt(page),
       totalPages,
       limit,
-      maxPagesToShow: 10,
+      maxPagesToShow: 5,
+      filterKey,
+      filterValue,
     });
   } catch (error) {
-    console.error("Error:", error);
+    console.error("Error loading sales report:", error);
     res.status(500).send("Internal Server Error");
   }
 };

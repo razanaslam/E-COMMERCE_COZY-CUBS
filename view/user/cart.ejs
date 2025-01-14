@@ -159,6 +159,17 @@
                 <a id="checkout-link" href="javascript:void(0);" style="background-color: #ccccbb; color: #494948; padding: 0.5rem 1rem; text-decoration: none; border-radius: 4px; height: 52px; font-size: 19px;">Proceed to checkout</a>
             </div>
         </div>
+        <% if (adjustmentMessages && adjustmentMessages.length > 0) { %>
+          <div class="alert alert-warning">
+            <strong>Notice:</strong>
+            <ul>
+              <% adjustmentMessages.forEach((message) => { %>
+                <li><%= message %></li>
+              <% }) %>
+            </ul>
+          </div>
+        <% } %>
+        
     </div>
   
  
@@ -423,19 +434,15 @@
     }
   }
 
-  // Call the function after page load
   window.onload = checkOverlap;
 
 
 
-        // Example cart (replace with your actual data logic)
-        const cart = []; // Empty cart
-    
-        // Handle checkout click
+        const cart = [];
         const checkoutLink = document.getElementById("checkout-link");
         checkoutLink.addEventListener("click", () => {
-            // Check if the cart is empty
-            if (cart.length === 0) {
+           
+            if (cart.length === 0 ) {
                 Swal.fire({
                     toast: true,
                     icon: 'error',
