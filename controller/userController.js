@@ -660,60 +660,6 @@ const loadProductDetails = async (req, res) => {
 
 //------------------------------------------------------------cart Details-------------------------------------------------------
 
-// const loadCart = async (req, res) => {
-//   try {
-//     const id = req.session.user._id;
-//     const cartEmpty = req.flash("cartEmpty");
-//     const cart = await cartModel
-//       .findOne({ userId: id })
-//       .populate("items.product");
-//     // console.log(cart);
-
-//     const coupons = await couponModel.find();
-//     const cartItems = cart ? cart.items : [];
-//     console.log(cartItems, "haloohgfjkl;do");
-//     // userCart = cart.items;
-//     cart.couponApplied = false;
-//     const totalPrice = cart ? cart.totalPrice : [];
-//     const discount = cart ? cart.discount : [];
-//     let stockAdjusted = false;
-//     const adjustmentMessages = [];
-
-//     if (cart && cartItems.length > 0) {
-//       for (const item of cartItems) {
-//         console.log("noooooooooooooooooooooooooooooooooooor");
-
-//         if (item.qty > item.product.stock || item.product.stock === 0) {
-//           stockAdjusted = true;
-//           adjustmentMessages.push(
-//             `The quantity of ${item.product.name} was adjusted to match available stock.`
-//           );
-
-//           // Adjust the quantity and total price
-//           const difference = item.qty - item.product.stock;
-//           item.qty = item.product.stock;
-//           cart.totalPrice -= difference * item.price;
-//         }
-//       }
-
-//       if (stockAdjusted) {
-//         await cart.save(); // Save changes to the cart if adjustments were made
-//       }
-//       await cart.save();
-//     }
-
-//     res.render("cart", {
-//       cart,
-//       cartItems,
-//       cartEmpty,
-//       coupons,
-//       discount,
-//       totalPrice,
-//     });
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
 const loadCart = async (req, res) => {
   try {
     const id = req.session.user._id;
@@ -897,19 +843,6 @@ const decrementQty = async (req, res) => {
   }
 };
 
-// const deleteCart = async (req, res) => {
-//   try {
-//     const productId = req.params.productId;
-//     const id = req.session.user._id;
-//     await cartModel.updateOne(
-//       { userId: id },
-//       { $pull: { items: { product: productId } } }
-//     );
-//     res.redirect("/cart");
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
 const deleteCart = async (req, res) => {
   const userId = req.session.user._id;
   const productId = req.params.productId;
@@ -945,35 +878,6 @@ const deleteCart = async (req, res) => {
 
 //------------------------------------------------------------checkOut----------------------------------------------------------------------
 
-// const loadCheckout = async (req, res) => {
-//   try {
-//     const id = req.session.user._id;
-//     const cart = await cartModel
-//       .findOne({ userId: id })
-//       .populate("items.product");
-//     const address = await addressModel.find({ userId: id });
-
-//     if (!cart || cart.items.length === 0) {
-//       req.flash("cartEmpty", "Your cart is empty");
-//       return res.redirect("/cart");
-//     }
-//     const cartItems = cart.items;
-//     const totalPrice = cart.totalPrice;
-//     const cartEmpty = req.flash("cartEmpty");
-//     const addressSuccess = req.flash("addressSuccess");
-
-//     res.render("checkout", {
-//       address,
-//       cartItems,
-//       totalPrice,
-//       cartEmpty,
-//       addressSuccess,
-//     });
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
-
 const loadCheckout = async (req, res) => {
   try {
     const id = req.session.user._id;
@@ -993,22 +897,6 @@ const loadCheckout = async (req, res) => {
     const cartEmpty = req.flash("cartEmpty");
     const addressSuccess = req.flash("addressSuccess");
     const messages = [];
-    // let stockMismatch = false;
-
-    // for (const item of cartItems) {
-    //   const product = await productModel.findById(item.product._id);
-    //   if (item.qty > product.stock) {
-    //     stockMismatch = true;
-    //     break;
-    //   }
-    // }
-
-    // if (stockMismatch) {
-    //   return res.json({
-    //     error: true,
-    //     message: "One or more items in your cart exceed the available stock.",
-    //   });
-    // }
 
     res.render("checkout", {
       address,
@@ -1024,54 +912,6 @@ const loadCheckout = async (req, res) => {
     console.log(error);
   }
 };
-
-// const addCheckoutAddress = async (req, res) => {
-//   try {
-//     const id = req.session.user._id;
-//     const {
-//       fullName,
-//       email,
-//       number,
-//       country,
-//       postalCode,
-//       state,
-//       city,
-//       // context,
-//     } = req.body;
-//     // console.log("id:", id);
-
-//     let userAddress = await addressModel.findOne({ userId: id });
-//     // console.log("useraddress :", userAddress);
-
-//     if (!userAddress) {
-//       userAddress = new addressModel({
-//         userId: id,
-//         addressDetails: [
-//           { fullName, email, number, country, postalCode, state, city },
-//         ],
-//       });
-//     } else {
-//       userAddress.addressDetails.push({
-//         fullName,
-//         email,
-//         number,
-//         country,
-//         postalCode,
-//         state,
-//         city,
-//       });
-//     }
-//     // console.log(userAddress);
-//     await userAddress.save();
-//     req.flash("success", "address is added successfully");
-//     // return res.redirect(context === "checkout" ? "/checkout" : "/userAddress");
-//     return res.redirect("/checkout");
-//   } catch (error) {
-//     req.flash("error", "Failed to add address. Please try again.");
-//     // return res.redirect(context === "checkout" ? "/checkout" : "/userAddress");
-//     return res.redirect("/checkout");
-//   }
-// };
 
 const addCheckoutAddress = async (req, res) => {
   try {
@@ -1147,41 +987,6 @@ const loadOrderPlaced = async (req, res) => {
   }
 };
 
-// const cancelOrder = async (req, res) => {
-//   try {
-//     const orderId = req.params.id;
-//     const updatedOrder = await orderModel.findByIdAndUpdate(
-//       orderId,
-//       { status: "Cancelled" },
-//       { new: true }
-//     );
-
-//     if (!updatedOrder) {
-//       return res
-//         .status(404)
-//         .json({ success: false, message: "Order not found" });
-//     }
-
-//     for (const item of updatedOrder.items) {
-//       await productModel.findByIdAndUpdate(item.product, {
-//         $inc: { stock: item.quantity },
-//       });
-//     }
-
-//     res.json({
-//       success: true,
-//       message: "Order cancelled successfully",
-//       order: updatedOrder,
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({
-//       success: false,
-//       message: "An error occurred while cancelling the order",
-//     });
-//   }
-// };
-
 const cancelOrder = async (req, res) => {
   try {
     const orderId = req.params.id;
@@ -1247,133 +1052,6 @@ const cancelOrder = async (req, res) => {
     });
   }
 };
-
-// const orderPlaced = async (req, res) => {
-//   try {
-//     const { paymentMethod, addressID, couponCode } = req.body;
-//     console.log(paymentMethod, addressID, couponCode, "where ?");
-
-//     const userId = req.session?.user?._id;
-
-//     const cart = await cartModel.findOne({ userId }).populate("items.product");
-//     if (!cart || cart.items.length === 0) {
-//       return res.status(400).json({ message: "Your cart is empty." });
-//     }
-
-//     const userAddresses = await addressModel.findOne({ userId });
-//     const selectedAddress = userAddresses?.addressDetails.find(
-//       (address) => address._id.toString() === addressID.toString()
-//     );
-//     if (!selectedAddress) {
-//       return res.status(400).json({ message: "Invalid address selected." });
-//     }
-
-//     let totalPrice = 0;
-//     const orderItems = cart.items.map((item) => {
-//       const product = item.product;
-//       const basePrice = product.price;
-//       const discountAmount =
-//         product.discountedPrice != null
-//           ? basePrice - product.discountedPrice
-//           : 0;
-//       const finalPrice = basePrice - discountAmount;
-
-//       totalPrice += finalPrice * item.qty;
-
-//       return {
-//         product: product._id,
-//         price: basePrice,
-//         discountAmount,
-//         finalPrice,
-//         quantity: item.qty,
-//       };
-//     });
-
-//     let couponDiscount = 0;
-//     let appliedCoupon = null;
-//     console.log(couponCode, "couponcode of this");
-
-//     if (couponCode) {
-//       const coupon = await couponModel.findOne({
-//         couponCode,
-//         isListed: true,
-//         expiryDate: { $gte: new Date() },
-//         usedBy: { $ne: userId },
-//       });
-//       console.log(totalPrice, "total price ");
-//       console.log(
-//         totalPrice * coupon.discountPercentage,
-//         "total price * discount "
-//       );
-
-//       if (!coupon) {
-//         return res.status(400).json({ message: "Invalid or expired coupon." });
-//       }
-
-//       if (totalPrice < coupon.minAmount) {
-//         return res.status(400).json({
-//           message: `Minimum order value for this coupon is ${coupon.minAmount}.`,
-//         });
-//       }
-
-//       couponDiscount = (totalPrice * coupon.discountPercentage) / 100;
-//       if (
-//         coupon.maxDiscountAmount &&
-//         couponDiscount > coupon.maxDiscountAmount &&
-//         coupon.discountPercentage <= 0
-//       ) {
-//         couponDiscount = coupon.maxDiscountAmount;
-//       }
-
-//       totalPrice -= couponDiscount;
-//       appliedCoupon = coupon._id;
-//     }
-//     console.log(couponDiscount, "coupon ");
-
-//     console.log(totalPrice, "total price of coupon");
-
-//     const order = new orderModel({
-//       userId,
-//       items: orderItems,
-//       totalPrice: totalPrice,
-//       billingDetails: selectedAddress,
-//       paymentMethod: paymentMethod === "cod" ? "COD" : "wallet",
-//       status: paymentMethod === "cod" ? "Pending" : "Delivered",
-//       paymentStatus: paymentMethod === "cod" ? "Pending" : "Paid",
-//       offerApplied: appliedCoupon,
-//       discounts: {
-//         couponDiscount,
-//         productDiscounts: orderItems.reduce(
-//           (acc, item) => acc + item.discountAmount * item.quantity,
-//           0
-//         ),
-//       },
-//     });
-
-//     await order.save();
-
-//     for (const item of orderItems) {
-//       await productModel.findByIdAndUpdate(item.product, {
-//         $inc: { stock: -item.quantity },
-//       });
-//     }
-
-//     await cartModel.updateOne(
-//       { userId },
-//       { $set: { items: [], totalPrice: 0 } }
-//     );
-
-//     res.status(200).json({
-//       message: "Order placed successfully!",
-//       order,
-//     });
-//   } catch (error) {
-//     console.error("Error while placing order:", error);
-//     res
-//       .status(500)
-//       .json({ message: "An error occurred while placing the order.", error });
-//   }
-// };
 
 const orderPlaced = async (req, res) => {
   try {
@@ -1449,15 +1127,7 @@ const orderPlaced = async (req, res) => {
         : 0,
       finalPrice: item.product.discountedPrice || item.product.price,
     }));
-    // if (paymentMethod == "COD") {
-    //   for (const item of cart.items) {
-    //     if (item.qty > item.product.stock || item.product.stock === 0) {
-    //       return res.status(400).json({
-    //         message: `Product "${item.product.product_title}" is unavailable. Available stock: ${item.product.stock}.`,
-    //       });
-    //     }
-    //   }
-    // }
+
     console.log("gghj");
 
     if (paymentMethod === "COD") {
@@ -1544,27 +1214,6 @@ const loadOrderList = async (req, res) => {
     res.status(500).send("An error occurred while fetching order details.");
   }
 };
-
-// const orderList = async (req, res) => {
-//   const { orderId } = req.params;
-//   const { status } = req.body;
-
-//   try {
-//     const updatedOrder = await orderModel.findByIdAndUpdate(
-//       orderId,
-//       { status },
-//       { new: true }
-//     );
-//     if (updatedOrder) {
-//       res.json({ success: true });
-//     } else {
-//       res.json({ success: false, error: "Order not found" });
-//     }
-//   } catch (error) {
-//     console.error(error);
-//     res.json({ success: false, error: "Error updating order status" });
-//   }
-// };
 
 const loadMyOrders = async (req, res) => {
   try {
@@ -1901,103 +1550,8 @@ const deleteAddress = async (req, res) => {
     return res.redirect("/userAddress");
   }
 };
-// const loadAccount = async (req, res) => {
-//   try {
-//     const id = req.session.user._id;
-//     console.log(id, "jkehfjh");
-//     const acc = await userModel.findById(id);
-//     console.log(acc);
-//     const passError = req.flash("passError");
-//     const passError2 = req.flash("passError2");
-
-//     res.render("accountDetails", { acc, passError, passError2 });
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
-
-// const accPassword = async (req, res) => {
-//   try {
-//     const id = req.session.user._id;
-//     const { password, newPassword, confirmPassword } = req.body;
-//     const userPass = await userModel.findById(id);
-//     const isMatch = await bcrypt.compare(password, userPass.password);
-//     if (!isMatch) {
-//       req.flash("passError", "Incorrect password !");
-//       // return res.redirect("/userAccount");
-//     }
-//     if (newPassword !== confirmPassword) {
-//       res.flash(
-//         "passError2",
-//         "password and confirm password is not matching !"
-//       );
-//       // return res.redirect("/userAccount");
-//     }
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
-
-// // const loadAccountDetails=async(req,res)=>{
-// //   try {
-// //     res.render("accountDetails")
-// //   } catch (error) {
-// //     console.log(error);
-
-// //   }
-// // }
-
-// const loadChangePass = async (req, res) => {
-//   try {
-//     const id = req.session.user._id;
-//     const acc = await userModel.findById(id);
-//     res.render("accChangePassword", { acc });
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
-
-// const accChangePassword = async (req, res) => {
-//   try {
-//     const id = req.session.user._id;
-//     const acc = await userModel.findById(id);
-//     res.render("userAcc", { acc });
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
 
 //------------------------------------------------------------whishlist-------------------------------------------------------
-
-// const loadWishlist = async (req, res) => {
-//   try {
-//     console.log(req.session.user._id);
-
-//     const id = req.session.user._id;
-//     // const cartEmpty = req.flash("cartEmpty");
-//     const whishlist = await whishlistModel
-//       .findOne({ userId: id })
-//       .populate("items.product");
-//     // const product = await productModel
-//     //   .findById(_id)
-//     //   .populate("category", "name")
-//     //   .populate("brand", "name");
-
-//     const items = whishlist ? whishlist.items : [];
-//     console.log(
-//       whishlist,
-//       "whishlist",
-//       items,
-//       "whishlist",
-//       // product,
-//       "whishlist"
-//     );
-
-//     res.render("whishlist", { whishlist, items });
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
 
 const loadWishlist = async (req, res) => {
   try {
@@ -2177,12 +1731,8 @@ const cancelCoupon = async (req, res) => {
       return res.status(404).json({ message: "Coupon not found" });
     }
 
-    // Reset the coupon's applied status
     cart.couponApplied = false;
     await cart.save();
-
-    // Update the cart to remove the applied coupon
-    // await cartModel.updateOne({ userId }, { $unset: { appliedCoupon: "" } });
 
     const userCart = await cartModel.findOne({ userId });
     const totalPrice = userCart ? userCart.totalPrice : 0;
@@ -2195,32 +1745,6 @@ const cancelCoupon = async (req, res) => {
 };
 
 //------------------------------------------------------------Search-------------------------------------------------------
-// const searchItems = async (req, res) => {
-//   try {
-//     const searchQuery = req.query.query;
-
-//     if (!searchQuery) {
-//       return res.render("searchResults", { searchResults: [] });
-//     }
-
-//     const searchResults = await productModel
-//       .find({ product_title: { $regex: searchQuery, $options: "i" } })
-//       .populate("brand")
-//       .populate("category");
-
-//     const categorySearchResults = await productModel
-//       .find({ "category.name": { $regex: searchQuery, $options: "i" } })
-//       .populate("brand")
-//       .populate("category");
-
-//     const allSearchResults = [...searchResults, ...categorySearchResults];
-
-//     res.render("searchResults", { searchResults: allSearchResults });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send("Error occurred during product search");
-//   }
-// };
 
 //------------------------------------------------------------wallet-------------------------------------------------------
 const loadWallet = async (req, res) => {
@@ -2478,316 +2002,27 @@ const verifyPayment = async (req, res) => {
   }
 };
 
-// const getRetryOrder = async (req, res) => {
-//   const { orderId } = req.params;
-
-//   try {
-//     const order = await orderModel.findById(orderId);
-
-//     if (!order) {
-//       return res
-//         .status(404)
-//         .json({ success: false, message: "Order not found" });
-//     }
-
-//     const razorpay = new Razorpay({
-//       key_id: process.env.RAZORPAY_KEY_ID,
-//       key_secret: process.env.RAZORPAY_KEY_SECRET,
-//     });
-
-//     const razorpayOrder = await razorpay.orders.create({
-//       amount: order.totalPrice * 100, // Convert to paise
-//       currency: "INR",
-//       receipt: `receipt_order_${order._id}`,
-//     });
-
-//     res.status(200).json({
-//       success: true,
-//       amount: razorpayOrder.amount,
-//       currency: razorpayOrder.currency,
-//       razorpayOrderId: razorpayOrder.id,
-//     });
-//   } catch (error) {
-//     console.error("Retry order error:", error);
-//     res.status(500).json({ success: false, message: "Server error" });
-//   }
-// };
-
-// const retryOrder = async (req, res) => {
-//   const { orderId } = req.params;
-
-//   try {
-//     // Fetch the existing order
-//     const existingOrder = await orderModel.findById(orderId);
-
-//     if (!existingOrder || existingOrder.paymentStatus !== "Failed") {
-//       return res.status(400).json({
-//         success: false,
-//         message: "Order not eligible for retry",
-//       });
-//     }
-
-//     // Razorpay instance
-//     const razorpay = new Razorpay({
-//       key_id: process.env.RAZORPAY_KEY_ID,
-//       key_secret: process.env.RAZORPAY_KEY_SECRET,
-//     });
-
-//     // Create a new Razorpay order
-//     const razorpayOrder = await razorpay.orders.create({
-//       amount: existingOrder.totalPrice * 100, // Amount in paisa
-//       currency: "INR",
-//       receipt: `retry_order_${orderId}`,
-//     });
-
-//     // Update the order status to Pending for retry
-//     existingOrder.paymentStatus = "Pending";
-//     await existingOrder.save();
-
-//     res.status(200).json({
-//       success: true,
-//       amount: razorpayOrder.amount,
-//       currency: razorpayOrder.currency,
-//       razorpayOrderId: razorpayOrder.id,
-//     });
-//   } catch (error) {
-//     console.error("Retry order error:", error);
-//     res.status(500).json({
-//       success: false,
-//       message: "Error initiating retry",
-//     });
-//   }
-// };
-
-// const reVerifyPayment = async (req, res) => {
-//   const {
-//     razorpay_payment_id,
-//     razorpay_order_id,
-//     razorpay_signature,
-//     order_id,
-//   } = req.body;
-
-//   try {
-//     const hmac = crypto.createHmac("sha256", process.env.RAZORPAY_KEY_SECRET);
-//     hmac.update(`${razorpay_order_id}|${razorpay_payment_id}`);
-//     const expectedSignature = hmac.digest("hex");
-
-//     if (razorpay_signature !== expectedSignature) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "Invalid payment signature",
-//       });
-//     }
-
-//     // Update the order payment status and save
-//     const updatedOrder = await orderModel.findOneAndUpdate(
-//       { _id: order_id },
-//       {
-//         paymentStatus: "Paid",
-//       },
-//       { new: true }
-//     );
-
-//     if (!updatedOrder) {
-//       return res.status(404).json({
-//         success: false,
-//         message: "Order not found",
-//       });
-//     }
-
-//     res.status(200).json({
-//       success: true,
-//       message: "Payment verified successfully",
-//       order: updatedOrder,
-//     });
-//   } catch (error) {
-//     console.error("Payment verification error:", error);
-//     res.status(500).json({
-//       success: false,
-//       message: "An error occurred during payment verification",
-//     });
-//   }
-// };
-
-// const retryOrder = async (req, res) => {
-//   try {
-//     const orderId = req.params.orderId; // Get the order ID from the URL
-//     const order = await Order.findById(orderId);
-
-//     if (!order) {
-//       return res.status(404).json({ message: "Order not found" });
-//     }
-
-//     // Create a Razorpay order for retrying payment
-//     const razorpay = new Razorpay({
-//       key_id: process.env.RAZORPAY_KEY_ID,
-//       key_secret: process.env.RAZORPAY_KEY_SECRET,
-//     });
-
-//     const options = {
-//       amount: order.amount * 100, // Razorpay expects amount in paise
-//       currency: "INR",
-//       receipt: orderId,
-//       payment_capture: 1,
-//     };
-
-//     const razorpayOrder = await razorpay.orders.create(options);
-
-//     return res.json({
-//       order_id: orderId,
-//       amount: order.amount,
-//       currency: "INR",
-//       razorpayOrderId: razorpayOrder.id,
-//     });
-//   } catch (error) {
-//     console.error("Error in retry order:", error);
-//     return res.status(500).json({ message: "Failed to retry order" });
-//   }
-// };
-
-// const reVerifyPayment = async (req, res) => {
-//   try {
-//     const {
-//       razorpay_payment_id,
-//       razorpay_order_id,
-//       razorpay_signature,
-//       order_id,
-//     } = req.body;
-
-//     const generated_signature = crypto
-//       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-//       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
-//       .digest("hex");
-
-//     if (generated_signature === razorpay_signature) {
-//       // Verify the payment and update the order status
-//       const order = await Order.findById(order_id);
-//       order.payment_status = "success";
-//       await order.save();
-
-//       return res.json({ success: true });
-//     } else {
-//       return res.json({ success: false });
-//     }
-//   } catch (error) {
-//     console.error("Error in payment verification:", error);
-//     return res.status(500).json({ message: "Payment verification failed" });
-//   }
-// };
-
-// const retryOrder = async (req, res) => {
-//   try {
-//     const orderId = req.params.orderId; // Get the order ID from the URL
-//     const order = await Order.findById(orderId);
-
-//     if (!order) {
-//       return res.status(404).json({ message: "Order not found" }); // Return JSON here
-//     }
-
-//     // Create a Razorpay order for retrying payment
-//     const razorpay = new Razorpay({
-//       key_id: process.env.RAZORPAY_KEY_ID,
-//       key_secret: process.env.RAZORPAY_KEY_SECRET,
-//     });
-
-//     const options = {
-//       amount: order.amount * 100, // Razorpay expects amount in paise
-//       currency: "INR",
-//       receipt: orderId,
-//       payment_capture: 1,
-//     };
-
-//     // Attempt to create the Razorpay order
-//     let razorpayOrder;
-//     try {
-//       razorpayOrder = await razorpay.orders.create(options);
-//     } catch (razorpayError) {
-//       console.error("Razorpay order creation failed:", razorpayError);
-//       return res.status(500).json({
-//         message: "Failed to create Razorpay order",
-//         error: razorpayError.message,
-//       });
-//     }
-
-//     return res.json({
-//       order_id: orderId,
-//       amount: order.amount,
-//       currency: "INR",
-//       razorpayOrderId: razorpayOrder.id,
-//     });
-//   } catch (error) {
-//     console.error("Error in retry order:", error);
-//     return res.status(500).json({
-//       message: "Failed to retry order",
-//       error: error.message,
-//     });
-//   }
-// };
-
-// const reVerifyPayment = async (req, res) => {
-//   try {
-//     const {
-//       razorpay_payment_id,
-//       razorpay_order_id,
-//       razorpay_signature,
-//       order_id,
-//     } = req.body;
-
-//     // Validate Razorpay signature
-//     const generated_signature = crypto
-//       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-//       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
-//       .digest("hex");
-
-//     if (generated_signature === razorpay_signature) {
-//       // Verify the payment and update the order status
-//       const order = await Order.findById(order_id);
-
-//       if (!order) {
-//         return res.status(404).json({
-//           message: "Order not found for payment verification",
-//         });
-//       }
-
-//       order.payment_status = "success";
-//       await order.save();
-
-//       return res.json({ success: true });
-//     } else {
-//       return res.json({ success: false, message: "Signature mismatch" });
-//     }
-//   } catch (error) {
-//     console.error("Error in payment verification:", error);
-//     return res.status(500).json({
-//       message: "Payment verification failed",
-//       error: error.message,
-//     });
-//   }
-// };
-
 const retryOrder = async (req, res) => {
   try {
-    const orderId = req.params.orderId; // Get the order ID from the URL
+    const orderId = req.params.orderId;
     const order = await orderModel.findById(orderId);
 
     if (!order) {
-      return res.status(404).json({ message: "Order not found" }); // Ensure the response is JSON
+      return res.status(404).json({ message: "Order not found" });
     }
 
-    // Create a Razorpay order for retrying payment
     const razorpay = new Razorpay({
       key_id: process.env.RAZORPAY_KEY_ID,
       key_secret: process.env.RAZORPAY_KEY_SECRET,
     });
     console.log(order);
     const options = {
-      amount: order.totalPrice * 100, // Razorpay expects amount in paise
+      amount: order.totalPrice * 100,
       currency: "INR",
       receipt: orderId,
       payment_capture: 1,
     };
 
-    // Attempt to create the Razorpay order
     let razorpayOrder;
     try {
       razorpayOrder = await razorpay.orders.create(options);
@@ -2830,7 +2065,6 @@ const reVerifyPayment = async (req, res) => {
       .digest("hex");
 
     if (generated_signature === razorpay_signature) {
-      // Verify the payment and update the order status
       const order = await Order.findById(order_id);
 
       if (!order) {
@@ -2909,58 +2143,6 @@ const applyBestOfferToProduct = async (productId) => {
   }
 };
 
-// const orderCancellation = async (req, res) => {
-//   const { order_id } = req.body; // Extract the order ID from the request body
-//   console.log("Payment cancellation initiated for order:", order_id);
-
-//   try {
-//     // Check if the order exists
-//     const order = await orderModel.findById(order_id);
-//     if (!order) {
-//       return res.status(404).json({
-//         success: false,
-//         message: "Order not found",
-//       });
-//     }
-
-//     // Update the order status to "Failed"
-//     order.paymentStatus = "Failed";
-//     order.status = "Failed"; // Mark the order as canceled
-//     await order.save();
-
-//     // Optional: Restore the cart if payment fails
-//     const userId = order.userId;
-//     if (userId) {
-//       const cart = await cartModel.findOne({ userId });
-//       if (cart) {
-//         for (const item of order.items) {
-//           // Add items back to the cart
-//           await cartModel.updateOne(
-//             { userId },
-//             {
-//               $push: {
-//                 items: {
-//                   product: item.product,
-//                   qty: item.quantity,
-//                 },
-//               },
-//               $inc: { totalPrice: item.price * item.quantity },
-//             }
-//           );
-//         }
-//       }
-//     }
-
-//     return res.redirect("/order-confirmed");
-//   } catch (error) {
-//     console.error("Payment cancellation error:", error);
-//     res.status(500).json({
-//       success: false,
-//       message: "Server error during payment cancellation",
-//     });
-//   }
-// };
-
 const cancelRazorpayOrder = async (req, res) => {
   const { order_id } = req.body;
 
@@ -2993,367 +2175,6 @@ const cancelRazorpayOrder = async (req, res) => {
 };
 
 //------------------------------------------------------------invoice-------------------------------------------------------
-// const downloadInvoice = async (req, res) => {
-//   const { id } = req.params;
-//   try {
-//     const order = await orderModel.findById(id).populate("items.product");
-//     if (!order) {
-//       return res.status(404).send("Order not found");
-//     }
-
-//     const doc = new PDFDocument({ margin: 30 });
-
-//     const filePath = path.join(
-//       __dirname,
-//       "downloads",
-//       `invoice-${order._id}.pdf`
-//     );
-//     const writeStream = fs.createWriteStream(filePath);
-//     doc.pipe(writeStream);
-
-//     // Heading: Project Name "CozyCubs"
-//     doc
-//       .fontSize(24)
-//       .font("Helvetica-Bold")
-//       .text("CozyCubs", { align: "center" })
-//       .moveDown(0.5);
-
-//     // Address and contact details
-//     doc
-//       .fontSize(10)
-//       .font("Helvetica")
-//       .text("Edapally, Kochi, Kerala, 217231", { align: "center" })
-//       .text("Phone: +91 89893927433 | Email: support@eyevogue.com", {
-//         align: "center",
-//       });
-
-//     doc.moveDown(1.5);
-
-//     // Order Details Section
-//     doc
-//       .fontSize(12)
-//       .font("Helvetica-Bold")
-//       .text("Order Details:", { underline: true })
-//       .moveDown(0.5);
-
-//     doc
-//       .font("Helvetica")
-//       .text(`Order Number: ${order._id}`)
-//       .text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`)
-//       .text(`Customer: ${order.billingAddress.name}`)
-//       .text(
-//         `Address: ${order.billingAddress.address}, ${order.billingAddress.city}, ${order.billingAddress.state}, ${order.billingAddress.country} - ${order.billingAddress.pincode}`
-//       );
-
-//     doc.moveDown(1);
-
-//     // Product Table Header
-//     const tableTop = doc.y;
-//     const tableMarginLeft = 50;
-
-//     doc
-//       .fontSize(12)
-//       .font("Helvetica-Bold")
-//       .text("Product", tableMarginLeft, tableTop, { width: 200, align: "left" })
-//       .text("Quantity", tableMarginLeft + 220, tableTop, {
-//         width: 80,
-//         align: "center",
-//       })
-//       .text("Price", tableMarginLeft + 320, tableTop, {
-//         width: 80,
-//         align: "center",
-//       })
-//       .text("Total", tableMarginLeft + 420, tableTop, {
-//         width: 80,
-//         align: "center",
-//       });
-
-//     // Line Separator for Table Header
-//     doc
-//       .moveTo(tableMarginLeft, tableTop + 15)
-//       .lineTo(550, tableTop + 15)
-//       .stroke();
-
-//     let yPosition = tableTop + 25;
-
-//     // Loop through products and add product details in the table
-//     order.items.forEach((item) => {
-//       const productName = item.product
-//         ? item.product.name
-//         : "Product not found";
-//       doc
-//         .fontSize(10)
-//         .font("Helvetica")
-//         .text(productName, tableMarginLeft, yPosition, {
-//           width: 200,
-//           align: "left",
-//         })
-//         .text(item.quantity, tableMarginLeft + 220, yPosition, {
-//           width: 80,
-//           align: "center",
-//         })
-//         .text(`Rs ${item.price.toFixed(2)}`, tableMarginLeft + 320, yPosition, {
-//           width: 80,
-//           align: "center",
-//         })
-//         .text(
-//           `Rs ${(item.price * item.quantity).toFixed(2)}`,
-//           tableMarginLeft + 420,
-//           yPosition,
-//           { width: 80, align: "center" }
-//         );
-//       yPosition += 20;
-//     });
-
-//     yPosition += 10;
-
-//     // Line Separator for Footer
-//     const subtotal =
-//       order.totalPrice - order.gstAmount - (order.deliveryCharge || 0);
-//     doc.moveTo(50, yPosition).lineTo(550, yPosition).stroke().moveDown(0.5);
-
-//     // Footer Details: Subtotal, GST, Delivery Charge, Discount, Total
-//     yPosition += 15;
-//     doc
-//       .fontSize(12)
-//       .font("Helvetica")
-//       .text(`Subtotal:`, 400, yPosition, { align: "left" })
-//       .text(`Rs ${subtotal.toFixed(2)}`, 480, yPosition, { align: "right" });
-
-//     yPosition += 20;
-//     doc
-//       .text(`GST (18%):`, 400, yPosition, { align: "left" })
-//       .text(`Rs ${order.gstAmount.toFixed(2)}`, 480, yPosition, {
-//         align: "right",
-//       });
-
-//     if (order.deliveryCharge) {
-//       yPosition += 20;
-//       doc
-//         .text(`Delivery Charges:`, 400, yPosition, { align: "left" })
-//         .text(`Rs ${order.deliveryCharge.toFixed(2)}`, 480, yPosition, {
-//           align: "right",
-//         });
-//     }
-
-//     yPosition += 20;
-//     doc
-//       .text(`Discount:`, 400, yPosition, { align: "left" })
-//       .text(
-//         `Rs ${order.discount ? order.discount.toFixed(2) : "0.00"}`,
-//         480,
-//         yPosition,
-//         { align: "right" }
-//       );
-
-//     yPosition += 20;
-//     doc
-//       .font("Helvetica-Bold")
-//       .text(`Total:`, 400, yPosition, { align: "left" })
-//       .text(`Rs ${order.totalPrice.toFixed(2)}`, 480, yPosition, {
-//         align: "right",
-//       });
-
-//     yPosition += 30;
-
-//     doc.end();
-
-//     writeStream.on("finish", () => {
-//       res.download(filePath, `invoice-${order._id}.pdf`, (err) => {
-//         if (err) {
-//           console.error("Error downloading the invoice:", err);
-//         }
-//         fs.unlinkSync(filePath);
-//       });
-//     });
-
-//     writeStream.on("error", (err) => {
-//       console.error("Error writing PDF:", err);
-//       res.status(500).send("Error generating the invoice.");
-//     });
-//   } catch (error) {
-//     console.error("Error fetching order or generating invoice:", error);
-//     res.status(500).send("Internal server error.");
-//   }
-// };
-
-// const downloadInvoice = async (req, res) => {
-//   const { orderId } = req.params;
-//   const { number } = req.query;
-//   console.log("hai", number, "nummber");
-
-//   try {
-//     const order = await orderModel
-//       .findById(orderId)
-//       .populate("items.product")
-//       .lean();
-
-//     if (!order) {
-//       return res.status(404).send("Order not found");
-//     }
-
-//     const address = await addressModel.findOne({ userId: order.userId });
-
-//     if (address && address.addressDetails.length > 0) {
-//       const billingAddress = address.addressDetails.find(
-//         (addr) => addr._id.toString() === order.billingDetails.toString()
-//       );
-
-//       if (billingAddress) {
-//         order.billingDetails = { ...billingAddress.toObject() };
-//       } else {
-//         order.billingDetails = null;
-//       }
-//     }
-
-//     const doc = new PDFDocument({ margin: 50, size: "A4" });
-//     const filePath = path.join("Downloads", `invoice-${order._id}.pdf`);
-//     const writeStream = fs.createWriteStream(filePath);
-//     doc.pipe(writeStream);
-
-//     const drawLine = (y) => {
-//       doc.moveTo(50, y).lineTo(550, y).stroke("#D3D3D3");
-//     };
-
-//     // doc.image("path/to/logo.png", 50, 45, { width: 50 });
-//     doc.fontSize(20).font("Helvetica-Bold").text("CozyCubs", 120, 50);
-//     doc
-//       .fontSize(10)
-//       .font("Helvetica")
-//       .text("Edapally, Kochi, Kerala, 217231", 120, 75);
-//     doc.text("Phone: +91 89893927433 | Email: support@cozyCubs.com", 120, 90);
-//     drawLine(110);
-
-//     doc.fontSize(16).font("Helvetica-Bold").text("INVOICE", 250, 130);
-
-//     const detailsTop = 150;
-//     doc.rect(50, detailsTop, 240, 100).fill("#F0F0F0");
-//     doc
-//       .fontSize(12)
-//       .font("Helvetica-Bold")
-//       .text("Order Details", 60, detailsTop + 10);
-//     doc
-//       .fontSize(10)
-//       .font("Helvetica")
-//       .fillColor("black")
-//       .text(`Order Number: ${order._id}`, 60, detailsTop + 30)
-//       .text(
-//         `Date: ${new Date(order.createdAt).toLocaleDateString()}`,
-//         60,
-//         detailsTop + 50
-//       );
-
-//     doc.rect(310, detailsTop, 240, 100).fill("#F0F0F0");
-//     doc
-//       .fontSize(12)
-//       .font("Helvetica-Bold")
-//       .text("Billing Details", 320, detailsTop + 10);
-
-//     if (order.billingDetails) {
-//       doc
-//         .fontSize(10)
-//         .font("Helvetica")
-//         .fillColor("black")
-//         .text(`${order.billingDetails.fullName}`, 320, detailsTop + 30)
-//         .text(`${order.billingDetails.email}`, 320, detailsTop + 45)
-//         .text(
-//           `${order.billingDetails.city}, ${order.billingDetails.state}, ${order.billingDetails.postalCode}`,
-//           320,
-//           detailsTop + 60
-//         )
-//         .text(`${order.billingDetails.country}`, 320, detailsTop + 75);
-//     } else {
-//       doc
-//         .fontSize(10)
-//         .font("Helvetica")
-//         .fillColor("black")
-//         .text("No billing details available", 320, detailsTop + 30);
-//     }
-
-//     drawLine(260);
-
-//     const tableTop = 280;
-//     doc.fillColor("black").fontSize(12).font("Helvetica-Bold");
-//     const headers = ["Product Name", "Qty", "Price", "Total"];
-//     const cols = [50, 250, 320, 420];
-
-//     headers.forEach((header, i) => {
-//       doc.text(header, cols[i], tableTop, { width: 100, align: "left" });
-//     });
-
-//     drawLine(tableTop + 15);
-
-//     let currentY = tableTop + 25;
-//     doc.fontSize(10).font("Helvetica");
-
-//     order.items.forEach((item) => {
-//       const data = [
-//         item.product.product_title,
-//         item.quantity.toString(),
-//         `₹${item.price.toFixed(2)}`,
-//         `₹${(item.quantity * item.price).toFixed(2)}`,
-//       ];
-//       data.forEach((value, index) => {
-//         doc.text(value, cols[index], currentY, { width: 100, align: "left" });
-//       });
-//       currentY += 20;
-//     });
-
-//     drawLine(currentY);
-
-//     currentY += 10;
-//     doc.fontSize(12).font("Helvetica-Bold").text("Summary:", 350, currentY);
-//     doc.fontSize(10).font("Helvetica");
-//     doc.text(`Subtotal: ₹${order.totalPrice.toFixed(2)}`, 350, currentY + 15);
-//     doc.text(
-//       `Discount Applied: ₹${order.discountApplied.toFixed(2)}`,
-//       350,
-//       currentY + 30
-//     );
-//     doc.text(
-//       `Coupon Discount: ₹${parseFloat(number).toFixed(2)}`,
-//       350,
-//       currentY + 45
-//     );
-
-//     doc
-//       .font("Helvetica-Bold")
-//       .text(
-//         `Total: ₹${(order.totalPrice - order.discountApplied).toFixed(2)}`,
-//         350,
-//         currentY + 60
-//       );
-
-//     const footerY = doc.page.height - 50;
-//     doc
-//       .fontSize(10)
-//       .font("Helvetica")
-//       .fillColor("#666666")
-//       .text("Thank you for your purchase!", 50, footerY, {
-//         align: "center",
-//         width: doc.page.width - 100,
-//       });
-
-//     doc.end();
-
-//     writeStream.on("finish", () => {
-//       res.download(filePath, `invoice-${order._id}.pdf`, (err) => {
-//         if (err) {
-//           console.error("Error downloading the invoice:", err);
-//         }
-//         fs.unlinkSync(filePath);
-//       });
-//     });
-
-//     writeStream.on("error", (err) => {
-//       console.error("Error writing PDF:", err);
-//       res.status(500).send("Error generating the invoice.");
-//     });
-//   } catch (error) {
-//     console.error("Error fetching order or generating invoice:", error);
-//     res.status(500).send("Internal server error.");
-//   }
-// };
 
 const downloadInvoice = async (req, res) => {
   const { orderId } = req.params;
@@ -3547,7 +2368,6 @@ const loadLandingPage = async (req, res) => {
 
     const categories = await catagory.find();
 
-    // Pass the variables as an object
     res.render("landingPage", { products, newArrivals, categories });
   } catch (error) {
     console.log("Error loading landing page:", error);

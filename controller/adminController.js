@@ -52,12 +52,9 @@ let upload = multer({
 
 const getPaginationData = async (model, page, limit) => {
   const skip = (page - 1) * limit;
-
-  // Total count of documents
   const totalDocuments = await model.countDocuments();
   const totalPages = Math.ceil(totalDocuments / limit);
 
-  // Fetch the documents with pagination
   const data = await model.find().skip(skip).limit(limit);
 
   return { data, totalPages };
@@ -84,7 +81,6 @@ const adminLogin = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // const isMatch = await bcrypt.compare(password, process.env.adminPass);
     if (
       email !== process.env.adminEmail ||
       password !== process.env.adminPass
@@ -235,33 +231,11 @@ const loadDashboard = async (req, res) => {
 
 //---------------------------------------------------------------Product---------------------------------------------------------------
 
-// const loadProductList = async (req, res) => {
-//   try {
-//     const page = parseInt(req.query.page) || 1;
-//     const limit = parseInt(req.query.limit) || 4;
-//     const skip = (page - 1) * limit;
-
-//     const products = await productModel.find().skip(skip).limit(limit);
-//     const totalProducts = await productModel.countDocuments();
-//     const totalPages = Math.ceil(totalProducts / limit);
-
-//     res.render("productsList", {
-//       products,
-//       currentPage: page,
-//       totalPages,
-//     });
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).send("An error occurred while loading products.");
-//   }
-// };
 
 const loadProductList = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1; // Current page
-    const limit = parseInt(req.query.limit) || 4; // Items per page
-
-    // Get paginated data and total pages using the helper
+    const page = parseInt(req.query.page) || 1; 
+    const limit = parseInt(req.query.limit) || 4; 
     const { data: products, totalPages } = await getPaginationData(
       productModel,
       page,
@@ -269,7 +243,7 @@ const loadProductList = async (req, res) => {
     );
 
     res.render("productsList", {
-      products, // Paginated product data
+      products, 
       currentPage: page,
       totalPages,
       itemsPerPage: limit,
@@ -294,11 +268,6 @@ const loadAddProduct = async (req, res) => {
 
 const addProduct = async (req, res) => {
   try {
-    // Check if files are uploaded
-
-    // Get other form data
-    // console.log("Image URL:", req.body.image_url);
-    // console.log("hy");
     const {
       product_title,
       full_description,
@@ -311,7 +280,6 @@ const addProduct = async (req, res) => {
 
       // image_url,
     } = req.body;
-    // console.log("Image URL:", req.body.image_url);
 
     const existingProduct = await productModel.findOne({ product_title });
     if (existingProduct) {
@@ -336,7 +304,6 @@ const addProduct = async (req, res) => {
     await newProduct.save();
     req.flash("success", "Product added successfully");
 
-    // console.log(newProduct);
     res.redirect("/admin/productsList");
   } catch (error) {
     console.log(error.message);
@@ -348,7 +315,6 @@ const loadEditProduct = async (req, res) => {
   try {
     const id = req.params.id;
 
-    // Validate ObjectId
     if (!mongoose.isValidObjectId(id)) {
       console.log("Invalid ID:", id);
       return res.status(400).send("Invalid Product ID");
@@ -415,41 +381,11 @@ const editProduct = async (req, res) => {
       image_url: updatedImages,
     });
 
-    // await newProduct.save();
-    // console.log(newProduct);
     res.redirect("/admin/productsList");
   } catch (error) {
     console.log(error);
   }
 };
-
-// const deleteProductImage = async (req, res) => {
-//   console.log("hy");
-//   const { id, filename } = req.params;
-
-//   try {
-//     const product = await productModel.findById(id);
-
-//     if (!product) {
-//       return res
-//         .status(404)
-//         .json({ success: false, message: "Product not found" });
-//     }
-
-//     const updatedImages = product.image_url.filter((img) => img !== filename);
-
-//     await productModel.findByIdAndUpdate(id, { image_url: updatedImages });
-
-//     // return res.json({ success: true, message: "Image deleted successfully" });
-//     // res.redirect("/admin/editProduct");
-//   } catch (error) {
-//     console.log(error);
-//     return res.status(500).json({
-//       success: false,
-//       message: "An error occurred while deleting the image",
-//     });
-//   }
-// };
 
 const deleteProductImage = async (req, res) => {
   const { id, filename } = req.params;
@@ -504,20 +440,7 @@ const unlistProduct = async (req, res) => {
   }
 };
 
-// const deleteProduct = async (req, res) => {
-//   try {
-//     const id = req.params.id;
-//     await productModel.findByIdAndDelete(id);
-//     res.redirect("/admin/productsList");
-//   } catch (error) {
-//     console.log(error);
-//   }
-//   // res.status(500).send("Error deleting product");
-// };
 
-/**
- * for delete
- */
 
 const deleteProduct = async (req, res) => {
   try {
@@ -858,10 +781,8 @@ const listBrand = async (req, res) => {
 
 const loadUser = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1; // Current page
-    const limit = parseInt(req.query.limit) || 4; // Items per page
-
-    // Get paginated user data and total pages
+    const page = parseInt(req.query.page) || 1; 
+    const limit = parseInt(req.query.limit) || 4; 
     const { data: user, totalPages } = await getPaginationData(
       userModel,
       page,
@@ -869,7 +790,7 @@ const loadUser = async (req, res) => {
     );
 
     res.render("userList", {
-      user, // Paginated user data
+      user,
       currentPage: page,
       totalPages,
       itemsPerPage: limit,
@@ -960,10 +881,6 @@ const loadOrder = async (req, res) => {
 
     res.render("orders", {
       order: updatedOrders,
-      // currentPage: page,
-      // totalPages,
-      // limit,
-      // maxPagesToShow: 5,
       currentPage,
       totalPages,
       itemsPerPage,
@@ -1520,90 +1437,8 @@ const deleteOffer = async (req, res) => {
 
 //---------------------------------------------------------------sales report----------------------------------------------------------
 
-// const loadSalesReport = async (req, res) => {
-//   try {
-//     const { filter = "all", startDate, endDate, page = 1 } = req.query;
-//     const limit = 5;
-//     const skip = (page - 1) * limit;
 
-//     let filterOptions = {};
-//     const today = dayjs().startOf("day");
-//     // console.log(today, "toooo");
 
-//     if (filter === "daily") {
-//       filterOptions.createdAt = {
-//         $gte: today.toDate(),
-//         $lte: today.endOf("day").toDate(),
-//       };
-//     } else if (filter === "weekly") {
-//       const lastWeek = today.subtract(7, "days");
-//       filterOptions.createdAt = {
-//         $gte: lastWeek.toDate(),
-//         $lte: today.endOf("day").toDate(),
-//       };
-//     } else if (filter === "monthly") {
-//       const lastMonth = today.subtract(1, "month");
-//       filterOptions.createdAt = {
-//         $gte: lastMonth.toDate(),
-//         $lte: today.endOf("day").toDate(),
-//       };
-//     } else if (filter === "yearly") {
-//       const lastYear = today.subtract(1, "year");
-//       filterOptions.createdAt = {
-//         $gte: lastYear.toDate(),
-//         $lte: today.endOf("day").toDate(),
-//       };
-//     } else if (filter === "custom") {
-//       if (startDate && endDate) {
-//         const parsedStartDate = dayjs(startDate).startOf("day");
-//         const parsedEndDate = dayjs(endDate).endOf("day");
-
-//         if (parsedStartDate.isValid() && parsedEndDate.isValid()) {
-//           filterOptions.createdAt = {
-//             $gte: parsedStartDate.toDate(),
-//             $lte: parsedEndDate.toDate(),
-//           };
-//         } else {
-//           return res.status(400).send("Invalid date range.");
-//         }
-//       } else {
-//         return res.status(400).send("Custom date range is required.");
-//       }
-//     }
-
-//     // console.log("Filter options:", filterOptions);
-
-//     const totalOrders = await orderModel.countDocuments(filterOptions);
-//     const totalPages = Math.ceil(totalOrders / limit);
-
-//     const orders = await orderModel
-//       .find(filterOptions)
-//       .populate("userId", "email")
-//       .populate("items.product", "name")
-//       .populate("billingDetails", "address")
-//       .sort({ createdAt: -1 })
-//       .skip(skip)
-//       .limit(limit);
-
-//     console.log("Orders fetched:", orders);
-
-//     res.render("salesReport", {
-//       orders,
-//       filter,
-//       startDate,
-//       endDate,
-//       currentPage: parseInt(page),
-//       totalPages,
-//       // currentPage: page,
-//       // totalPages,
-//       limit,
-//       maxPagesToShow: 10,
-//     });
-//   } catch (error) {
-//     console.error("Error:", error);
-//     res.status(500).send("Internal Server Error");
-//   }
-// };
 
 const loadSalesReport = async (req, res) => {
   try {
@@ -1704,202 +1539,6 @@ const loadSalesReport = async (req, res) => {
   }
 };
 
-// const downloadSalesReportPDF = async (req, res) => {
-//   try {
-//     const { filter = "all", startDate, endDate } = req.query;
-
-//     // Generate the filter options
-//     let filterOptions = {};
-//     const today = dayjs().startOf("day");
-
-//     if (filter === "daily") {
-//       filterOptions.createdAt = {
-//         $gte: today.toDate(),
-//         $lte: today.endOf("day").toDate(),
-//       };
-//     } else if (filter === "weekly") {
-//       const lastWeek = today.subtract(7, "days");
-//       filterOptions.createdAt = {
-//         $gte: lastWeek.toDate(),
-//         $lte: today.endOf("day").toDate(),
-//       };
-//     } else if (filter === "monthly") {
-//       const lastMonth = today.subtract(1, "month");
-//       filterOptions.createdAt = {
-//         $gte: lastMonth.toDate(),
-//         $lte: today.endOf("day").toDate(),
-//       };
-//     } else if (filter === "custom" && startDate && endDate) {
-//       const parsedStartDate = dayjs(startDate).startOf("day");
-//       const parsedEndDate = dayjs(endDate).endOf("day");
-//       filterOptions.createdAt = {
-//         $gte: parsedStartDate.toDate(),
-//         $lte: parsedEndDate.toDate(),
-//       };
-//     }
-
-//     // Fetch data from the database
-//     const orders = await orderModel
-//       .find(filterOptions)
-//       .populate("userId", "email")
-//       .populate("items.product", "name")
-//       .populate("billingDetails", "address");
-
-//     // Setup PDF document
-//     const doc = new PDFDocument({ margin: 50, size: "A4" });
-//     res.setHeader(
-//       "Content-Disposition",
-//       "attachment; filename=sales-report.pdf"
-//     );
-//     res.setHeader("Content-Type", "application/pdf");
-
-//     // Helper function to draw table cell
-//     const drawTableCell = (x, y, width, height, text, isHeader = false) => {
-//       doc.rect(x, y, width, height).stroke();
-//       doc
-//         .font(isHeader ? "Helvetica-Bold" : "Helvetica")
-//         .fontSize(isHeader ? 12 : 10)
-//         .fillColor(isHeader ? "#ffffff" : "#000000")
-//         .text(text, x + 5, y + 5, {
-//           width: width - 10,
-//           height: height - 10,
-//           align: isHeader ? "center" : "left",
-//           valign: "center",
-//         });
-//     };
-
-//     // Add title
-//     doc
-//       .fontSize(24)
-//       .font("Helvetica-Bold")
-//       .fillColor("#333333")
-//       .text("Sales Report", { align: "center" })
-//       .moveDown(1);
-
-//     // Add filter information
-//     doc
-//       .fontSize(12)
-//       .font("Helvetica")
-//       .fillColor("#666666")
-//       .text(`Filter: ${filter}`, { align: "center" })
-//       .moveDown(0.5);
-
-//     if (filter === "custom" && startDate && endDate) {
-//       doc
-//         .text(`Date Range: ${startDate} to ${endDate}`, { align: "center" })
-//         .moveDown(1);
-//     } else {
-//       doc.moveDown(1);
-//     }
-
-//     // Table settings
-//     const tableTop = 180;
-//     const tableLeft = 50;
-//     const colWidths = [100, 200, 100, 100];
-//     const rowHeight = 30;
-//     const headers = ["Order ID", "Customer", "Total Amount", "Date"];
-
-//     // Draw table header
-//     doc.fillColor("#4a90e2");
-//     headers.forEach((header, i) => {
-//       let x =
-//         tableLeft +
-//         colWidths.slice(0, i).reduce((sum, width) => sum + width, 0);
-//       drawTableCell(x, tableTop, colWidths[i], rowHeight, header, true);
-//     });
-
-//     // Render table rows
-//     let currentTop = tableTop + rowHeight;
-//     const itemsPerPage = 10;
-//     let rowCount = 0;
-
-//     orders.forEach((order, index) => {
-//       if (rowCount >= itemsPerPage) {
-//         doc.addPage();
-//         currentTop = 50;
-//         rowCount = 0;
-
-//         // Re-add headers on new page
-//         doc.fillColor("#4a90e2");
-//         headers.forEach((header, i) => {
-//           let x =
-//             tableLeft +
-//             colWidths.slice(0, i).reduce((sum, width) => sum + width, 0);
-//           drawTableCell(x, currentTop, colWidths[i], rowHeight, header, true);
-//         });
-//         currentTop += rowHeight;
-//       }
-
-//       doc.fillColor("#000000");
-
-//       // Order ID
-//       drawTableCell(
-//         tableLeft,
-//         currentTop,
-//         colWidths[0],
-//         rowHeight,
-//         order._id.toString().slice(-6)
-//       );
-
-//       // Customer
-//       drawTableCell(
-//         tableLeft + colWidths[0],
-//         currentTop,
-//         colWidths[1],
-//         rowHeight,
-//         order.userId.email || "N/A"
-//       );
-
-//       // Total Amount
-//       drawTableCell(
-//         tableLeft + colWidths[0] + colWidths[1],
-//         currentTop,
-//         colWidths[2],
-//         rowHeight,
-//         `$${order.totalPrice.toFixed(2) || "0.00"}`,
-//         false
-//       );
-
-//       // Date
-//       drawTableCell(
-//         tableLeft + colWidths[0] + colWidths[1] + colWidths[2],
-//         currentTop,
-//         colWidths[3],
-//         rowHeight,
-//         dayjs(order.createdAt).format("DD/MM/YYYY")
-//       );
-
-//       currentTop += rowHeight;
-//       rowCount++;
-//     });
-
-//     // Add total sales
-//     const totalSales = orders.reduce(
-//       (sum, order) => sum + (order.totalPrice || 0),
-//       0
-//     );
-//     doc
-//       .font("Helvetica-Bold")
-//       .fontSize(14)
-//       .fillColor("#333333")
-//       .text(
-//         `Total Sales: $${totalSales.toFixed(2)}`,
-//         tableLeft,
-//         currentTop + 20,
-//         {
-//           width: colWidths.reduce((sum, width) => sum + width, 0),
-//           align: "right",
-//         }
-//       );
-
-//     // End the document
-//     doc.pipe(res);
-//     doc.end();
-//   } catch (error) {
-//     console.error("Error generating PDF:", error);
-//     res.status(500).send("Failed to generate PDF report.");
-//   }
-// };
 
 const downloadSalesReportPDF = async (req, res) => {
   try {
@@ -2197,59 +1836,7 @@ const logout = async (req, res) => {
   }
 };
 
-// const storage = multer.diskStorage({
-//   destination: (req, file, cb) => {
-//     cb(null, "./public/uploads"); // Path to the uploads folder
-//   },
-//   filename: (req, file, cb) => {
-//     cb(null, Date.now() + path.extname(file.originalname));
-//   },
-// });
 
-// const fileFilter = (req, file, cb) => {
-//   const allowedTypes = /jpeg|jpg|png|gif/;
-//   const extname = allowedTypes.test(
-//     path.extname(file.originalname).toLowerCase()
-//   );
-//   const mimetype = allowedTypes.test(file.mimetype);
-
-//   if (mimetype && extname) {
-//     return cb(null, true);
-//   } else {
-//     cb(new Error("Only images are allowed!"));
-//   }
-// };
-
-// const upload = multer({
-//   storage: storage,
-//   fileFilter: fileFilter,
-//   limits: { fileSize: 1024 * 1024 * 5 }, // Limit file size to 5MB
-// });
-
-// --------------------------------------------------------
-
-// const addCatagory = async (req, res) => {
-//   const { name, description } = req.body;
-//   console.log(req.body);
-//   try {
-//     const existCatag = await Catagory.findOne({ name });
-//     if (!name || !description) {
-//       req.flash("catagErr", "Name and description are required.");
-//       return res.redirect("/admin/addCatagory");
-//     }
-//     if (existCatag) {
-//       req.flash("catagErr", "Catagory already exists.");
-//       return res.redirect("/admin/addCatagory"); // Redirect back to the form
-//     }
-
-//     const newCatagory = new Catagory({ name, description });
-//     await newCatagory.save();
-//     res.redirect("/admin/catagory"); // Redirect to the category list page
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send("Something went wrong!");
-//   }
-// };
 
 module.exports = {
   loadLogin,
