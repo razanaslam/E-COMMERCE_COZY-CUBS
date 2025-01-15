@@ -51,10 +51,10 @@ const loadRegister = async (req, res) => {
 
 const registerUser = async (req, res) => {
   const { name, email, number, password, confirmPassword } = req.body;
-
+  console.log('req.body in register user controller =>>>', req.body)
   try {
     const existUser = await userModel.findOne({ email });
-    // console.log(existUser);
+    console.log('is user already exists ====>',existUser);
     if (existUser) {
       // console.log(existUser);
       console.log("email already existed");
@@ -64,7 +64,7 @@ const registerUser = async (req, res) => {
       if (password !== confirmPassword) {
         req.flash("errorPassword", "hyy Passwords do not match");
         console.log("password is already existed");
-        return res.redirect("/register");
+        return res.redirect('/register')
       }
       // res.redirect("/verify-otp");
 
@@ -80,7 +80,7 @@ const registerUser = async (req, res) => {
       console.log(req.session.user, "register");
 
       const { otp } = generateOtp();
-      const emailSent = await sendOtp(email, otp);
+      const emailSent = await sendOtp(email,otp);
       const expirationTime = Date.now() + 60 * 1000;
       const newOtpModel = new otpModel({
         email,
@@ -112,18 +112,25 @@ const sendOtp = async (toEmail, otp) => {
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: process.env.emailUser,
-        pass: process.env.emailPass,
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
       },
     });
-
+     transporter.verify(function (error, success) {
+    if (error) {
+        console.error('Error connecting to SMTP server:', error);
+    } else {
+        console.log('SMTP server is ready to send emails');
+    }
+});
+    console.log('ithaaa transporter=======================>', transporter)
     const mailOptions = {
-      from: process.env.emailUser,
+      from: process.env.SMTP_USER,
       to: toEmail,
       subject: "Verify Your Email - OTP",
       text: `Your OTP code is ${otp}.`,
     };
-
+    console.log('ing ethiiiiiiiiiiiiiiiiiiiiiii..........')
     await transporter.sendMail(mailOptions);
     return true;
   } catch (error) {

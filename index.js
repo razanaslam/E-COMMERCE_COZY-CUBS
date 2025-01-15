@@ -11,7 +11,7 @@ const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
 // const userAuth = require("./middleware/userAuth");
 
-mongoose.connect("mongodb://localhost:27017/ecommerce");
+mongoose.connect("mongodb+srv://cozycubs12:2dVNjMMal8hmxgaX@cluster0.w26a8.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0");
 
 // const GoogleStrategy = require("passport-google-oauth20").Strategy;
 require("dotenv").config();
