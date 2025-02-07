@@ -231,11 +231,10 @@ const loadDashboard = async (req, res) => {
 
 //---------------------------------------------------------------Product---------------------------------------------------------------
 
-
 const loadProductList = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1; 
-    const limit = parseInt(req.query.limit) || 4; 
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 4;
     const { data: products, totalPages } = await getPaginationData(
       productModel,
       page,
@@ -243,7 +242,7 @@ const loadProductList = async (req, res) => {
     );
 
     res.render("productsList", {
-      products, 
+      products,
       currentPage: page,
       totalPages,
       itemsPerPage: limit,
@@ -440,8 +439,6 @@ const unlistProduct = async (req, res) => {
   }
 };
 
-
-
 const deleteProduct = async (req, res) => {
   try {
     const id = req.params.id;
@@ -513,8 +510,9 @@ const loadCatagory = async (req, res) => {
 const loadEditCatagory = async (req, res) => {
   try {
     const id = req.params.id;
+    const editCatagError = req.flash("editCatagError");
     const category = await catagoryModel.findById(id);
-    res.render("editCatagory", { category });
+    res.render("editCatagory", { editCatagError, category });
   } catch (error) {
     console.log(error);
   }
@@ -562,6 +560,13 @@ const editCatagory = async (req, res) => {
     const { name, description } = req.body;
     // console.log(name, category);
     // console.log("my id is", id);
+    const existCatag = await catagoryModel.findOne({
+      name: { $regex: `^${name}$`, $options: "i" },
+    });
+    if (existCatag) {
+      req.flash("editCatagError", "Catagory is already existed");
+      return res.redirect(`/admin/editCatagory/${id}`);
+    }
     await catagoryModel.findByIdAndUpdate(id, {
       name,
       description,
@@ -681,7 +686,8 @@ const loadEditBrand = async (req, res) => {
     }
 
     const brand = await brandModel.findById(id);
-    res.render("editBrand", { brand });
+    const editbrandError = req.flash("editbrandError");
+    res.render("editBrand", { brand, editbrandError });
   } catch (error) {
     console.log(error);
   }
@@ -691,6 +697,14 @@ const editBrand = async (req, res) => {
   try {
     const id = req.params.id;
     const { name, description } = req.body;
+    const existBrand = await brandModel.findOne({
+      name: { $regex: `^${name}$`, $options: "i" },
+    });
+
+    if (existBrand) {
+      req.flash("editbrandError", "Brand already exists.");
+      return res.redirect(`/admin/editBrand/${id}`);
+    }
     await brandModel.findByIdAndUpdate(id, {
       name,
       description,
@@ -781,8 +795,8 @@ const listBrand = async (req, res) => {
 
 const loadUser = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1; 
-    const limit = parseInt(req.query.limit) || 4; 
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 4;
     const { data: user, totalPages } = await getPaginationData(
       userModel,
       page,
@@ -891,6 +905,42 @@ const loadOrder = async (req, res) => {
   }
 };
 
+// const loadadminOrderDetails = async (req, res) => {
+//   try {
+//     const orderId = req.params.id;
+//     const order = await orderModel
+//       .findById(orderId)
+//       .populate("items.product")
+//       .lean();
+//     const coupon = await couponModel.findById(orderId);
+//     console.log(coupon, "coupon");
+
+//     if (order.billingDetails) {
+//       const address = await addressModel.findOne({ userId: order.userId });
+
+//       if (address && address.addressDetails.length > 0) {
+//         const billingAddress = address.addressDetails.find(
+//           (addr) => addr._id.toString() === order.billingDetails.toString()
+//         );
+
+//         if (billingAddress) {
+//           order.billingDetails = { ...billingAddress.toObject() };
+//         } else {
+//           order.billingDetails = null;
+//         }
+//       } else {
+//         order.billingDetails = null;
+//       }
+//     }
+//     console.log(order);
+
+//     res.render("adminOrderDetails", { order });
+//   } catch (error) {
+//     console.error("Error fetching admin order details:", error.message);
+//     res.status(500).send("An error occurred while loading the order details.");
+//   }
+// };
+
 const loadadminOrderDetails = async (req, res) => {
   try {
     const orderId = req.params.id;
@@ -898,8 +948,9 @@ const loadadminOrderDetails = async (req, res) => {
       .findById(orderId)
       .populate("items.product")
       .lean();
-    const coupon = await couponModel.findById(orderId);
-    console.log(coupon, "coupon");
+
+    // Fetch coupon details associated with the order
+    const coupon = await couponModel.findOne({ _id: order.couponId }).lean();
 
     if (order.billingDetails) {
       const address = await addressModel.findOne({ userId: order.userId });
@@ -918,9 +969,8 @@ const loadadminOrderDetails = async (req, res) => {
         order.billingDetails = null;
       }
     }
-    console.log(order);
 
-    res.render("adminOrderDetails", { order });
+    res.render("adminOrderDetails", { order, coupon }); // ✅ Pass coupon to EJS
   } catch (error) {
     console.error("Error fetching admin order details:", error.message);
     res.status(500).send("An error occurred while loading the order details.");
@@ -1437,9 +1487,6 @@ const deleteOffer = async (req, res) => {
 
 //---------------------------------------------------------------sales report----------------------------------------------------------
 
-
-
-
 const loadSalesReport = async (req, res) => {
   try {
     const {
@@ -1539,14 +1586,213 @@ const loadSalesReport = async (req, res) => {
   }
 };
 
+// const downloadSalesReportPDF = async (req, res) => {
+//   try {
+//     const { filter = "all", startDate, endDate } = req.query;
+
+//     let filterOptions = {};
+//     const today = dayjs().startOf("day");
+
+//     if (filter === "daily") {
+//       filterOptions.createdAt = {
+//         $gte: today.toDate(),
+//         $lte: today.endOf("day").toDate(),
+//       };
+//     } else if (filter === "weekly") {
+//       const lastWeek = today.subtract(7, "days");
+//       filterOptions.createdAt = {
+//         $gte: lastWeek.toDate(),
+//         $lte: today.endOf("day").toDate(),
+//       };
+//     } else if (filter === "monthly") {
+//       const lastMonth = today.subtract(1, "month");
+//       filterOptions.createdAt = {
+//         $gte: lastMonth.toDate(),
+//         $lte: today.endOf("day").toDate(),
+//       };
+//     } else if (filter === "custom" && startDate && endDate) {
+//       const parsedStartDate = dayjs(startDate).startOf("day");
+//       const parsedEndDate = dayjs(endDate).endOf("day");
+//       filterOptions.createdAt = {
+//         $gte: parsedStartDate.toDate(),
+//         $lte: parsedEndDate.toDate(),
+//       };
+//     }
+
+//     const orders = await orderModel
+//       .find(filterOptions)
+//       .populate("userId", "email")
+//       .populate("items.product", "name")
+//       .populate("billingDetails", "address")
+//       .sort({ createdAt: -1 });
+
+//     const doc = new PDFDocument({ margin: 50, size: "A4" });
+//     res.setHeader(
+//       "Content-Disposition",
+//       "attachment; filename=sales-report.pdf"
+//     );
+//     res.setHeader("Content-Type", "application/pdf");
+
+//     const drawTableCell = (
+//       x,
+//       y,
+//       width,
+//       height,
+//       text,
+//       isHeader = false,
+//       align = "left"
+//     ) => {
+//       doc.rect(x, y, width, height).stroke();
+//       doc
+//         .font(isHeader ? "Helvetica-Bold" : "Helvetica")
+//         .fontSize(isHeader ? 12 : 10)
+//         .fillColor("#000000")
+//         .text(text, x + 5, y + 5, {
+//           width: width - 10,
+//           height: height - 10,
+//           align: isHeader ? "center" : align,
+//           valign: "center",
+//         });
+//     };
+
+//     doc
+//       .fontSize(24)
+//       .font("Helvetica-Bold")
+//       .fillColor("#333333")
+//       .text("Sales Report", { align: "center" })
+//       .moveDown(0.5);
+
+//     doc
+//       .fontSize(12)
+//       .font("Helvetica")
+//       .fillColor("#666666")
+//       .text(`Filter: ${filter}`, { align: "center" })
+//       .moveDown(0.5);
+
+//     if (filter === "custom" && startDate && endDate) {
+//       doc
+//         .text(`Date Range: ${startDate} to ${endDate}`, { align: "center" })
+//         .moveDown(0.5);
+//     }
+
+//     doc
+//       .fontSize(10)
+//       .text(`Report generated on: ${dayjs().format("DD/MM/YYYY HH:mm")}`, {
+//         align: "center",
+//       })
+//       .moveDown(1);
+
+//     const tableTop = 180;
+//     const tableLeft = 50;
+//     const colWidths = [40, 200, 110, 110];
+//     const rowHeight = 30;
+//     const headers = ["No.", "Customer", "Total Amount", "Date"];
+
+//     doc.fillColor("#e6f2ff");
+//     headers.forEach((header, i) => {
+//       let x =
+//         tableLeft +
+//         colWidths.slice(0, i).reduce((sum, width) => sum + width, 0);
+//       drawTableCell(x, tableTop, colWidths[i], rowHeight, header, true);
+//     });
+
+//     let currentTop = tableTop + rowHeight;
+//     const itemsPerPage = 10;
+//     let rowCount = 0;
+
+//     orders.forEach((order, index) => {
+//       if (rowCount >= itemsPerPage) {
+//         doc.addPage();
+//         currentTop = 50;
+//         rowCount = 0;
+
+//         doc.fillColor("#e6f2ff");
+//         headers.forEach((header, i) => {
+//           let x =
+//             tableLeft +
+//             colWidths.slice(0, i).reduce((sum, width) => sum + width, 0);
+//           drawTableCell(x, currentTop, colWidths[i], rowHeight, header, true);
+//         });
+//         currentTop += rowHeight;
+//       }
+
+//       doc.fillColor("#ffffff");
+
+//       drawTableCell(
+//         tableLeft,
+//         currentTop,
+//         colWidths[0],
+//         rowHeight,
+//         (index + 1).toString(),
+//         false,
+//         "center"
+//       );
+
+//       drawTableCell(
+//         tableLeft + colWidths[0],
+//         currentTop,
+//         colWidths[1],
+//         rowHeight,
+//         order.userId.email || "N/A"
+//       );
+
+//       drawTableCell(
+//         tableLeft + colWidths[0] + colWidths[1],
+//         currentTop,
+//         colWidths[2],
+//         rowHeight,
+//         `$${order.totalPrice.toFixed(2) || "0.00"}`,
+//         false,
+//         "right"
+//       );
+
+//       drawTableCell(
+//         tableLeft + colWidths[0] + colWidths[1] + colWidths[2],
+//         currentTop,
+//         colWidths[3],
+//         rowHeight,
+//         dayjs(order.createdAt).format("DD/MM/YYYY"),
+//         false,
+//         "center"
+//       );
+
+//       currentTop += rowHeight;
+//       rowCount++;
+//     });
+
+//     const totalSales = orders.reduce(
+//       (sum, order) => sum + (order.totalPrice || 0),
+//       0
+//     );
+//     doc
+//       .font("Helvetica-Bold")
+//       .fontSize(14)
+//       .fillColor("#333333")
+//       .text(
+//         `Total Sales: $${totalSales.toFixed(2)}`,
+//         tableLeft,
+//         currentTop + 20,
+//         {
+//           width: colWidths.reduce((sum, width) => sum + width, 0),
+//           align: "right",
+//         }
+//       );
+
+//     doc.pipe(res);
+//     doc.end();
+//   } catch (error) {
+//     console.error("Error generating PDF:", error);
+//     res.status(500).send("Failed to generate PDF report.");
+//   }
+// };
 
 const downloadSalesReportPDF = async (req, res) => {
   try {
     const { filter = "all", startDate, endDate } = req.query;
-
     let filterOptions = {};
     const today = dayjs().startOf("day");
 
+    // 🔹 Apply Date Filters
     if (filter === "daily") {
       filterOptions.createdAt = {
         $gte: today.toDate(),
@@ -1565,28 +1811,30 @@ const downloadSalesReportPDF = async (req, res) => {
         $lte: today.endOf("day").toDate(),
       };
     } else if (filter === "custom" && startDate && endDate) {
-      const parsedStartDate = dayjs(startDate).startOf("day");
-      const parsedEndDate = dayjs(endDate).endOf("day");
       filterOptions.createdAt = {
-        $gte: parsedStartDate.toDate(),
-        $lte: parsedEndDate.toDate(),
+        $gte: dayjs(startDate).startOf("day").toDate(),
+        $lte: dayjs(endDate).endOf("day").toDate(),
       };
     }
 
+    // 🔹 Fetch Orders
     const orders = await orderModel
       .find(filterOptions)
       .populate("userId", "email")
-      .populate("items.product", "name")
-      .populate("billingDetails", "address")
       .sort({ createdAt: -1 });
 
+    // 🔹 Create PDF Stream
     const doc = new PDFDocument({ margin: 50, size: "A4" });
+
     res.setHeader(
       "Content-Disposition",
       "attachment; filename=sales-report.pdf"
     );
     res.setHeader("Content-Type", "application/pdf");
 
+    doc.pipe(res);
+
+    // 🔹 Helper Function: Draw Table Cells
     const drawTableCell = (
       x,
       y,
@@ -1601,21 +1849,16 @@ const downloadSalesReportPDF = async (req, res) => {
         .font(isHeader ? "Helvetica-Bold" : "Helvetica")
         .fontSize(isHeader ? 12 : 10)
         .fillColor("#000000")
-        .text(text, x + 5, y + 5, {
-          width: width - 10,
-          height: height - 10,
-          align: isHeader ? "center" : align,
-          valign: "center",
-        });
+        .text(text, x + 5, y + 5, { width: width - 10, align });
     };
 
+    // 🔹 PDF Title & Metadata
     doc
       .fontSize(24)
       .font("Helvetica-Bold")
       .fillColor("#333333")
       .text("Sales Report", { align: "center" })
       .moveDown(0.5);
-
     doc
       .fontSize(12)
       .font("Helvetica")
@@ -1631,11 +1874,12 @@ const downloadSalesReportPDF = async (req, res) => {
 
     doc
       .fontSize(10)
-      .text(`Report generated on: ${dayjs().format("DD/MM/YYYY HH:mm")}`, {
+      .text(`Generated on: ${dayjs().format("DD/MM/YYYY HH:mm")}`, {
         align: "center",
       })
       .moveDown(1);
 
+    // 🔹 Table Headers
     const tableTop = 180;
     const tableLeft = 50;
     const colWidths = [40, 200, 110, 110];
@@ -1644,16 +1888,23 @@ const downloadSalesReportPDF = async (req, res) => {
 
     doc.fillColor("#e6f2ff");
     headers.forEach((header, i) => {
-      let x =
-        tableLeft +
-        colWidths.slice(0, i).reduce((sum, width) => sum + width, 0);
-      drawTableCell(x, tableTop, colWidths[i], rowHeight, header, true);
+      let x = tableLeft + colWidths.slice(0, i).reduce((sum, w) => sum + w, 0);
+      drawTableCell(
+        x,
+        tableTop,
+        colWidths[i],
+        rowHeight,
+        header,
+        true,
+        "center"
+      );
     });
 
     let currentTop = tableTop + rowHeight;
-    const itemsPerPage = 10;
     let rowCount = 0;
+    const itemsPerPage = 10;
 
+    // 🔹 Render Table Rows
     orders.forEach((order, index) => {
       if (rowCount >= itemsPerPage) {
         doc.addPage();
@@ -1663,9 +1914,16 @@ const downloadSalesReportPDF = async (req, res) => {
         doc.fillColor("#e6f2ff");
         headers.forEach((header, i) => {
           let x =
-            tableLeft +
-            colWidths.slice(0, i).reduce((sum, width) => sum + width, 0);
-          drawTableCell(x, currentTop, colWidths[i], rowHeight, header, true);
+            tableLeft + colWidths.slice(0, i).reduce((sum, w) => sum + w, 0);
+          drawTableCell(
+            x,
+            currentTop,
+            colWidths[i],
+            rowHeight,
+            header,
+            true,
+            "center"
+          );
         });
         currentTop += rowHeight;
       }
@@ -1681,25 +1939,22 @@ const downloadSalesReportPDF = async (req, res) => {
         false,
         "center"
       );
-
       drawTableCell(
         tableLeft + colWidths[0],
         currentTop,
         colWidths[1],
         rowHeight,
-        order.userId.email || "N/A"
+        order.userId?.email || "N/A"
       );
-
       drawTableCell(
         tableLeft + colWidths[0] + colWidths[1],
         currentTop,
         colWidths[2],
         rowHeight,
-        `$${order.totalPrice.toFixed(2) || "0.00"}`,
+        `$${order.totalPrice?.toFixed(2) || "0.00"}`,
         false,
         "right"
       );
-
       drawTableCell(
         tableLeft + colWidths[0] + colWidths[1] + colWidths[2],
         currentTop,
@@ -1714,6 +1969,7 @@ const downloadSalesReportPDF = async (req, res) => {
       rowCount++;
     });
 
+    // 🔹 Total Sales Summary
     const totalSales = orders.reduce(
       (sum, order) => sum + (order.totalPrice || 0),
       0
@@ -1726,16 +1982,12 @@ const downloadSalesReportPDF = async (req, res) => {
         `Total Sales: $${totalSales.toFixed(2)}`,
         tableLeft,
         currentTop + 20,
-        {
-          width: colWidths.reduce((sum, width) => sum + width, 0),
-          align: "right",
-        }
+        { width: colWidths.reduce((sum, w) => sum + w, 0), align: "right" }
       );
 
-    doc.pipe(res);
-    doc.end();
+    doc.end(); // 🔹 End the PDF stream
   } catch (error) {
-    console.error("Error generating PDF:", error);
+    console.error("❌ Error generating PDF:", error);
     res.status(500).send("Failed to generate PDF report.");
   }
 };
@@ -1835,8 +2087,6 @@ const logout = async (req, res) => {
     console.log(error);
   }
 };
-
-
 
 module.exports = {
   loadLogin,

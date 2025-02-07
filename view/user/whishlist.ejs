@@ -163,7 +163,7 @@
         </tr>
       </thead>
       <tbody>
-        <% if (wishlist.items.length === 0) { %>
+        <% if (!wishlist || !wishlist.items || wishlist.items.length === 0) { %>
                   <p style="padding: 20px; margin: 0; color: #666;"> Your wishlist is empty 🙃...</p>
               <% } else { %>
         <% wishlist.items.forEach((item) => { %>

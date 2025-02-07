@@ -300,10 +300,37 @@ background-color: #f6f6e6;
                     </div>
                   </div>
                 </td>
-                <td><%= item.price.toFixed(2) %></td>
-                <td><%= item.quantity %></td>
+                <!-- <td><%#= item.price.toFixed(2) %></td> -->
                 <td>
-                  <%= (item.price * item.quantity).toFixed(2) %>
+                  <% if(item.discountedPrice) { %>
+                    <span style="text-decoration: line-through; color: red;">
+                      <%= item.price.toFixed(2) %> <!-- Original Price -->
+                    </span>
+                    <span style="color: green;">
+                      <%= item.discountedPrice.toFixed(2) %> <!-- Discounted Price -->
+                    </span>
+                  <% } else { %>
+                    <%= item.price.toFixed(2) %> <!-- Normal Price if no discount -->
+                  <% } %>
+                </td>
+                
+                
+                
+                <td><%= item.quantity %></td>
+                <!-- <td> -->
+                  <%#= (item.price * item.quantity).toFixed(2) %>
+                <!-- </td> -->
+                <td>
+                  <% if(item.discountedPrice) { %>
+                    <span style="text-decoration: line-through; color: red;">
+                      <%= (item.price * item.quantity).toFixed(2) %> <!-- Original Total -->
+                    </span>
+                    <span style="color: green;">
+                      <%= (item.discountedPrice * item.quantity).toFixed(2) %> <!-- Discounted Total -->
+                    </span>
+                  <% } else { %>
+                    <%= (item.price * item.quantity).toFixed(2) %> <!-- Normal Total if no discount -->
+                  <% } %>
                 </td>
               </tr>
               <% }) %>
@@ -312,11 +339,31 @@ background-color: #f6f6e6;
               <td colspan="2" class="text-end"><strong>Subtotal:</strong></td>
               <td colspan="2" class="text-start"><%= orders.totalPrice.toFixed(2) %></td>
             </tr>
+            <% var totall = 0; var discountAmount = 0; var
+            originalTotal = 0; var discountedTotal=0
+            orders.items.forEach(function(item) { var itemTotal =
+            item.price * item.quantity; discountedTotal =
+            item.discountedPrice ? item.discountedPrice *
+            item.quantity : itemTotal;
+            console.log(discountedTotal,orders.totalPrice,"hy");
+            originalTotal += itemTotal; totall += discountedTotal; if
+            (item.discountedPrice) { discountAmount += (itemTotal -
+            discountedTotal); } }); var couponDiscount =
+            (totall - orders.totalPrice) %>
+
             <tr class="table-light">
-              <td colspan="2" class="text-end"><strong>Coupon Discount:</strong></td>
-             <% var number=total-orders.totalPrice %>
-              <td colspan="2" class="text-start"><%=number.toFixed(2) %></td>
+              <td colspan="2" class="text-end">
+                <strong>Coupon Discount:</strong>
+              </td>
+              <td colspan="2" class="text-start">
+                <span style="color: green">
+                  <%= Math.abs(couponDiscount).toFixed(2) %>
+                </span>
+              </td>
             </tr>
+          
+          
+          
             <tr class="table-light">
               <td colspan="2" class="text-end"><strong>Discount:</strong></td>
               <td colspan="2" class="text-start"><%= orders.discount || 0 %></td>
@@ -347,7 +394,7 @@ background-color: #f6f6e6;
     
           <% if (orders.status === "Delivered" && orders.paymentStatus === "Paid") { %>
 
-            <button onclick="window.location.href='/download-invoice/<%= orders._id %>?number=<%= number %>'" 
+            <button onclick="window.location.href='/download-invoice/<%= orders._id %>?number=<%= Math.abs(couponDiscount).toFixed(2) %>'" 
               class="btn btn-primary" 
               style="background-color: white; border-color: #088178; color: #088178;">
           Download Invoice

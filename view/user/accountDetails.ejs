@@ -374,8 +374,9 @@ button:hover {
     errorElement.textContent = ""; 
 
     let isValid = true;
+ 
 
-    // Validation
+ 
     if (!currentPassword || !newPassword || !confirmPassword) {
       errorElement.textContent = "All fields are required!";
       isValid = false;
@@ -384,6 +385,10 @@ button:hover {
     const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
     if (!passwordPattern.test(newPassword)) {
       errorElement.textContent = "Password must be at least 8 characters, include one letter, one number, and one special character!";
+      isValid = false;
+    }
+    if(currentPassword===newPassword || currentPassword===confirmPassword){
+      errorElement.textContent = "New password and current password must be different from the current password";
       isValid = false;
     }
 

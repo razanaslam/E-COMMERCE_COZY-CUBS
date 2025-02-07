@@ -51,10 +51,10 @@ const loadRegister = async (req, res) => {
 
 const registerUser = async (req, res) => {
   const { name, email, number, password, confirmPassword } = req.body;
-  console.log('req.body in register user controller =>>>', req.body)
+  console.log("req.body in register user controller =>>>", req.body);
   try {
     const existUser = await userModel.findOne({ email });
-    console.log('is user already exists ====>',existUser);
+    console.log("is user already exists ====>", existUser);
     if (existUser) {
       // console.log(existUser);
       console.log("email already existed");
@@ -64,7 +64,7 @@ const registerUser = async (req, res) => {
       if (password !== confirmPassword) {
         req.flash("errorPassword", "hyy Passwords do not match");
         console.log("password is already existed");
-        return res.redirect('/register')
+        return res.redirect("/register");
       }
       // res.redirect("/verify-otp");
 
@@ -80,7 +80,7 @@ const registerUser = async (req, res) => {
       console.log(req.session.user, "register");
 
       const { otp } = generateOtp();
-      const emailSent = await sendOtp(email,otp);
+      const emailSent = await sendOtp(email, otp);
       const expirationTime = Date.now() + 60 * 1000;
       const newOtpModel = new otpModel({
         email,
@@ -116,21 +116,19 @@ const sendOtp = async (toEmail, otp) => {
         pass: process.env.SMTP_PASS,
       },
     });
-     transporter.verify(function (error, success) {
-    if (error) {
-        console.error('Error connecting to SMTP server:', error);
-    } else {
-        console.log('SMTP server is ready to send emails');
-    }
-});
-    console.log('ithaaa transporter=======================>', transporter)
+    transporter.verify(function (error, success) {
+      if (error) {
+        console.error("Error connecting to SMTP server:", error);
+      } else {
+        console.log("SMTP server is ready to send emails");
+      }
+    });
     const mailOptions = {
       from: process.env.SMTP_USER,
       to: toEmail,
       subject: "Verify Your Email - OTP",
       text: `Your OTP code is ${otp}.`,
     };
-    console.log('ing ethiiiiiiiiiiiiiiiiiiiiiii..........')
     await transporter.sendMail(mailOptions);
     return true;
   } catch (error) {
@@ -214,16 +212,10 @@ const verifyOtp = async (req, res) => {
 };
 
 const resendOtp = async (req, res) => {
-  console.log("hy");
-  console.log("raza");
-
   const user = req.session.user;
-  console.log(user, "gfghjkl");
-
   try {
     const { otp } = generateOtp();
     const emailSent = await sendOtp(user.email, otp);
-    console.log(req.session.user);
 
     if (!emailSent) {
       req.flash("errorOtp", "Failed to resend OTP, please try again.");
@@ -249,14 +241,12 @@ const resendOtp = async (req, res) => {
 //------------------------------------------------------------login-------------------------------------------------------
 
 const loadLogin = (req, res) => {
-  // console.log(req.session.user);
   try {
     if (!req.session.user) {
-      // console.log(req.session.user);
-
       const loginError = req.flash("loginError");
       const blocked = req.flash("blocked");
-      res.render("login", { loginError, blocked });
+      const googelError = req.flash("googelError");
+      res.render("login", { loginError, blocked, googelError });
     } else {
       res.redirect("/home");
     }
@@ -267,18 +257,22 @@ const loadLogin = (req, res) => {
 
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
+  console.log("this is password", password);
 
   try {
     const user = await userModel.findOne({ email });
+    console.log("this is db", user);
 
     if (!user) {
       req.flash("loginError", "Invalid email ");
       return res.redirect("/login");
     }
+    if (user.googleId) {
+      req.flash("googelError", "it is a google authenticated user");
+      return res.redirect("/login");
+    }
 
     if (user.isBlocked) {
-      // console.log("hhhh");
-
       req.flash("blocked", "blocked, contact for help");
       return res.redirect("/login");
     }
@@ -680,6 +674,7 @@ const loadCart = async (req, res) => {
     if (cart) {
       cart.couponApplied = false;
     }
+    cart.save();
 
     const totalPrice = cart ? cart.totalPrice : [];
     const discount = cart ? cart.discount : [];
@@ -1133,6 +1128,7 @@ const orderPlaced = async (req, res) => {
         ? item.product.price - item.product.discountedPrice
         : 0,
       finalPrice: item.product.discountedPrice || item.product.price,
+      discountedPrice: item.product.discountedPrice || null,
     }));
 
     console.log("gghj");
@@ -1569,7 +1565,9 @@ const loadWishlist = async (req, res) => {
       .populate("items.product")
       .lean();
 
-    if (wishlist) {
+    if (!wishlist) {
+      wishlist = { items: [] };
+    } else {
       wishlist.items = wishlist.items.filter((item) => item.product !== null);
     }
 
@@ -2290,11 +2288,7 @@ const downloadInvoice = async (req, res) => {
     doc.fontSize(12).text("Summary:", 350, currentY);
     doc
       .fontSize(10)
-      .text(
-        `Subtotal: INR ${(order.totalPrice + parseFloat(number)).toFixed(2)}`,
-        350,
-        currentY + 15
-      )
+      .text(`Subtotal: INR ${order.totalPrice}`, 350, currentY + 15)
       .text(
         `Discount Applied: INR ${order.discountApplied.toFixed(2)}`,
         350,

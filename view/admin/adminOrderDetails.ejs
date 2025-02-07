@@ -221,9 +221,37 @@
                           </div>
                         </div>
                       </td>
-                      <td><%= item.price.toFixed(2) %></td>
+                      <td>
+                        <% if(item.discountedPrice) { %>
+                        <span style="text-decoration: line-through; color: red">
+                          <%= item.price.toFixed(2) %>
+                          <!-- Original Price -->
+                        </span>
+                        <span style="color: green">
+                          <%= item.discountedPrice.toFixed(2) %>
+                          <!-- Discounted Price -->
+                        </span>
+                        <% } else { %> <%= item.price.toFixed(2) %>
+                        <!-- Normal Price if no discount -->
+                        <% } %>
+                      </td>
                       <td><%= item.quantity %></td>
-                      <td><%= (item.price * item.quantity).toFixed(2) %></td>
+                      <td>
+                        <% if(item.discountedPrice) { %>
+                        <span style="text-decoration: line-through; color: red">
+                          <%= (item.price * item.quantity).toFixed(2) %>
+                          <!-- Original Total -->
+                        </span>
+                        <span style="color: green">
+                          <%= (item.discountedPrice * item.quantity).toFixed(2)
+                          %>
+                          <!-- Discounted Total -->
+                        </span>
+                        <% } else { %> <%= (item.price *
+                        item.quantity).toFixed(2) %>
+                        <!-- Normal Total if no discount -->
+                        <% } %>
+                      </td>
                     </tr>
                     <% }) %>
                   </tbody>
@@ -244,13 +272,26 @@
                         <td class="text-end"><strong>Discount:</strong></td>
                         <td class="text-end"><%= order.discount || 0 %></td>
                       </tr>
-                      <tr>
+                      <% var totall = 0; var discountAmount = 0; var
+                      originalTotal = 0; var discountedTotal=0
+                      order.items.forEach(function(item) { var itemTotal =
+                      item.price * item.quantity; discountedTotal =
+                      item.discountedPrice ? item.discountedPrice *
+                      item.quantity : itemTotal;
+                      console.log(discountedTotal,order.totalPrice,"hy");
+                      originalTotal += itemTotal; totall += discountedTotal; if
+                      (item.discountedPrice) { discountAmount += (itemTotal -
+                      discountedTotal); } }); var couponDiscount = (totall -
+                      order.totalPrice) %>
+
+                      <tr class="table-light">
                         <td class="text-end">
                           <strong>Coupon Discount:</strong>
                         </td>
-                        <% var number=total-order.totalPrice %>
                         <td colspan="2" class="text-end">
-                          <%=number.toFixed(2) %>
+                          <span style="color: green">
+                            <%= Math.abs(couponDiscount).toFixed(2) %>
+                          </span>
                         </td>
                       </tr>
 

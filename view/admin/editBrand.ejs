@@ -63,6 +63,7 @@
           <div class="card-body">
             <div class="row">
               <div class="col-md-3" style="width: 2000px">
+                <div style="color: red"><%= editbrandError %></div>
                 <form action="/admin/editBrand/<%= brand._id %>" method="post">
                   <div class="mb-4">
                     <label for="product_name" class="form-label">Name</label>

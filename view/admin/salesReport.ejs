@@ -177,7 +177,7 @@
                           <th>No.</th>
                           <th>Email</th>
                           <th>Date</th>
-                          <th>coupon Discount</th>
+                          
                           <th>Paid</th>
                           <th>Method</th>
                         </tr>
@@ -196,7 +196,7 @@
                             <td>
                               <%= new Date(order.createdAt).toLocaleDateString() %>
                             </td>
-                            <td></td>
+                            
                             <td>
                               <%= order.totalPrice %>
                             </td>
@@ -373,6 +373,17 @@ console.log("ys");
           icon: 'error',
           title: 'Invalid Dates',
           text: 'Start Date and End Date must be less than or equal to today.',
+          confirmButtonColor: '#000', // Black confirm button
+        });
+      }
+      if 
+        (startDateInput.value && startDateInput.value > endDateInput.value && endDateInput.value 
+      ) {
+        event.preventDefault(); // Prevent form submission
+        Swal.fire({
+          icon: 'error',
+          title: 'Invalid Dates',
+          text: 'Start Date must be less than or equal to End date.',
           confirmButtonColor: '#000', // Black confirm button
         });
       }
