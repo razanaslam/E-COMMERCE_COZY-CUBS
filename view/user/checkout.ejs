@@ -600,7 +600,7 @@
                       <input type="tel" class="form-control" style="background-color: transparent !important;" id="mobileNumber" name="number"  />
                     </div>
                     <div class="col-md-6 mb-3">
-                      <label for="email" class="form-label" >Email Address (optional)</label>
+                      <label for="email" class="form-label" >Email Address </label>
                       <input type="email" class="form-control" style="background-color: transparent !important;" id="email" name="email" />
                     </div>
                   </div>
@@ -686,11 +686,7 @@
   </ul>
 </div>
 
-                    <div class="your-order-info order-shipping">
-                      <ul class="list-unstyled">
-                        <li class="d-flex justify-content-between">Delivery Charge <span>₹ 0.00</span></li>
-                      </ul>
-                    </div>
+                   
                     <div class="your-order-info order-total">
                       <ul class="list-unstyled">
                         <li class="d-flex justify-content-between">Total <span id="totalPrice"> <%= subtotal %></span></li>
@@ -1296,12 +1292,12 @@ console.log("yyyyy");
             text: `You've saved ${data.discountAmount}. Your new total is ${data.newTotal}.`,
             confirmButtonText: "Great!",
           });
-          // Update total price
+         
           totalPrice.innerText = data.newTotal;
 
-          // Update and show the coupon discount container
+        
           couponDiscountAmount.innerText = `₹${data.discountAmount}`;
-          couponDiscountContainer.style.display = "block"; // Show the discount field
+          couponDiscountContainer.style.display = "block"; 
         } else {
           Swal.fire({
             icon: "error",

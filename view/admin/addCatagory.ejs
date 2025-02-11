@@ -28,42 +28,23 @@
           <div class="card-body">
             <div class="row">
               <div class="col-md-3" style="width: 2000px">
-                <form action="/admin/addCatagory" method="post">
+                <form id="categoryForm" action="/admin/addCatagory" method="post">
                   <div style="color: red"><%= CatagError %></div>
                   <div class="mb-4">
                     <label for="product_name" class="form-label">Name</label>
-                    <input
-                      type="text"
-                      name="name"
-                      placeholder="Type here"
-                      class="form-control"
-                      id="product_name"
-                    />
+                    <input type="text" name="name" placeholder="Type here" class="form-control" id="product_name" />
                   </div>
                   <div class="mb-4">
                     <label class="form-label">Description</label>
-                    <textarea
-                      placeholder="Type here"
-                      name="description"
-                      class="form-control"
-                    ></textarea>
+                    <textarea placeholder="Type here" name="description" class="form-control"></textarea>
                   </div>
-
                   <div class="d-grid">
-                    <button
-                      style="
-                        height: 33px;
-                        color: white;
-                        background: #088178;
-                        border: #088178;
-                      "
-                      type="submit"
-                    >
-                      Create Category
-                      <i class="zmdi zmdi-arrow-right"></i>
+                    <button style="height: 33px; color: white; background: #088178; border: #088178;" type="submit">
+                      Create Category <i class="zmdi zmdi-arrow-right"></i>
                     </button>
                   </div>
                 </form>
+                
               </div>
             </div>
           </div>
@@ -85,7 +66,7 @@
     </main>
 
 
-
+    
     <script src="/assets/js/vendors/jquery-3.6.0.min.js"></script>
     <script src="/assets/js/vendors/bootstrap.bundle.min.js"></script>
     <script src="/assets/js/vendors/select2.min.js"></script>
@@ -93,6 +74,46 @@
     <script src="/assets/js/vendors/jquery.fullscreen.min.js"></script>
     <!-- Main Script -->
     <script src="/assets/js/main.js" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="/assets/js/vendors/jquery-3.6.0.min.js"></script>
+
+<!-- Ensure jQuery is loaded -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+  $(document).ready(function () {
+    $("#categoryForm").on("submit", function (event) {
+      event.preventDefault(); // Prevents form submission
+
+      let nameInput = $("#product_name").val().trim();
+      let descriptionInput = $("textarea[name='description']").val().trim();
+      let namePattern = /^[A-Za-z\s]+$/; // Letters and spaces only
+
+      if (!namePattern.test(nameInput)) {
+        Swal.fire({
+          icon: "error",
+          title: "Invalid Name",
+          text: "Category name should contain only letters and spaces.",
+        });
+        return;
+      }
+
+      if (descriptionInput === "") {
+        Swal.fire({
+          icon: "error",
+          title: "Description Required",
+          text: "Please enter a description for the category.",
+        });
+        return;
+      }
+
+      event.target.submit(); // Correct way to submit form
+    });
+  });
+</script>
+
+
   </body>
 
   <!-- Mirrored from wp.alithemes.com/html/evara/evara-backend/page-categories.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 01 Aug 2021 15:33:21 GMT -->

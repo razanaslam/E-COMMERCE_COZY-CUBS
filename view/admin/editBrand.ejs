@@ -64,7 +64,7 @@
             <div class="row">
               <div class="col-md-3" style="width: 2000px">
                 <div style="color: red"><%= editbrandError %></div>
-                <form action="/admin/editBrand/<%= brand._id %>" method="post">
+                <form id="editBrandForm" action="/admin/editBrand/<%= brand._id %>" method="post">
                   <div class="mb-4">
                     <label for="product_name" class="form-label">Name</label>
                     <input
@@ -82,12 +82,9 @@
                       placeholder="Type here"
                       class="form-control"
                       name="description"
-                    >
-                    <%= brand.description %></textarea
-                    >
+                    ><%= brand.description %></textarea>
                   </div>
                   <div class="d-grid">
-                    <!-- <a type="submit" class="btn btn-primary">Edit Category</a> -->
                     <button
                       type="submit"
                       style="background: #088178; border: #088178; color: white"
@@ -96,6 +93,7 @@
                     </button>
                   </div>
                 </form>
+                
               </div>
             </div>
           </div>
@@ -115,6 +113,42 @@
         </div>
       </footer>
     </main>
+    <!-- Ensure jQuery & SweetAlert are loaded -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+  $(document).ready(function () {
+    $("#editBrandForm").on("submit", function (event) {
+      event.preventDefault(); // Prevents form submission
+
+      let nameInput = $("#product_name").val().trim();
+      let descriptionInput = $("textarea[name='description']").val().trim();
+      let namePattern = /^[A-Za-z\s]+$/; // Letters and spaces only
+
+      if (!namePattern.test(nameInput)) {
+        Swal.fire({
+          icon: "error",
+          title: "Invalid Name",
+          text: "Brand name should contain only letters and spaces.",
+        });
+        return;
+      }
+
+      if (descriptionInput === "") {
+        Swal.fire({
+          icon: "error",
+          title: "Description Required",
+          text: "Please enter a description for the brand.",
+        });
+        return;
+      }
+
+      event.target.submit(); // Submit form if validation passes
+    });
+  });
+</script>
+
     <script src="/admin/assets/js/vendors/jquery-3.6.0.min.js"></script>
     <script src="/admin/assets/js/vendors/bootstrap.bundle.min.js"></script>
     <script src="/admin/assets/js/vendors/select2.min.js"></script>

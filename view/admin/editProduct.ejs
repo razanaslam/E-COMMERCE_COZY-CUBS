@@ -442,17 +442,35 @@
   </script>
     
 
-<script>
+ <script>
+  document.addEventListener("DOMContentLoaded", function () {
     // Validation function
     function validateForm() {
         // Get the values from the form
         const price = parseFloat(document.getElementById("price").value);
         const stock = parseInt(document.getElementById("stock").value);
+        const productName = document.getElementById("product_name").value.trim();
+        const description = document.getElementById("product_description").value.trim();
+        const category = document.getElementById("product_category").value;
+        const brand = document.getElementById("product_brand").value;
+        const imageInput = document.getElementById("product_image");
+        const imagePreview = document.getElementById("imagePreview");
 
-        // Error flags
         let isValid = true;
+        
+        // Product name validation
+        if (productName === "") {
+            Swal.fire("Error", "Product title cannot be empty.", "error");
+            return false;
+        }
 
-        // Check for price validation
+        // Description validation
+        if (description === "") {
+            Swal.fire("Error", "Product description cannot be empty.", "error");
+            return false;
+        }
+
+        // Price validation
         if (price < 0 || isNaN(price)) {
             document.getElementById("priceError").style.display = 'inline';
             isValid = false;
@@ -460,7 +478,7 @@
             document.getElementById("priceError").style.display = 'none';
         }
 
-        // Check for stock validation
+        // Stock validation
         if (stock < 0 || isNaN(stock)) {
             document.getElementById("stockError").style.display = 'inline';
             isValid = false;
@@ -468,10 +486,95 @@
             document.getElementById("stockError").style.display = 'none';
         }
 
-        // Return true if everything is valid, false if not
+        // Category validation
+        if (category === "") {
+            Swal.fire("Error", "Please select a category.", "error");
+            return false;
+        }
+
+        // Brand validation
+        if (brand === "") {
+            Swal.fire("Error", "Please select a brand.", "error");
+            return false;
+        }
+
+        // Image validation (ensures at least one image is selected)
+        if (imageInput.files.length === 0 && imagePreview.children.length === 0) {
+            document.getElementById("imageError").textContent = "Please upload at least one image.";
+            isValid = false;
+        } else {
+            document.getElementById("imageError").textContent = "";
+        }
+
         return isValid;
     }
-</script>
+
+    // Image preview function
+    function handleFiles(event) {
+        const files = event.target.files;
+        const imagePreview = document.getElementById("imagePreview");
+        imagePreview.innerHTML = ""; // Clear previous images
+
+        if (files.length > 0) {
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    const img = document.createElement("img");
+                    img.src = e.target.result;
+                    img.style.marginLeft = "10px";
+                    img.style.width = "100px";
+                    img.style.cursor = "pointer";
+                    imagePreview.appendChild(img);
+                };
+
+                reader.readAsDataURL(file);
+            }
+        }
+    }
+
+    // Image deletion function
+    function deleteImage(productId, imageUrl) {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                console.log(`Deleting image ${imageUrl} for product ${productId}`);
+                Swal.fire("Deleted!", "Your image has been deleted.", "success");
+            }
+        });
+    }
+
+    // Function to preview existing images
+    function previewExistingImage(imageSrc, element) {
+        document.getElementById("croppingImage").src = imageSrc;
+        document.getElementById("cropModal").style.display = "block";
+        document.getElementById("overlay").style.display = "block";
+    }
+
+    // Hide crop modal
+    document.getElementById("overlay").onclick = function () {
+        document.getElementById("cropModal").style.display = "none";
+        document.getElementById("overlay").style.display = "none";
+    };
+
+    // Attach validation function to form submission
+    document.querySelector("form").onsubmit = function (event) {
+        if (!validateForm()) {
+            event.preventDefault();
+        }
+    };
+});
+ </script>
+  
+    
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>

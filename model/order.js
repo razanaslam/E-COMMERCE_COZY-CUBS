@@ -69,12 +69,12 @@ const orderSchema = new mongoose.Schema({
   },
   offerApplied: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Coupon", // Referencing the applied coupon
+    ref: "Coupon", 
     default: null,
   },
   discountApplied: {
     type: Number,
-    default: 0, // Store the total discount applied to the order
+    default: 0,
   },
   createdAt: {
     type: Date,

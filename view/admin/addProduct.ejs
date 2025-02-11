@@ -443,61 +443,87 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
   function validateForm() {
+    // Clear previous error messages
     document.getElementById("productTitleError").innerHTML = "";
     document.getElementById("priceError").innerHTML = "";
     document.getElementById("categoryError").innerHTML = "";
     document.getElementById("brandError").innerHTML = "";
     document.getElementById("stockError").innerHTML = "";
     document.getElementById("imageError").innerHTML = "";
+    document.getElementById("descriptionError").innerHTML = ""; // New validation for description
 
     let isValid = true;
 
-    const productTitle = document.forms["productForm"]["product_title"].value;
-    const price = document.forms["productForm"]["price"].value;
-    const category = document.forms["productForm"]["category"].value;
-    const brand = document.forms["productForm"]["brand"].value;
-    const stock = document.forms["productForm"]["stock"].value;
+    // Get form values (trimmed to remove unnecessary spaces)
+    const productTitle =
+      document.forms["productForm"]["product_title"].value.trim();
+    const price = document.forms["productForm"]["price"].value.trim();
+    const category = document.forms["productForm"]["category"].value.trim();
+    const brand = document.forms["productForm"]["brand"].value.trim();
+    const stock = document.forms["productForm"]["stock"].value.trim();
     const image = document.forms["productForm"]["image_url"].files.length;
+    const fullDescription =
+      document.forms["productForm"]["full_description"].value.trim(); // New description field
 
-    if (!productTitle) {
+    // Regular expressions for validation
+    const namePattern = /^[A-Za-z\s]+$/; // Allows only letters and spaces
+    const numberPattern = /^[1-9]\d*$/; // Ensures only positive whole numbers
+
+    // 1️⃣ Product Title Validation
+    if (!productTitle || !namePattern.test(productTitle)) {
       document.getElementById("productTitleError").innerHTML =
-        "Product title is required.";
+        "Product title is required and must contain only letters and spaces.";
       isValid = false;
     }
 
-    if (!price || price <= 0) {
+    // 2️⃣ Price Validation
+    if (!price || !/^\d+(\.\d{1,2})?$/.test(price) || parseFloat(price) <= 0) {
       document.getElementById("priceError").innerHTML =
-        "Please enter a valid price.";
+        "Please enter a valid positive price (up to 2 decimal places).";
       isValid = false;
     }
 
+    // 3️⃣ Category Validation
     if (!category) {
       document.getElementById("categoryError").innerHTML =
         "Please select a category.";
       isValid = false;
     }
 
+    // 4️⃣ Brand Validation
     if (!brand) {
       document.getElementById("brandError").innerHTML =
-        "Please select a brand.";
+        "Please select a valid brand (only letters allowed).";
       isValid = false;
     }
 
-    if (!stock || stock <= 0) {
+    // 5️⃣ Stock Validation
+    if (!stock || !numberPattern.test(stock)) {
       document.getElementById("stockError").innerHTML =
-        "Please enter a valid stock quantity.";
+        "Please enter a valid stock quantity (positive whole number).";
       isValid = false;
     }
 
+    // 6️⃣ Image Validation
     if (image === 0) {
       document.getElementById("imageError").innerHTML =
         "Please upload an image.";
       isValid = false;
     }
 
+    // 7️⃣ Full Description Validation (NEW)
+    // ✅ Required
+    // ✅ Minimum 20 characters to ensure sufficient details
+    if (!fullDescription || fullDescription.length < 20) {
+      document.getElementById("descriptionError").innerHTML =
+        "Full description is required and must be at least 20 characters long.";
+      isValid = false;
+    }
+
     return isValid;
   }
 </script>
+
 <script src="/assets/js/vendors/jquery-3.6.0.min.js"></script>
 <script src="/assets/js/vendors/bootstrap.bundle.min.js"></script>
 <script src="/assets/js/vendors/select2.min.js"></script>
