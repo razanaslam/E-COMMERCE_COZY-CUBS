@@ -50,10 +50,18 @@ const loadRegister = async (req, res) => {
 };
 
 const registerUser = async (req, res) => {
-  const { name, email, number, password, confirmPassword } = req.body;
+  const { name, email, number, password, confirmPassword, referal } = req.body;
   console.log("req.body in register user controller =>>>", req.body);
   try {
     const existUser = await userModel.findOne({ email });
+    if (referal) {
+      const refUser = await userModel.findOne({ referalCode: referal });
+      if (!refUser) {
+        req.flash("referalError", "Please enter a valid referral code");
+        return res.redirect("/register");
+      }
+    }
+
     console.log("is user already exists ====>", existUser);
     if (existUser) {
       // console.log(existUser);
@@ -74,6 +82,7 @@ const registerUser = async (req, res) => {
         email,
         number,
         password: secPass,
+        referalcode: referal,
       };
       // await newUser.save();
       req.session.user = newUser;
@@ -93,6 +102,7 @@ const registerUser = async (req, res) => {
         req.flash("otpError", "Failed to send OTP, please try again.");
         return res.redirect("/register");
       }
+
       // req.session.otp = otp;
       // console.log(req.session.otp);
 
@@ -179,7 +189,22 @@ const verifyOtp = async (req, res) => {
       if (isOtp.otpExpiredAt < currentOtpTime) {
         return res.redirect(`/verify-otp/${id}`);
       }
-      const { name, email, number, password } = req.session.user;
+      const { name, email, number, password, referalCode } = req.session.user;
+      const refUser = await userModel.findOne({ referalCode });
+      if (refUser) {
+        const refWallet = await walletModel.findOne({ userId: refUser._id });
+        refWallet.balance += 300;
+        const transaction = new transactionModel({
+          userId: refUser._id,
+          amount: 300,
+          status: "Success",
+          type: "Credit",
+          date: new Date(),
+        });
+        refWallet.save();
+        transaction.save();
+      }
+
       const newUser = new userModel({
         name,
         email,
@@ -188,6 +213,23 @@ const verifyOtp = async (req, res) => {
       });
 
       await newUser.save();
+      wallet = new walletModel({
+        userId: newUser._id,
+        balance: 0,
+      });
+      if (refUser) {
+        wallet.balnce += 100;
+        const newtransaction = new transactionModel({
+          userId: newUser._id,
+          amount: 100,
+          status: "Success",
+          type: "Credit",
+          date: new Date(),
+        });
+
+        await newtransaction.save();
+      }
+      await wallet.save();
     } else {
       req.flash("invalidOtp", "invalid otp");
       return res.redirect(`/verify-otp/${id}`);
@@ -2704,10 +2746,14 @@ const pagination = async (req, res) => {
 
 const getReferal = async (req, res) => {
   const id = req.session.user;
-  console.log("sdfsdfdsfsdfsdf");
+
+  console.log("saad");
 
   try {
     const user = await userModel.findById(id);
+
+    console.log(user);
+
     if (user.referalCode) {
       res.status(200).send({ success: true, referalcode: user.referalCode });
     } else {
@@ -2716,6 +2762,7 @@ const getReferal = async (req, res) => {
       };
 
       let newReferalCode = generateUniqueCode();
+      console.log(newReferalCode);
 
       while (await userModel.findOne({ referalCode: newReferalCode })) {
         newReferalCode = generateUniqueCode();
@@ -2724,7 +2771,9 @@ const getReferal = async (req, res) => {
       await user.save();
       res.status(200).send({ success: true, referralcode: newReferalCode });
     }
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 module.exports = {
