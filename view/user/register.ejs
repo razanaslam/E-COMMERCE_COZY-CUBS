@@ -42,6 +42,8 @@
           <h3>Registration Form</h3>
 
           <div class="form-wrapper">
+            <div id="nameError" class="error-message"></div>
+            <i class="zmdi zmdi-account"></i>
             <input
               type="text"
               id="name"
@@ -49,9 +51,10 @@
               name="name"
               class="form-control"
             />
-            <i class="zmdi zmdi-account"></i>
           </div>
+
           <div class="form-wrapper">
+            <div id="emailError" class="error-message"></div>
             <input
               type="email"
               id="email"
@@ -61,29 +64,33 @@
             />
             <i class="zmdi zmdi-email"></i>
           </div>
+
           <div class="form-wrapper">
+            <div id="numberError" class="error-message"></div>
             <input
               type="text"
               id="number"
               placeholder="Mobile Number"
               name="number"
               class="form-control"
-              pattern="[0-9]{10}"
             />
             <i class="zmdi zmdi-phone"></i>
           </div>
+
           <div class="form-wrapper">
+            <div id="passwordError" class="error-message"></div>
             <input
               type="password"
               id="password"
               placeholder="Password"
               name="password"
               class="form-control"
-              minlength="6"
             />
             <i class="zmdi zmdi-lock"></i>
           </div>
+
           <div class="form-wrapper">
+            <div id="confirmPasswordError" class="error-message"></div>
             <input
               type="password"
               id="confirmPassword"
@@ -93,9 +100,6 @@
             />
             <i class="zmdi zmdi-lock"></i>
           </div>
-
-          <div id="error-container" style="color: red"></div>
-          <div style="color: red"><%= errorEmail %></div>
 
           <button type="submit">
             Register
@@ -109,26 +113,105 @@
       </div>
     </div>
 
+    <style>
+      .error-message {
+        color: red;
+        font-size: 14px;
+        margin-bottom: 5px;
+      }
+    </style>
+
     <script>
       document
         .getElementById("registerForm")
         .addEventListener("submit", function (event) {
-          const password = document.getElementById("password").value;
-          const confirmPassword =
-            document.getElementById("confirmPassword").value;
+          let isValid = true;
 
-          const errorContainer = document.getElementById("error-container");
-          errorContainer.textContent = "";
+          // Getting input values
+          const name = document.getElementById("name").value.trim();
+          const email = document.getElementById("email").value.trim();
+          const number = document.getElementById("number").value.trim();
+          const password = document.getElementById("password").value.trim();
+          const confirmPassword = document
+            .getElementById("confirmPassword")
+            .value.trim();
 
-          let errorMessage = "";
-          if (password !== confirmPassword) {
-            errorMessage = "Passwords do not match.";
-          } else if (!password || !confirmPassword) {
-            errorMessage = "Please fill the fields.";
+          // Regular expressions for validation
+          const nameRegex = /^[A-Za-z\s]+$/; // Only letters and spaces
+          const emailRegex = /^\S+@\S+\.\S+$/; // Standard email format
+          const phoneRegex = /^\d{10}$/; // Exactly 10 digits
+          const passwordRegex =
+            /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+          // At least 8 chars, 1 letter, 1 number, 1 symbol
+
+          // Reset error messages
+          document.getElementById("nameError").textContent = "";
+          document.getElementById("emailError").textContent = "";
+          document.getElementById("numberError").textContent = "";
+          document.getElementById("passwordError").textContent = "";
+          document.getElementById("confirmPasswordError").textContent = "";
+
+          // Full Name Validation
+          if (!name) {
+            document.getElementById("nameError").textContent =
+              "Full Name is required.";
+            isValid = false;
+          } else if (!nameRegex.test(name)) {
+            document.getElementById("nameError").textContent =
+              "Full Name can only contain letters and spaces.";
+            isValid = false;
+          } else if (name.length < 3) {
+            document.getElementById("nameError").textContent =
+              "Full Name must be at least 3 characters.";
+            isValid = false;
           }
 
-          if (errorMessage) {
-            errorContainer.textContent = errorMessage;
+          // Email Validation
+          if (!email) {
+            document.getElementById("emailError").textContent =
+              "Email is required.";
+            isValid = false;
+          } else if (!emailRegex.test(email)) {
+            document.getElementById("emailError").textContent =
+              "Enter a valid email address.";
+            isValid = false;
+          }
+
+          // Mobile Number Validation
+          if (!number) {
+            document.getElementById("numberError").textContent =
+              "Mobile Number is required.";
+            isValid = false;
+          } else if (!phoneRegex.test(number)) {
+            document.getElementById("numberError").textContent =
+              "Mobile Number must be 10 digits.";
+            isValid = false;
+          }
+
+          // Password Validation
+          if (!password) {
+            document.getElementById("passwordError").textContent =
+              "Password is required.";
+            isValid = false;
+          } else if (!passwordRegex.test(password)) {
+            document.getElementById("passwordError").textContent =
+              "Password must be at least 8 characters, include a letter, number, and symbol.";
+            isValid = false;
+          }
+
+          // Confirm Password Validation
+          if (!confirmPassword) {
+            document.getElementById("confirmPasswordError").textContent =
+              "Please confirm your password.";
+            isValid = false;
+          } else if (password !== confirmPassword) {
+            document.getElementById("confirmPasswordError").textContent =
+              "Passwords do not match.";
+            isValid = false;
+          }
+
+          // Prevent form submission if validation fails
+          if (!isValid) {
             event.preventDefault();
           }
         });

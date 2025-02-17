@@ -11,7 +11,9 @@ const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
 // const userAuth = require("./middleware/userAuth");
 
-mongoose.connect("mongodb+srv://cozycubs12:2dVNjMMal8hmxgaX@cluster0.w26a8.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0");
+mongoose.connect(
+  "mongodb+srv://cozycubs12:2dVNjMMal8hmxgaX@cluster0.w26a8.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+);
 
 // const GoogleStrategy = require("passport-google-oauth20").Strategy;
 require("dotenv").config();
@@ -28,6 +30,7 @@ app.use(
 const passport = require("passport");
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(express.json());
 
 const nocache = require("nocache");
 app.use(nocache());
@@ -81,6 +84,7 @@ app.set("views", ["./view/user", "./view/admin"]);
 
 app.use("/", userRoute);
 app.use("/admin", adminRoute);
+
 app.use("/*", (req, res) => {
   res.render("404");
 });

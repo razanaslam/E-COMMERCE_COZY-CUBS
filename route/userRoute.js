@@ -103,6 +103,10 @@ userRoute.get(
 );
 // userRoute.post("/updateOrderStatus/:orderId", userController.orderList);
 userRoute.post("/updateOrderStatus/:id", userController.cancelOrder);
+userRoute.post("/cancelItem/:orderId/:itemId", userController.cancelItem);
+userRoute.post("/returnItem/:orderId/:itemId", userController.returnItem);
+userRoute.post("/generate-referral", userController.getReferal);
+
 userRoute.get("/logout", userController.logout);
 userRoute.post("/sort-products", userController.sortProducts);
 

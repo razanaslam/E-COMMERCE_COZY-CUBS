@@ -360,6 +360,31 @@ button:hover {
       </div>
     </div>
   </form>
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; font-family: Arial, sans-serif;">
+    <button id="referalButton" style="
+      background-color: #4CAF50; 
+      color: white; 
+      border: none; 
+      padding: 10px 20px; 
+      border-radius: 5px; 
+      font-size: 16px; 
+      cursor: pointer; 
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+      transition: all 0.3s ease-in-out;">
+      Generate Referral Code
+    </button>
+    <span id="Referalcode" style="
+      display: inline-block; 
+      margin-top: 10px; 
+      font-size: 18px; 
+      font-weight: bold; 
+      color: #333; 
+      padding: 5px 10px; 
+      border: 1px dashed #4CAF50; 
+      border-radius: 5px; 
+      background-color: #f9f9f9;">
+    </span>
+          </div>
 </div>
 
 <script>
@@ -443,7 +468,35 @@ button:hover {
 
 
 
-
+<script>
+  document.getElementById("referalButton").addEventListener("click", function () {
+    // Send a request to the backend
+    fetch("/generate-referral", {
+      method: "POST", // Use POST if you're sending data, otherwise GET
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId: "12345" }), // Replace with actual data if needed
+    })
+      .then((response) => {
+          
+          if (!response.ok) {
+              throw new Error("Failed to generate referral code");
+            }
+            return response.json()
+        })
+        
+        
+        .then((data) => {
+          console.log(data);
+        document.getElementById("Referalcode").innerText = data.referalcode   || "No code received";
+      })
+      .catch((error) => {
+        console.error(error);
+        document.getElementById("Referalcode").innerText = "Error generating code";
+      });
+  });
+</script>
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {

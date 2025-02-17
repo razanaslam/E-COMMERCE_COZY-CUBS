@@ -27,6 +27,7 @@ adminRoute.use(
 
 adminRoute.get("/", adminController.loadLogin);
 adminRoute.post("/", adminController.adminLogin);
+
 adminRoute.get("/dashboard", isAdmin, adminController.loadDashboard);
 
 //products
@@ -101,6 +102,12 @@ adminRoute.post(
   "/updateOrderStatus/:orderId",
   isAdmin,
   adminController.adminUpdateOrderStatus
+);
+
+adminRoute.post(
+  "/updateItemStatus/:orderId/:itemId",
+  isAdmin,
+  adminController.adminUpdateItemStatus
 );
 adminRoute.post(
   "/orders/return-approval/:orderId",

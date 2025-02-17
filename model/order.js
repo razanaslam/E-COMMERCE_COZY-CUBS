@@ -33,6 +33,19 @@ const orderSchema = new mongoose.Schema({
         type: Number,
         required: true,
       },
+      itemStatus: {
+        type: String,
+        enum: [
+          "Pending",
+          "Processing",
+          "Shipped",
+          "Delivered",
+          "Cancelled",
+          "Failed",
+          "Returned",
+        ],
+        default: "Pending",
+      },
     },
   ],
   totalPrice: {
@@ -69,7 +82,7 @@ const orderSchema = new mongoose.Schema({
   },
   offerApplied: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Coupon", 
+    ref: "Coupon",
     default: null,
   },
   discountApplied: {
@@ -84,6 +97,7 @@ const orderSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  couponPrice: { type: Number, default: 0 },
 });
 
 module.exports = mongoose.model("Order", orderSchema);

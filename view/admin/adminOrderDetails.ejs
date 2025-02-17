@@ -184,6 +184,8 @@
                       <th>Price</th>
                       <th>Quantity</th>
                       <th>Total</th>
+                      <th>Status</th>
+                      <th scope="col" class="text-end">Action</th>
                     </tr>
                   </thead>
                   <% let total=0 %>
@@ -252,6 +254,29 @@
                         <!-- Normal Total if no discount -->
                         <% } %>
                       </td>
+                      <td
+                        style="font-weight: bold; color: <% if (item.itemStatus === 'Cancelled') { %>red<% } else if (item.itemStatus === 'Pending') { %>yellow<% } else if (item.itemStatus === 'Returned') { %>blue<% } else { %>green<% } %>"
+                      >
+                        <%= item.itemStatus %>
+                      </td>
+                      <td class="text-end">
+  <select
+    id="status-select-<%= item._id %>"
+    class="form-select"
+    onchange="handleStatusChange('<%= order._id %>', '<%= item._id %>')"
+    data-current-status="<%= item.status %>"
+  >
+    <% if (item.itemStatus === 'Cancelled' || item.itemStatus === 'Returned' || item.itemStatus === 'Delivered') { %>
+      <option value="<%= item.itemStatus %>" selected><%= item.itemStatus %></option>
+    <% } else { %>
+      <option value="Pending" <%= item.itemStatus === 'Pending' ? 'selected' : '' %>>Placed</option>
+      <option value="Shipped" <%= item.itemStatus === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+      <option value="Processing" <%= item.itemStatus === 'Processing' ? 'selected' : '' %>>Processing</option>
+      <option value="Delivered" <%= item.itemStatus === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+      <option value="Cancelled" <%= item.itemStatus === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+    <% } %>
+  </select>
+</td>
                     </tr>
                     <% }) %>
                   </tbody>
@@ -272,17 +297,6 @@
                         <td class="text-end"><strong>Discount:</strong></td>
                         <td class="text-end"><%= order.discount || 0 %></td>
                       </tr>
-                      <% var totall = 0; var discountAmount = 0; var
-                      originalTotal = 0; var discountedTotal=0
-                      order.items.forEach(function(item) { var itemTotal =
-                      item.price * item.quantity; discountedTotal =
-                      item.discountedPrice ? item.discountedPrice *
-                      item.quantity : itemTotal;
-                      console.log(discountedTotal,order.totalPrice,"hy");
-                      originalTotal += itemTotal; totall += discountedTotal; if
-                      (item.discountedPrice) { discountAmount += (itemTotal -
-                      discountedTotal); } }); var couponDiscount = (totall -
-                      order.totalPrice) %>
 
                       <tr class="table-light">
                         <td class="text-end">
@@ -290,7 +304,7 @@
                         </td>
                         <td colspan="2" class="text-end">
                           <span style="color: green">
-                            <%= Math.abs(couponDiscount).toFixed(2) %>
+                            <%= order.couponPrice %>
                           </span>
                         </td>
                       </tr>
@@ -339,5 +353,71 @@
     <!-- Bootstrap JS and Popper.js -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
-  </body>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+const handleStatusChange = async (orderId, itemId) => {
+  
+  const selectElement = document.getElementById(`status-select-${itemId}`);
+  const newStatus = selectElement.value;
+  const currentStatus = selectElement.getAttribute('data-current-status');
+
+  // Define restricted status changes
+  const restrictedChanges = {
+    'Delivered': ['Returned'], // Only allow change to 'Returned'
+    'Cancelled': [], // No changes allowed
+    'Returned': [], // No changes allowed
+    'Shipped': ['Processing', 'Cancelled', 'Returned', 'Delivered'], // 'Placed' not allowed, others allowed
+    'Processing': ['Shipped', 'Cancelled'], // Allow 'Shipped' and 'Cancelled'
+    'Placed': ['Processing', 'Cancelled'] // Allow 'Processing' and 'Cancelled'
+  };
+
+  // Check if the current status allows the new status
+  if (restrictedChanges[currentStatus] && !restrictedChanges[currentStatus].includes(newStatus)) {
+    await Swal.fire('Action not allowed', `Cannot change status from ${currentStatus} to ${newStatus}`, 'error');
+    selectElement.value = currentStatus; // Revert to the original status
+    return;
+  }
+
+  // Confirm the status change
+  const result = await Swal.fire({
+    title: 'Confirm Status Change',
+    text: `Change status to ${newStatus}?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, change it!',
+    cancelButtonText: 'No, cancel!'
+  });
+
+  if (result.isConfirmed) {
+    try {
+      const response = await fetch(`/admin/updateItemStatus/${orderId}/${itemId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        await Swal.fire('Success', 'Item status updated successfully', 'success');
+        location.reload();
+      } else {
+        await Swal.fire('Error', data.message || 'Failed to update status', 'error');
+        selectElement.value = currentStatus; // Revert to the original status
+      }
+    } catch (error) {
+      console.error('Error updating status:', error);
+      await Swal.fire('Error', 'An error occurred while updating status', 'error');
+      selectElement.value = currentStatus; // Revert to the original status
+    }
+  } else {
+    selectElement.value = currentStatus; // Revert to the original status
+  }
+};
+</script>
+
+
+
+
+    </body>
 </html>

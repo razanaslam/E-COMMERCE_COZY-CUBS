@@ -64,9 +64,7 @@ const getPaginationData = async (model, page, limit) => {
 
 const loadLogin = (req, res) => {
   try {
-    // console.log("haiii");
     if (req.session.admin) {
-      console.log("hi");
       res.redirect("/admin/dashboard");
     } else {
       const loginError = req.flash("loginError");
@@ -211,7 +209,6 @@ const loadDashboard = async (req, res) => {
       { $sort: { totalSales: -1 } },
       { $limit: 10 },
     ]);
-    console.log(topProducts);
 
     res.render("dashboard", {
       orderStatusDistribution: JSON.stringify(orderStatusDistribution),
@@ -287,7 +284,6 @@ const addProduct = async (req, res) => {
     }
 
     const images = req.files.map((file) => file.filename);
-    console.log(images, "imgs");
 
     const newProduct = new productModel({
       product_title,
@@ -315,7 +311,6 @@ const loadEditProduct = async (req, res) => {
     const id = req.params.id;
 
     if (!mongoose.isValidObjectId(id)) {
-      console.log("Invalid ID:", id);
       return res.status(400).send("Invalid Product ID");
     }
 
@@ -350,10 +345,8 @@ const editProduct = async (req, res) => {
       size,
       // image_url,
     } = req.body;
-    // console.log("hy razz");
 
     const newImages = req.files.map((file) => file.filename);
-    console.log(newImages, "juhuhjh");
 
     const existingProduct = await productModel.findById(id);
 
@@ -493,7 +486,6 @@ const loadCatagory = async (req, res) => {
     const skip = (currentPage - 1) * itemsPerPage;
     const totalCategory = await catagoryModel.countDocuments();
     const totalPages = Math.ceil(totalCategory / itemsPerPage);
-    console.log(page, "ghh");
 
     const catagory = await catagoryModel
       .find()
@@ -522,7 +514,6 @@ const loadAddCatagory = async (req, res) => {
   try {
     const CatagError = req.flash("CatagError");
     const success = req.flash("success");
-    console.log("CatagError", CatagError, "success:", success);
 
     res.render("addCatagory", { CatagError, success: success[0] });
   } catch (error) {
@@ -536,7 +527,7 @@ const addCatagory = async (req, res) => {
     const existCatag = await catagoryModel.findOne({
       name: { $regex: `^${name}$`, $options: "i" },
     });
-    console.log(req.body);
+
     if (existCatag) {
       req.flash("CatagError", "Catagory is already existed");
       return res.redirect("/admin/addCatagory");
@@ -555,11 +546,9 @@ const addCatagory = async (req, res) => {
 
 const editCatagory = async (req, res) => {
   try {
-    console.log(req.params.id);
     const id = req.params.id;
     const { name, description } = req.body;
-    // console.log(name, category);
-    // console.log("my id is", id);
+
     const existCatag = await catagoryModel.findOne({
       name: { $regex: `^${name}$`, $options: "i" },
     });
@@ -599,15 +588,6 @@ const unlistCategory = async (req, res) => {
 
 //---------------------------------------------------------------Brand----------------------------------------------------------
 
-// const loadBrand = async (req, res) => {
-//   try {
-//     const brand = await brandModel.find();
-//     res.render("brand", { brand });
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
-
 const loadBrand = async (req, res) => {
   try {
     const { page = 1, limit = 5 } = req.query;
@@ -619,7 +599,6 @@ const loadBrand = async (req, res) => {
 
     const totalBrand = await brandModel.countDocuments();
     const totalPages = Math.ceil(totalBrand / itemsPerPage);
-    console.log(page, "ghh");
 
     const brand = await brandModel
       .find()
@@ -715,29 +694,6 @@ const editBrand = async (req, res) => {
   }
 };
 
-// const listBrand = async (req, res) => {
-//   try {
-//     const id = req.params.id;
-//     const brand = await brandModel.findByIdAndUpdate(id, { isListed: true });
-//     console.log(brand);
-//     await brand.save();
-//     res.redirect("/admin/brand");
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
-
-// const unlistBrand = async (req, res) => {
-//   try {
-//     const id = req.params.id;
-//     console.log(id);
-//     await brandModel.findByIdAndUpdate(id, { isListed: false });
-//     res.redirect("/admin/brand");
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
-
 const unlistBrand = async (req, res) => {
   try {
     const id = req.params.id;
@@ -783,15 +739,6 @@ const listBrand = async (req, res) => {
 };
 
 //---------------------------------------------------------------UserList----------------------------------------------------------
-
-// const loadUser = async (req, res) => {
-//   try {
-//     const user = await userModel.find();
-//     res.render("userList", { user });
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
 
 const loadUser = async (req, res) => {
   try {
@@ -839,16 +786,6 @@ const unblockUser = async (req, res) => {
 
 //---------------------------------------------------------------orders----------------------------------------------------------
 
-// const loadOrder = async (req, res) => {
-//   try {
-//     const order = await orderModel.find();
-//     console.log(order);
-
-//     res.render("orders", { order });
-//   } catch (error) {
-//     console.log(error.message);
-//   }
-// };
 const loadOrder = async (req, res) => {
   try {
     const { page = 1, limit = 5 } = req.query;
@@ -860,7 +797,6 @@ const loadOrder = async (req, res) => {
 
     const totalOrders = await orderModel.countDocuments();
     const totalPages = Math.ceil(totalOrders / itemsPerPage);
-    console.log(page, "ghh");
 
     const orders = await orderModel
       .find()
@@ -904,42 +840,6 @@ const loadOrder = async (req, res) => {
     res.status(500).send("An error occurred while loading orders.");
   }
 };
-
-// const loadadminOrderDetails = async (req, res) => {
-//   try {
-//     const orderId = req.params.id;
-//     const order = await orderModel
-//       .findById(orderId)
-//       .populate("items.product")
-//       .lean();
-//     const coupon = await couponModel.findById(orderId);
-//     console.log(coupon, "coupon");
-
-//     if (order.billingDetails) {
-//       const address = await addressModel.findOne({ userId: order.userId });
-
-//       if (address && address.addressDetails.length > 0) {
-//         const billingAddress = address.addressDetails.find(
-//           (addr) => addr._id.toString() === order.billingDetails.toString()
-//         );
-
-//         if (billingAddress) {
-//           order.billingDetails = { ...billingAddress.toObject() };
-//         } else {
-//           order.billingDetails = null;
-//         }
-//       } else {
-//         order.billingDetails = null;
-//       }
-//     }
-//     console.log(order);
-
-//     res.render("adminOrderDetails", { order });
-//   } catch (error) {
-//     console.error("Error fetching admin order details:", error.message);
-//     res.status(500).send("An error occurred while loading the order details.");
-//   }
-// };
 
 const loadadminOrderDetails = async (req, res) => {
   try {
@@ -1017,7 +917,7 @@ const adminUpdateOrderStatus = async (req, res) => {
   try {
     const orderId = req.params.orderId;
     const { status } = req.body;
-    console.log(orderId, status);
+
     if (!status) {
       return res
         .status(400)
@@ -1064,7 +964,7 @@ const adminUpdateOrderStatus = async (req, res) => {
         userId: order.userId,
         amount: refundAmount,
         status: "Success",
-        type: "Credited",
+        type: "Credit",
       });
       await transaction.save();
     }
@@ -1084,6 +984,103 @@ const adminUpdateOrderStatus = async (req, res) => {
       success: false,
       message: "An error occurred while updating the order status.",
     });
+  }
+};
+
+const adminUpdateItemStatus = async (req, res) => {
+  try {
+    const { orderId, itemId } = req.params;
+    const { status } = req.body;
+    const order = await orderModel.findById(orderId);
+    const item = order.items.id(itemId);
+
+    if (!item)
+      return res
+        .status(404)
+        .json({ success: false, message: "Item not found" });
+
+    item.itemStatus = status;
+
+    if (status === "Cancelled" || status === "Returned") {
+      const refundAmount = order.totalPrice;
+
+      if (!refundAmount || isNaN(refundAmount) || refundAmount <= 0) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Invalid refund amount" });
+      }
+
+      for (const item of order.items) {
+        await productModel.findByIdAndUpdate(item.product, {
+          $inc: { stock: item.quantity },
+        });
+      }
+
+      let wallet = await walletModel.findOne({ userId: order.userId });
+
+      if (!wallet) {
+        wallet = new walletModel({ userId: order.userId, balance: 0 });
+        await wallet.save();
+      }
+
+      wallet.balance += refundAmount;
+      await wallet.save();
+
+      const transaction = new transactionModel({
+        userId: order.userId,
+        amount: refundAmount,
+        status: "Success",
+        type: "Credit",
+      });
+      await transaction.save();
+    }
+
+    if (status === "Delivered" && order.paymentStatus !== "Paid") {
+      order.paymentStatus = "Paid";
+    }
+
+    await order.save();
+
+    const allItemsReturned = order.items.every(
+      (item) => item.itemStatus === "Returned"
+    );
+    if (allItemsReturned) {
+      await orderModel.findByIdAndUpdate(
+        orderId,
+        { $set: { status: "Returned" } },
+        { new: true }
+      );
+    }
+
+    const allItemsDelivered = order.items.every(
+      (item) => item.itemStatus === "Delivered"
+    );
+    if (allItemsDelivered) {
+      await orderModel.findByIdAndUpdate(
+        orderId,
+        { $set: { status: "Delivered" } },
+        { new: true }
+      );
+    }
+
+    const allItemsCancelled = order.items.every(
+      (item) => item.itemStatus === "Cancelled"
+    );
+    if (allItemsCancelled) {
+      await orderModel.findByIdAndUpdate(
+        orderId,
+        { $set: { status: "Cancelled" } },
+        { new: true }
+      );
+    }
+
+    res
+      .status(200)
+      .json({ success: true, message: "Item status updated successfully." });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, message: "Error updating item status" });
   }
 };
 
@@ -1146,7 +1143,6 @@ const loadCoupons = async (req, res) => {
 
     const totalcoupon = await couponModel.countDocuments();
     const totalPages = Math.ceil(totalcoupon / itemsPerPage);
-    console.log(page, "ghh");
 
     const coupons = await couponModel
       .find()
@@ -1180,7 +1176,7 @@ const addCoupons = async (req, res) => {
 
   try {
     const existCoupon = await couponModel.findOne({ couponCode });
-    console.log(req.body, "hy", existCoupon);
+
     if (existCoupon) {
       req.flash("existed", "Coupon is already existed");
       return res.redirect("/admin/addCoupons");
@@ -1246,7 +1242,7 @@ const loadOffers = async (req, res) => {
 
     const totalOffer = await offerModel.countDocuments();
     const totalPages = Math.ceil(totalOffer / itemsPerPage);
-    console.log(page, "ghh");
+
     const activeOffers = await offerModel
       .find({
         endDate: { $gt: Date.now() },
@@ -2141,18 +2137,5 @@ module.exports = {
   NotFoundPage,
   downloadSalesReportPDF,
   downloadSalesReportExcel,
+  adminUpdateItemStatus,
 };
-
-// const user = async (req, res) => {
-//   try {
-//     const userId = req.params._id;
-//     const user = await userModel.findById({ userId });
-//     if (!user) {
-//       return res.status(404).json({ success: false, message: "no user found" });
-//     }
-//     user.isBlocked = !user.isBlocked;
-//     await user.save();
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
