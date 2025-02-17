@@ -177,23 +177,35 @@ const verifyOtp = async (req, res) => {
     const { otp, id } = req.body;
     const currentOtpTime = Date.now();
 
-    // console.log(otp);
-    // console.log(id);
-
+    // Find the OTP document by ID
     const isOtp = await otpModel.findById(id);
     if (!isOtp) {
+      req.flash("error", "Invalid OTP request.");
       return res.redirect(`/verify-otp/${id}`);
     }
 
-    if (isOtp.otp === otp) {
-      if (isOtp.otpExpiredAt < currentOtpTime) {
-        return res.redirect(`/verify-otp/${id}`);
-      }
-      const { name, email, number, password, referalCode } = req.session.user;
+    // Check if the OTP has expired
+    if (isOtp.otpExpiredAt < currentOtpTime) {
+      req.flash("error", "OTP has expired. Please request a new OTP.");
+      return res.redirect(`/verify-otp/${id}`);
+    }
+
+    // Check if the OTP is valid
+    if (isOtp.otp !== otp) {
+      req.flash("invalidOtp", "Invalid OTP. Please try again.");
+      return res.redirect(`/verify-otp/${id}`);
+    }
+
+    // OTP is valid and not expired, proceed with user registration
+    const { name, email, number, password, referalCode } = req.session.user;
+
+    // Handle referral code bonus
+    if (referalCode) {
       const refUser = await userModel.findOne({ referalCode });
       if (refUser) {
         const refWallet = await walletModel.findOne({ userId: refUser._id });
-        refWallet.balance += 300;
+        refWallet.balance += 300; // Add referral bonus
+        await refWallet.save(); // Save the updated wallet
         const transaction = new transactionModel({
           userId: refUser._id,
           amount: 300,
@@ -201,55 +213,54 @@ const verifyOtp = async (req, res) => {
           type: "Credit",
           date: new Date(),
         });
-        refWallet.save();
-        transaction.save();
+        await transaction.save(); // Save the transaction
       }
-
-      const newUser = new userModel({
-        name,
-        email,
-        number,
-        password,
-      });
-
-      await newUser.save();
-      wallet = new walletModel({
-        userId: newUser._id,
-        balance: 0,
-      });
-      if (refUser) {
-        wallet.balnce += 100;
-        const newtransaction = new transactionModel({
-          userId: newUser._id,
-          amount: 100,
-          status: "Success",
-          type: "Credit",
-          date: new Date(),
-        });
-
-        await newtransaction.save();
-      }
-      await wallet.save();
-    } else {
-      req.flash("invalidOtp", "invalid otp");
-      return res.redirect(`/verify-otp/${id}`);
     }
 
-    // if (req.session.otpExpiration < currentOtpTime) {
-    //   req.flash("errorOtp", "OTP has expired. Please try again.");
-    //   return res.redirect("/verify-otp");
-    // }
-    // const sessionOtp = req.session.otp;
+    // Create new user
+    const newUser = new userModel({
+      name,
+      email,
+      number,
+      password,
+    });
+    await newUser.save(); // Save the new user
 
+    // Create a wallet for the new user
+    const wallet = new walletModel({
+      userId: newUser._id,
+      balance: 0,
+    });
+
+    // If the user was referred, add a bonus to their wallet
+    if (referalCode) {
+      wallet.balance += 100; // Add bonus for the new user
+      const newTransaction = new transactionModel({
+        userId: newUser._id,
+        amount: 100,
+        status: "Success",
+        type: "Credit",
+        date: new Date(),
+      });
+      await newTransaction.save(); // Save the transaction
+    }
+
+    await wallet.save(); // Save the wallet
+
+    // Clear the session data
     req.session.user = null;
-    // req.session.otp = null;
-    // req.session.otpExpiration = null;
-    await otpModel.findByIdAndDelete(id);
+    await otpModel.findByIdAndDelete(id); // Delete the OTP document
 
-    // req.flash("success", "OTP verified successfully!");
+    // Redirect to login page after successful registration
+    req.flash("success", "OTP verified successfully! You can now log in.");
     res.redirect("/login");
   } catch (error) {
-    console.log(error);
+    console.error("Error verifying OTP:", error);
+    req.flash(
+      "error",
+      "An error occurred while verifying the OTP. Please try again."
+    );
+    res.redirect(`/verify-otp/${id}`);
   }
 };
 
