@@ -198,12 +198,17 @@ const verifyOtp = async (req, res) => {
 
     // OTP is valid and not expired, proceed with user registration
     const { name, email, number, password, referalCode } = req.session.user;
+    console.log(referalCode, "refcode");
 
     // Handle referral code bonus
     if (referalCode) {
       const refUser = await userModel.findOne({ referalCode });
+      console.log(refUser, "refuser");
+
       if (refUser) {
         const refWallet = await walletModel.findOne({ userId: refUser._id });
+        console.log(refWallet, "refwallt");
+
         refWallet.balance += 300; // Add referral bonus
         await refWallet.save(); // Save the updated wallet
         const transaction = new transactionModel({
@@ -242,6 +247,8 @@ const verifyOtp = async (req, res) => {
         type: "Credit",
         date: new Date(),
       });
+      console.log("new transaction", newTransaction);
+
       await newTransaction.save(); // Save the transaction
     }
 
