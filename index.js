@@ -39,7 +39,7 @@ app.use(flash());
 app.use((req, res, next) => {
   res.locals.passMatch = req.flash("passMatch");
   res.locals.emailExist = req.flash("emailExist");
-  // res.locals.messages = req.flash();
+  res.locals.messages = req.flash();
   next();
 });
 app.use(express.urlencoded({ extended: true }));
