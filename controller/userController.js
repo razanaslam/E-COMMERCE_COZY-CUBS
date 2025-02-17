@@ -64,17 +64,15 @@ const registerUser = async (req, res) => {
 
     console.log("is user already exists ====>", existUser);
     if (existUser) {
-      // console.log(existUser);
       console.log("email already existed");
-      req.flash("errorEmail", "User already exists");
-      res.redirect("/register");
+      req.flash("errorEmail", "User  already exists");
+      return res.redirect("/register");
     } else {
       if (password !== confirmPassword) {
-        req.flash("errorPassword", "hyy Passwords do not match");
-        console.log("password is already existed");
+        req.flash("errorPassword", "Passwords do not match");
+        console.log("passwords do not match");
         return res.redirect("/register");
       }
-      // res.redirect("/verify-otp");
 
       const secPass = await bcrypt.hash(password, 10);
       const newUser = {
@@ -82,11 +80,9 @@ const registerUser = async (req, res) => {
         email,
         number,
         password: secPass,
-        referalcode: referal,
+        referalCode: referal, // Store the referral code in the session
       };
-      // await newUser.save();
       req.session.user = newUser;
-      console.log(req.session.user, "register");
 
       const { otp } = generateOtp();
       const emailSent = await sendOtp(email, otp);
@@ -103,15 +99,15 @@ const registerUser = async (req, res) => {
         return res.redirect("/register");
       }
 
-      // req.session.otp = otp;
-      // console.log(req.session.otp);
-
-      // req.session.otpExpiration = expirationTime;
-      // req.session.email = email;
       res.redirect(`/verify-otp/${newOtpModel._id}`);
     }
   } catch (error) {
     console.log(error);
+    req.flash(
+      "error",
+      "An error occurred during registration. Please try again."
+    );
+    res.redirect("/register");
   }
 };
 
