@@ -1029,50 +1029,27 @@ console.log("yyyyy");
 <script>
   document.getElementById("razorpay-payment-button").onclick = async function (e) {
     e.preventDefault();
-
     const paymentButton = document.getElementById("razorpay-payment-button");
     paymentButton.disabled = true;
     paymentButton.innerText = "Processing...";
 
-
     try {
         const couponCode = document.getElementById("couponCodeInput").value || "";
         const addressID = document.querySelector("input[name='addressID']:checked")?.value || null;
-        console.log(addressID);
-        if (addressID === null) {
-  Swal.fire({
-    icon: 'error', 
-    title: 'Address Not Found',
-    text: 'Please select a valid address to proceed.',
-    confirmButtonText: 'Okay',
-  });
-  return;
-}
-if (item.qty > item.product.stock || item.product.stock === 0) {
-  Swal.fire({
-    icon: 'error',
-    title: 'Product Unavailable',
-    text: `Product "${item.product.product_title}" is unavailable. Available stock: ${item.product.stock}`,
-    confirmButtonText: 'Okay',
-  });
-  return;
-}
-
-
-        
-        const paymentMethod = document.getElementById("payment-method").value || "razorpay";
+        if (!addressID) {
+            Swal.fire({icon: 'error', title: 'Address Not Found', text: 'Please select a valid address to proceed.', confirmButtonText: 'Okay'});
+            paymentButton.disabled = false;
+            paymentButton.innerText = "Pay Now";
+            return;
+        }
 
         const response = await fetch("/create-order", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ couponCode, addressID, paymentMethod }),
+            body: JSON.stringify({ couponCode, addressID, paymentMethod: "razorpay" }),
         });
 
-        if (!response.ok) {
-            const responseData = await response.json();
-            throw new Error(responseData.message || "Failed to create order");
-        }
-
+        if (!response.ok) throw new Error((await response.json()).message || "Failed to create order");
         const { order_id, amount, currency, razorpayOrderId } = await response.json();
 
         const options = {
@@ -1166,19 +1143,13 @@ if (item.qty > item.product.stock || item.product.stock === 0) {
                         });
                     }
                 }
-            }
-        };
-
+            }
+        };
         const razorpay = new Razorpay(options);
         razorpay.open();
     } catch (error) {
         console.error("Error:", error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Payment Failed',
-            // text: result.message || "Something went wrong.",
-          
-        });
+        Swal.fire({ icon: 'error', title: 'Payment Failed', text: error.message || "Something went wrong." });
     } finally {
         paymentButton.disabled = false;
         paymentButton.innerText = "Pay Now";
