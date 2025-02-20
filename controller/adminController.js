@@ -311,7 +311,7 @@ const loadEditProduct = async (req, res) => {
     const id = req.params.id;
 
     if (!mongoose.isValidObjectId(id)) {
-      return res.status(400).send("Invalid Product ID");
+      return res.status(400).render("404");
     }
 
     const product = await productModel
@@ -502,6 +502,9 @@ const loadCatagory = async (req, res) => {
 const loadEditCatagory = async (req, res) => {
   try {
     const id = req.params.id;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(404).render("404"); // Render 404 page for invalid ObjectId
+    }
     const editCatagError = req.flash("editCatagError");
     const category = await catagoryModel.findById(id);
     res.render("editCatagory", { editCatagError, category });
@@ -661,7 +664,7 @@ const loadEditBrand = async (req, res) => {
   try {
     const id = req.params.id;
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).send("Invalid Brand ID");
+      return res.status(400).render("404");
     }
 
     const brand = await brandModel.findById(id);
@@ -844,6 +847,10 @@ const loadOrder = async (req, res) => {
 const loadadminOrderDetails = async (req, res) => {
   try {
     const orderId = req.params.id;
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+      return res.status(404).render("404"); // Render 404 page for invalid ObjectId
+    }
+
     const order = await orderModel
       .findById(orderId)
       .populate("items.product")
@@ -877,42 +884,6 @@ const loadadminOrderDetails = async (req, res) => {
   }
 };
 
-// const adminCancelOrder = async (req, res) => {
-
-//   try {
-//     const orderId = req.params.id;
-//     const updatedOrder = await orderModel.findByIdAndUpdate(
-//       orderId,
-//       { status: "Cancelled" },
-//       { new: true }
-//     );
-
-//     if (!updatedOrder) {
-//       return res
-//         .status(404)
-//         .json({ success: false, message: "Order not found" });
-//     }
-
-//     for (const item of updatedOrder.items) {
-//       await productModel.findByIdAndUpdate(item.product, {
-//         $inc: { stock: item.quantity },
-//       });
-//     }
-
-//     res.json({
-//       success: true,
-//       message: "Order cancelled successfully",
-//       order: updatedOrder,
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({
-//       success: false,
-//       message: "An error occurred while cancelling the order",
-//     });
-//   }
-// };
-
 const adminUpdateOrderStatus = async (req, res) => {
   try {
     const orderId = req.params.orderId;
@@ -945,6 +916,7 @@ const adminUpdateOrderStatus = async (req, res) => {
         await productModel.findByIdAndUpdate(item.product, {
           $inc: { stock: item.quantity },
         });
+        item.itemStatus = "Cancelled";
       }
 
       let wallet = await walletModel.findOne({ userId: order.userId });
@@ -956,21 +928,25 @@ const adminUpdateOrderStatus = async (req, res) => {
         });
         await wallet.save();
       }
+      if (order.paymentMethod !== "COD") {
+        wallet.balance += refundAmount;
+        await wallet.save();
 
-      wallet.balance += refundAmount;
-      await wallet.save();
-
-      const transaction = new transactionModel({
-        userId: order.userId,
-        amount: refundAmount,
-        status: "Success",
-        type: "Credit",
-      });
-      await transaction.save();
+        const transaction = new transactionModel({
+          userId: order.userId,
+          amount: refundAmount,
+          status: "Success",
+          type: "Credit",
+        });
+        await transaction.save();
+      }
     }
     if (status === "Delivered") {
       if (order.paymentStatus !== "Paid") {
         order.paymentStatus = "Paid";
+      }
+      for (item of order.items) {
+        item.itemStatus = "Delivered";
       }
     }
 
@@ -991,9 +967,13 @@ const adminUpdateItemStatus = async (req, res) => {
   try {
     const { orderId, itemId } = req.params;
     const { status } = req.body;
-    const order = await orderModel.findById(orderId);
-    const item = order.items.id(itemId);
+    const order = await orderModel.findById(orderId).populate("offerApplied");
+    if (!order)
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
 
+    const item = order.items.id(itemId);
     if (!item)
       return res
         .status(404)
@@ -1001,38 +981,90 @@ const adminUpdateItemStatus = async (req, res) => {
 
     item.itemStatus = status;
 
+    let refundAmount = 0;
     if (status === "Cancelled" || status === "Returned") {
-      const refundAmount = order.totalPrice;
+      // Check if all items are cancelled or returned first
+      const allItemsCancelled = order.items.every(
+        (item) => item.itemStatus === "Cancelled"
+      );
+      const allItemsReturned = order.items.every(
+        (item) => item.itemStatus === "Returned"
+      );
 
-      if (!refundAmount || isNaN(refundAmount) || refundAmount <= 0) {
-        return res
-          .status(400)
-          .json({ success: false, message: "Invalid refund amount" });
+      if (!allItemsCancelled && !allItemsReturned) {
+        // Only calculate refund and adjust totals if not all items are cancelled/returned
+        const totalBeforeDiscount = order.items.reduce(
+          (sum, i) => sum + i.finalPrice * i.quantity,
+          0
+        );
+
+        refundAmount = item.finalPrice * item.quantity;
+
+        if (order.offerApplied) {
+          const totalDiscount = order.discountApplied;
+          const itemDiscountShare =
+            ((item.finalPrice * item.quantity) / totalBeforeDiscount) *
+            totalDiscount;
+          refundAmount -= itemDiscountShare;
+        }
+
+        let remainingAmount =
+          order.totalPrice + order.couponPrice - refundAmount;
+
+        if (remainingAmount <= 0.01) {
+          // Added threshold for floating-point errors
+          order.totalPrice = 0;
+          order.couponPrice = 0;
+          order.discountApplied = 0;
+        } else if (order.offerApplied) {
+          const coupon = order.offerApplied;
+          const newDiscountAmount = Math.min(
+            (remainingAmount * coupon.discountPercentage) / 100,
+            coupon.maxDiscountAmount
+          );
+          order.couponPrice = newDiscountAmount;
+          order.discountApplied = newDiscountAmount;
+          order.totalPrice = remainingAmount - newDiscountAmount;
+        } else {
+          order.totalPrice = remainingAmount;
+          order.couponPrice = 0;
+          order.discountApplied = 0;
+        }
+      } else {
+        // If all items are cancelled or returned, reset totals
+        order.totalPrice = 0;
+        order.couponPrice = 0;
+        order.discountApplied = 0;
+        refundAmount = item.finalPrice * item.quantity; // Refund base amount without discount adjustment
+        if (allItemsCancelled) order.status = "Cancelled";
+        else if (allItemsReturned) order.status = "Returned";
       }
 
-      for (const item of order.items) {
-        await productModel.findByIdAndUpdate(item.product, {
-          $inc: { stock: item.quantity },
-        });
-      }
-
-      let wallet = await walletModel.findOne({ userId: order.userId });
-
-      if (!wallet) {
-        wallet = new walletModel({ userId: order.userId, balance: 0 });
-        await wallet.save();
-      }
-
-      wallet.balance += refundAmount;
-      await wallet.save();
-
-      const transaction = new transactionModel({
-        userId: order.userId,
-        amount: refundAmount,
-        status: "Success",
-        type: "Credit",
+      // Restore stock based on the quantity of the cancelled/returned item
+      await productModel.findByIdAndUpdate(item.product, {
+        $inc: { stock: item.quantity },
       });
-      await transaction.save();
+
+      // Handle refund if paid via Razorpay or Wallet
+      if (["razorpay", "wallet"].includes(order.paymentMethod)) {
+        let wallet = await walletModel.findOne({ userId: order.userId });
+
+        if (!wallet) {
+          wallet = new walletModel({ userId: order.userId, balance: 0 });
+          await wallet.save();
+        }
+
+        wallet.balance += refundAmount;
+        await wallet.save();
+
+        await new transactionModel({
+          userId: order.userId,
+          amount: refundAmount,
+          status: "Success",
+          type: "Credit",
+          date: new Date(),
+        }).save();
+      }
     }
 
     if (status === "Delivered" && order.paymentStatus !== "Paid") {
@@ -1041,49 +1073,254 @@ const adminUpdateItemStatus = async (req, res) => {
 
     await order.save();
 
-    const allItemsReturned = order.items.every(
-      (item) => item.itemStatus === "Returned"
-    );
-    if (allItemsReturned) {
-      await orderModel.findByIdAndUpdate(
-        orderId,
-        { $set: { status: "Returned" } },
-        { new: true }
-      );
-    }
-
+    // Update order status based on remaining items (fallback logic)
     const allItemsDelivered = order.items.every(
       (item) => item.itemStatus === "Delivered"
     );
-    if (allItemsDelivered) {
-      await orderModel.findByIdAndUpdate(
-        orderId,
-        { $set: { status: "Delivered" } },
-        { new: true }
-      );
+
+    if (allItemsDelivered && order.status !== "Delivered") {
+      order.status = "Delivered";
     }
 
-    const allItemsCancelled = order.items.every(
-      (item) => item.itemStatus === "Cancelled"
-    );
-    if (allItemsCancelled) {
-      await orderModel.findByIdAndUpdate(
-        orderId,
-        { $set: { status: "Cancelled" } },
-        { new: true }
-      );
-    }
+    await order.save();
 
-    res
-      .status(200)
-      .json({ success: true, message: "Item status updated successfully." });
+    res.status(200).json({
+      success: true,
+      message: "Item status updated successfully.",
+      updatedOrder: order,
+    });
   } catch (error) {
+    console.error("Error updating item status:", error);
     res
       .status(500)
       .json({ success: false, message: "Error updating item status" });
   }
 };
 
+// const adminUpdateItemStatus = async (req, res) => {
+//   try {
+//     const { orderId, itemId } = req.params;
+//     const { status } = req.body;
+//     const order = await orderModel.findById(orderId);
+//     const item = order.items.id(itemId);
+
+//     if (!item)
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "Item not found" });
+
+//     item.itemStatus = status;
+
+//     if (status === "Cancelled" || status === "Returned") {
+//       const refundAmount = order.totalPrice;
+
+//       if (!refundAmount || isNaN(refundAmount) || refundAmount <= 0) {
+//         return res
+//           .status(400)
+//           .json({ success: false, message: "Invalid refund amount" });
+//       }
+
+//       for (const item of order.items) {
+//         await productModel.findByIdAndUpdate(item.product, {
+//           $inc: { stock: item.quantity },
+//         });
+//       }
+
+//       let wallet = await walletModel.findOne({ userId: order.userId });
+
+//       if (!wallet) {
+//         wallet = new walletModel({ userId: order.userId, balance: 0 });
+//         await wallet.save();
+//       }
+//       if (order.paymentMethod !== "COD") {
+//         wallet.balance += refundAmount;
+//         await wallet.save();
+
+//         const transaction = new transactionModel({
+//           userId: order.userId,
+//           amount: refundAmount,
+//           status: "Success",
+//           type: "Credit",
+//         });
+//         await transaction.save();
+//       }
+//     }
+
+//     if (status === "Delivered" && order.paymentStatus !== "Paid") {
+//       order.paymentStatus = "Paid";
+//     }
+
+//     await order.save();
+
+//     const allItemsReturned = order.items.every(
+//       (item) => item.itemStatus === "Returned"
+//     );
+//     if (allItemsReturned) {
+//       await orderModel.findByIdAndUpdate(
+//         orderId,
+//         { $set: { status: "Returned" } },
+//         { new: true }
+//       );
+//     }
+
+//     const allItemsDelivered = order.items.every(
+//       (item) => item.itemStatus === "Delivered"
+//     );
+//     if (allItemsDelivered) {
+//       await orderModel.findByIdAndUpdate(
+//         orderId,
+//         { $set: { status: "Delivered" } },
+//         { new: true }
+//       );
+//     }
+
+//     const allItemsCancelled = order.items.every(
+//       (item) => item.itemStatus === "Cancelled"
+//     );
+//     if (allItemsCancelled) {
+//       await orderModel.findByIdAndUpdate(
+//         orderId,
+//         { $set: { status: "Cancelled" } },
+//         { new: true }
+//       );
+//     }
+
+//     res
+//       .status(200)
+//       .json({ success: true, message: "Item status updated successfully." });
+//   } catch (error) {
+//     res
+//       .status(500)
+//       .json({ success: false, message: "Error updating item status" });
+//   }
+// };
+
+// const adminUpdateItemStatus = async (req, res) => {
+//   try {
+//     const { orderId, itemId } = req.params;
+//     const { status } = req.body;
+//     const order = await orderModel.findById(orderId).populate("offerApplied");
+//     if (!order)
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "Order not found" });
+
+//     const item = order.items.id(itemId);
+//     if (!item)
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "Item not found" });
+
+//     item.itemStatus = status;
+
+//     if (status === "Cancelled" || status === "Returned") {
+//       // Calculate total price before discount (sum of all items' finalPrice * quantity)
+//       const totalBeforeDiscount = order.items.reduce(
+//         (sum, i) => sum + i.finalPrice * i.quantity,
+//         0
+//       );
+
+//       let refundAmount = item.finalPrice * item.quantity; // Base refund amount considering quantity
+
+//       if (order.offerApplied) {
+//         const coupon = order.offerApplied;
+//         const totalDiscount = order.discountApplied;
+
+//         // Calculate proportional discount applied to this item
+//         const itemDiscountShare =
+//           ((item.finalPrice * item.quantity) / totalBeforeDiscount) *
+//           totalDiscount;
+//         refundAmount -= itemDiscountShare; // Subtract the item's share of discount from refund
+//       }
+
+//       // Update remaining order price after refund
+//       let remainingAmount = order.totalPrice + order.couponPrice - refundAmount;
+
+//       if (remainingAmount <= 0) {
+//         order.totalPrice = 0;
+//         order.couponPrice = 0;
+//         order.discountApplied = 0;
+//       } else if (order.offerApplied) {
+//         const coupon = order.offerApplied;
+//         const newDiscountAmount = Math.min(
+//           (remainingAmount * coupon.discountPercentage) / 100,
+//           coupon.maxDiscountAmount
+//         );
+//         order.couponPrice = newDiscountAmount;
+//         order.discountApplied = newDiscountAmount;
+//         order.totalPrice = remainingAmount - newDiscountAmount;
+//       } else {
+//         order.totalPrice = remainingAmount;
+//         order.couponPrice = 0;
+//         order.discountApplied = 0;
+//       }
+
+//       // Restore stock based on the quantity of the cancelled/returned item
+//       await productModel.findByIdAndUpdate(item.product, {
+//         $inc: { stock: item.quantity },
+//       });
+
+//       // Handle refund if paid via Razorpay or Wallet
+//       if (["razorpay", "wallet"].includes(order.paymentMethod)) {
+//         let wallet = await walletModel.findOne({ userId: order.userId });
+
+//         if (!wallet) {
+//           wallet = new walletModel({ userId: order.userId, balance: 0 });
+//           await wallet.save();
+//         }
+
+//         wallet.balance += refundAmount;
+//         await wallet.save();
+
+//         await new transactionModel({
+//           userId: order.userId,
+//           amount: refundAmount,
+//           status: "Success",
+//           type: "Credit",
+//           date: new Date(),
+//         }).save();
+//       }
+//     }
+
+//     if (status === "Delivered" && order.paymentStatus !== "Paid") {
+//       order.paymentStatus = "Paid";
+//     }
+
+//     await order.save();
+
+//     // Update order status based on remaining items
+//     const allItemsReturned = order.items.every(
+//       (item) => item.itemStatus === "Returned"
+//     );
+//     const allItemsCancelled = order.items.every(
+//       (item) => item.itemStatus === "Cancelled"
+//     );
+//     const allItemsDelivered = order.items.every(
+//       (item) => item.itemStatus === "Delivered"
+//     );
+
+//     if (allItemsReturned) {
+//       order.status = "Returned";
+//     } else if (allItemsCancelled) {
+//       order.status = "Cancelled";
+//     } else if (allItemsDelivered) {
+//       order.status = "Delivered";
+//     }
+
+//     await order.save();
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Item status updated successfully.",
+//       updatedOrder: order,
+//     });
+//   } catch (error) {
+//     console.error("Error updating item status:", error);
+//     res
+//       .status(500)
+//       .json({ success: false, message: "Error updating item status" });
+//   }
+// };
 const verifyReturn = async (req, res) => {
   try {
     const orderId = req.params.orderId;
@@ -1784,6 +2021,8 @@ const loadSalesReport = async (req, res) => {
 
 const downloadSalesReportPDF = async (req, res) => {
   try {
+    console.log("vi");
+
     const { filter = "all", startDate, endDate } = req.query;
     let filterOptions = {};
     const today = dayjs().startOf("day");
@@ -1817,6 +2056,7 @@ const downloadSalesReportPDF = async (req, res) => {
     const orders = await orderModel
       .find(filterOptions)
       .populate("userId", "email")
+      .populate("items.product") // Populate product title
       .sort({ createdAt: -1 });
 
     // 🔹 Create PDF Stream
@@ -1838,13 +2078,14 @@ const downloadSalesReportPDF = async (req, res) => {
       height,
       text,
       isHeader = false,
-      align = "left"
+      align = "left",
+      fillColor = "#ffffff"
     ) => {
-      doc.rect(x, y, width, height).stroke();
+      doc.rect(x, y, width, height).fillAndStroke(fillColor, "#000000");
       doc
         .font(isHeader ? "Helvetica-Bold" : "Helvetica")
         .fontSize(isHeader ? 12 : 10)
-        .fillColor("#000000")
+        .fillColor(isHeader ? "#ffffff" : "#000000")
         .text(text, x + 5, y + 5, { width: width - 10, align });
     };
 
@@ -1878,11 +2119,18 @@ const downloadSalesReportPDF = async (req, res) => {
     // 🔹 Table Headers
     const tableTop = 180;
     const tableLeft = 50;
-    const colWidths = [40, 200, 110, 110];
+    const colWidths = [30, 150, 100, 80, 80, 80]; // Adjusted column widths
     const rowHeight = 30;
-    const headers = ["No.", "Customer", "Total Amount", "Date"];
+    const headers = [
+      "No.",
+      "Customer",
+      "Product",
+      "Total Amount",
+      "Coupon Price",
+      "Date",
+    ];
 
-    doc.fillColor("#e6f2ff");
+    // Draw table headers with a blue background
     headers.forEach((header, i) => {
       let x = tableLeft + colWidths.slice(0, i).reduce((sum, w) => sum + w, 0);
       drawTableCell(
@@ -1892,7 +2140,8 @@ const downloadSalesReportPDF = async (req, res) => {
         rowHeight,
         header,
         true,
-        "center"
+        "center",
+        "#007BFF" // Blue background for headers
       );
     });
 
@@ -1907,7 +2156,7 @@ const downloadSalesReportPDF = async (req, res) => {
         currentTop = 50;
         rowCount = 0;
 
-        doc.fillColor("#e6f2ff");
+        // Redraw headers on new page
         headers.forEach((header, i) => {
           let x =
             tableLeft + colWidths.slice(0, i).reduce((sum, w) => sum + w, 0);
@@ -1918,14 +2167,17 @@ const downloadSalesReportPDF = async (req, res) => {
             rowHeight,
             header,
             true,
-            "center"
+            "center",
+            "#007BFF"
           );
         });
         currentTop += rowHeight;
       }
 
-      doc.fillColor("#ffffff");
+      // Alternate row colors for better readability
+      const rowColor = index % 2 === 0 ? "#f9f9f9" : "#ffffff";
 
+      // Draw table cells
       drawTableCell(
         tableLeft,
         currentTop,
@@ -1933,32 +2185,63 @@ const downloadSalesReportPDF = async (req, res) => {
         rowHeight,
         (index + 1).toString(),
         false,
-        "center"
+        "center",
+        rowColor
       );
       drawTableCell(
         tableLeft + colWidths[0],
         currentTop,
         colWidths[1],
         rowHeight,
-        order.userId?.email || "N/A"
+        order.userId?.email || "N/A",
+        false,
+        "left",
+        rowColor
       );
       drawTableCell(
         tableLeft + colWidths[0] + colWidths[1],
         currentTop,
         colWidths[2],
         rowHeight,
-        `$${order.totalPrice?.toFixed(2) || "0.00"}`,
+        order.items.map((p) => p.product?.product_title).join(", ") || "N/A", // Product titles
         false,
-        "right"
+        "left",
+        rowColor
       );
       drawTableCell(
         tableLeft + colWidths[0] + colWidths[1] + colWidths[2],
         currentTop,
         colWidths[3],
         rowHeight,
+        `₹${order.totalPrice?.toFixed(2) || "0.00"}`,
+        false,
+        "right",
+        rowColor
+      );
+      drawTableCell(
+        tableLeft + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3],
+        currentTop,
+        colWidths[4],
+        rowHeight,
+        `₹${order.couponPrice?.toFixed(2) || "0.00"}`, // Coupon price
+        false,
+        "right",
+        rowColor
+      );
+      drawTableCell(
+        tableLeft +
+          colWidths[0] +
+          colWidths[1] +
+          colWidths[2] +
+          colWidths[3] +
+          colWidths[4],
+        currentTop,
+        colWidths[5],
+        rowHeight,
         dayjs(order.createdAt).format("DD/MM/YYYY"),
         false,
-        "center"
+        "center",
+        rowColor
       );
 
       currentTop += rowHeight;
@@ -1975,11 +2258,13 @@ const downloadSalesReportPDF = async (req, res) => {
       .fontSize(14)
       .fillColor("#333333")
       .text(
-        `Total Sales: $${totalSales.toFixed(2)}`,
+        `Total Sales: ₹${totalSales.toFixed(2)}`,
         tableLeft,
         currentTop + 20,
         { width: colWidths.reduce((sum, w) => sum + w, 0), align: "right" }
       );
+
+    console.log(totalSales, "hii");
 
     doc.end(); // 🔹 End the PDF stream
   } catch (error) {

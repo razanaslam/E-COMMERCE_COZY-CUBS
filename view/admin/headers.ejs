@@ -83,11 +83,6 @@
             style="width: 50px; height: auto"
           />
         </a>
-        <div>
-          <button class="btn btn-icon btn-aside-minimize">
-            <i class="material-icons">menu_open</i>
-          </button>
-        </div>
       </div>
       <nav>
         <ul class="menu-aside">
@@ -100,7 +95,8 @@
           'local_offer', text: 'Offers' }, { link: '/admin/sales-report', icon:
           'bar_chart', text: 'Sales Report' }, { link: '/admin/coupons', icon:
           'loyalty', text: 'Coupons' }, { link: '/admin/orders', icon:
-          'shopping_cart', text: 'Orders' } ]; %> <% menuItems.forEach(item => {
+          'shopping_cart', text: 'Orders' },{ link: '/admin/logout', icon:
+          'exit_to_app', text: 'Log-Out' } ]; %> <% menuItems.forEach(item => {
           %>
           <li class="menu-item <%= item.active ? 'active' : '' %>">
             <a

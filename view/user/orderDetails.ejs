@@ -304,13 +304,13 @@ background-color: #f6f6e6;
                 <td>
                   <% if(item.discountedPrice) { %>
                     <span style="text-decoration: line-through; color: red;">
-                      <%= item.price.toFixed(2) %> <!-- Original Price -->
+                      <%= item.price.toFixed(2) %> 
                     </span>
                     <span style="color: green;">
-                      <%= item.discountedPrice.toFixed(2) %> <!-- Discounted Price -->
+                      <%= item.discountedPrice.toFixed(2) %> 
                     </span>
                   <% } else { %>
-                    <%= item.price.toFixed(2) %> <!-- Normal Price if no discount -->
+                    <%= item.price.toFixed(2) %>
                   <% } %>
                 </td>
                 
@@ -324,7 +324,7 @@ background-color: #f6f6e6;
                   <% if(item.discountedPrice) { %>
                     <span style="text-decoration: line-through; color: red;">
                       <%= (item.price * item.quantity).toFixed(2) %> <!-- Original Total -->
-                    </span>n
+                    </span>
                     <span style="color: green;">
                       <%= (item.discountedPrice * item.quantity).toFixed(2) %> <!-- Discounted Total -->
                     </span>
@@ -349,11 +349,12 @@ background-color: #f6f6e6;
                     <p class="text-success">Returned</p>
                   <% } else { %>
                     <button 
-                      class="btn btn-danger cancel-item-btn" 
-                      data-order-id="<%= orders._id %>" 
-                      data-item-id="<%= item._id %>">
-                      Cancel
-                    </button>
+                    class="btn btn-danger cancel-item-btn" 
+                    data-order-id="<%= orders._id %>" 
+                    data-item-id="<%= item._id %>"
+                    <% if (orders.paymentStatus === "Failed") { %>disabled<% } %>>
+                    Cancel
+                  </button>
                   <% } %>
                 </td>
               

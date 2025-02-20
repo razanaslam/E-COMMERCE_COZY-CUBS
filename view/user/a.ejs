@@ -1,102 +1,5 @@
 <%- include('header.ejs') %>
 <style>
-/* Button to Open Modal */
-#open-modal {
-  padding: 10px 15px;
-  background: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: 0.3s;
-}
-
-#open-modal:hover {
-  background: #0056b3;
-}
-
-/* Modal Background */
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.4);
-}
-
-/* Modal Content */
-.modal-content {
-  background: #fff;
-  margin: 10% auto;
-  padding: 20px;
-  width: 90%;
-  max-width: 400px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-/* Close Button */
-.close {
-  float: right;
-  font-size: 24px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.close:hover {
-  color: red;
-}
-
-/* Filter Form Styling */
-#filter-form {
-  font-family: Arial, sans-serif;
-}
-
-#filter-form input[type="text"],
-#filter-form select {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 15px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-h2 {
-  font-size: 18px;
-  color: #444;
-}
-
-#filter-form div {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-#filter-form input[type="checkbox"] {
-  margin-right: 10px;
-  transform: scale(1.2);
-}
-
-/* Apply Button */
-button[type="submit"] {
-  width: 100%;
-  padding: 10px;
-  background: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: 0.3s;
-}
-
-button[type="submit"]:hover {
-  background: #0056b3;
-}
 
 
   body {
@@ -237,7 +140,6 @@ input[type="checkbox"]:checked::before {
     </style>
     
 
-    
      
       <div class="search-content-wrap main-search-active">
         <a class="search-close"><i class="dlicon ui-1_simple-remove"></i></a>
@@ -350,7 +252,7 @@ input[type="checkbox"]:checked::before {
                   <div class="shop-top-bar" style="display: flex !important; flex-direction: row !important; justify-content: space-evenly !important;">
                  
                    
-<!--                     
+                    
                     <div class="shop-top-bar-right">
                       <div class="shop-tab nav">
                         <a href="#shop-1" class="active" data-bs-toggle="tab">
@@ -359,12 +261,12 @@ input[type="checkbox"]:checked::before {
                         <a href="#shop-2" data-bs-toggle="tab">
                           <i class="dlicon design_bullet-list-69"></i>
                         </a>
-                      </div> -->
+                      </div>
                       
                     
   
                    <!-- Trigger for Modal -->
-  <!-- <div class="shop-filter ml-50">
+  <div class="shop-filter ml-50">
     <a 
       class="shop-filter-active" 
       href="javascript:void(0)" 
@@ -373,23 +275,23 @@ input[type="checkbox"]:checked::before {
       Filters 
       <i class="fa fa-angle-down" style="margin-left: 5px;"></i>
     </a>
-  </div> -->
+  </div>
   
-  <!-- Modal Structure
+  <!-- Modal Structure -->
   <div 
     id="filterModal" 
     style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 9999; overflow-y: auto;">
     <div 
       style="position: relative; margin: 50px auto; max-width: 600px; background-color: #ececec; border-radius: 10px; padding: 20px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);">
       <!-- Close Button -->
-      <!-- <button 
+      <button 
         onclick="toggleModal()" 
         style="position: absolute; top: 10px; right: 10px; background: transparent; border: none; font-size: 20px; cursor: pointer;">
         &times;
-      </button> -->
+      </button>
   
       <!-- Filter Options -->
-      <!-- <form action="/product" method="GET" style="margin: 0;">
+      <form action="/product" method="GET" style="margin: 0;">
         <h2 style="text-align: center; margin-bottom: 20px;">Filter by Category</h2>
         <div style="max-height: 400px; overflow-y: auto; padding: 10px;">
           <% categories.forEach(cat => { %>
@@ -415,12 +317,12 @@ input[type="checkbox"]:checked::before {
             Apply Filters
           </button>
         </div>
-      </form> --> -->
-    <!-- </div> -->
+      </form>
+    </div>
   </div>
   
                       
-                      <!-- <div class="shop-short-by ml-50">
+                      <div class="shop-short-by ml-50">
                         <label for="sort-options">Sort by:</label>
                         <select id="sort-options">
                           <option value="default">Default sorting</option>
@@ -429,61 +331,28 @@ input[type="checkbox"]:checked::before {
                           <option value="low-to-high">Sort by price: low to high</option>
                           <option value="high-to-low">Sort by price: high to low</option>
                         </select>
-                      </div> -->
+                      </div>
                     </div>
                     
-  <!-- <div style="margin-right: 23px;">
+  <div style="margin-right: 23px;">
     <form action="/product" method="GET" style="display: flex; align-items: center; width: 100%; max-width: 600px; margin: 0 auto ; margin-top: 26px;">
       <!-- Search Input -->
-      <!-- <input 
+      <input 
         type="text" 
         name="query" 
         placeholder="Search..." 
-        value="<%#= searchQuery %>"  
+        value="<%= searchQuery %>"  
         style="width: 100%; padding: 10px; border: 1px solid black; background-color: transparent; font-size: 16px; border-radius: 4px; outline: none; box-sizing: border-box;">
-       -->
+      
       <!-- Search Button -->
-      <!-- <button 
+      <button 
         type="submit" 
         style="padding: 10px 15px; border: 1px solid black; background-color: transparent; color: black; font-size: 16px; cursor: pointer; border-radius: 4px; margin-left: 5px;">
         <i class="dlicon ui-1_zoom"></i>
       </button>
-    </form> -->
-  <!-- </div> -->
-  <!-- Display Products -->
-<!-- Button to open modal -->
-<button id="open-modal">Filter Products</button>
-
-<!-- Modal Container -->
-<div id="filter-modal" class="modal">
-  <div class="modal-content">
-    <span class="close">&times;</span>
-
-    <form id="filter-form" action="/product" method="GET">
-      <input type="text" name="query" placeholder="Search" value="<%= searchQuery %>" />
-      
-      <label for="sort-options">Sort by:</label>
-      <select id="sort-options" name="sortType">
-        <option value="default" <%= sortType === "default" ? "selected" : "" %>>Default sorting</option>
-        <option value="a-z" <%= sortType === "a-z" ? "selected" : "" %>>Sort by name: A-Z</option>
-        <option value="z-a" <%= sortType === "z-a" ? "selected" : "" %>>Sort by name: Z-A</option>
-        <option value="low-to-high" <%= sortType === "low-to-high" ? "selected" : "" %>>Sort by price: Low to High</option>
-        <option value="high-to-low" <%= sortType === "high-to-low" ? "selected" : "" %>>Sort by price: High to Low</option>
-      </select>
-    
-      <h2>Filter by Category</h2>
-      <% categories.forEach(cat => { %>
-        <div>
-          <input type="checkbox" name="categories" value="<%= cat._id %>" <%= selectedCategories.includes(cat._id.toString()) ? 'checked' : '' %> />
-          <label><%= cat.name %></label>
-        </div>
-      <% }) %>
-    
-      <button type="submit">Apply Filters</button>
     </form>
   </div>
-</div>
-
+  <!-- Display Products -->
   
   
                   </div>
@@ -585,7 +454,7 @@ input[type="checkbox"]:checked::before {
 
 
 
-<!-- <script>
+<script>
   function toggleFilter() {
     const filterOptions = document.querySelector('.filter-options');
     const angleDown = document.querySelector('.angle-down');
@@ -695,14 +564,9 @@ input[type="checkbox"]:checked::before {
 
     </script>
     
-  -->
+ 
   </body>
-  <script>
-    document.getElementById("sort-options").addEventListener("change", function () {
-      document.getElementById("filter-form").submit();
-    });
-  </script>
-  
+
 
   </html>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -726,31 +590,6 @@ input[type="checkbox"]:checked::before {
       }
     });
   }
-
-
-  document.addEventListener("DOMContentLoaded", function () {
-  const modal = document.getElementById("filter-modal");
-  const openModalBtn = document.getElementById("open-modal");
-  const closeModalBtn = document.querySelector(".close");
-
-  // Open modal
-  openModalBtn.addEventListener("click", function () {
-    modal.style.display = "block";
-  });
-
-  // Close modal
-  closeModalBtn.addEventListener("click", function () {
-    modal.style.display = "none";
-  });
-
-  // Close modal when clicking outside content
-  window.addEventListener("click", function (event) {
-    if (event.target === modal) {
-      modal.style.display = "none";
-    }
-  });
-});
-
 </script>
 
 

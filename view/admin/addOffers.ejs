@@ -48,152 +48,85 @@
             <h4>Offer Details</h4>
           </div>
           <div class="card-body">
-            <form id="offerForm" method="POST" action="/admin/addoffer"      onsubmit="return validateOfferForm()"
-            >
+            <form id="offerForm" method="POST" action="/admin/addoffer" onsubmit="return validateOfferForm()">
               <div class="mb-4">
                 <label for="offerName" class="form-label">Offer Name</label>
-                <input
-                  type="text"
-                  id="offerName"
-                  name="offerName"
-                  class="form-control"
-                />
+                <input type="text" id="offerName" name="offerName" class="form-control" />
                 <span id="offerNameError" style="color: red"></span>
               </div>
-
+            
               <!-- Offer Type Dropdown (Product or Category) -->
               <div class="mb-4">
                 <label for="offerType" class="form-label">Offer Type</label>
-                <select
-                  id="offerType"
-                  name="offerType"
-                  class="form-control"
-                  onchange="toggleApplicableFields()"
-                >
+                <select id="offerType" name="offerType" class="form-control" onchange="toggleApplicableFields()">
                   <option value="product">Product</option>
                   <option value="category">Category</option>
                 </select>
               </div>
-
+            
               <!-- Applicable Products (Checkboxes) -->
               <div id="productSelect" class="mb-4 hidden">
-                <label for="applicableProducts" class="form-label"
-                  >Applicable Products</label
-                >
+                <label for="applicableProducts" class="form-label">Applicable Products</label>
                 <div id="productCheckboxes">
                   <% products.forEach(product => { %>
                   <div>
-                    <input
-                      type="checkbox"
-                      name="applicableProducts"
-                      value="<%= product._id %>"
-                      id="product_<%= product._id %>"
-                    />
-                    <label for="product_<%= product._id %>"
-                      ><%= product.product_title %></label
-                    >
+                    <input type="checkbox" name="applicableProducts" value="<%= product._id %>" id="product_<%= product._id %>" />
+                    <label for="product_<%= product._id %>"><%= product.product_title %></label>
                   </div>
                   <% }) %>
                 </div>
-                <span
-                  id="applicableProductsError"
-                  style="color: red"
-                ></span>
+                <span id="applicableProductsError" style="color: red"></span>
               </div>
-
+            
               <!-- Applicable Categories (Dropdown) -->
               <div id="categorySelect" class="mb-4">
-                <label for="applicableCategories" class="form-label"
-                  >Applicable Categories</label
-                >
-                <select
-                  id="applicableCategories"
-                  name="applicableCategories"
-                  class="form-control"
-                >
+                <label for="applicableCategories" class="form-label">Applicable Categories</label>
+                <select id="applicableCategories" name="applicableCategories" class="form-control">
                   <option value="">Select Category</option>
                   <% categories.forEach(category => { %>
-                  <option value="<%= category._id %>">
-                    <%= category.name %>
-                  </option>
+                  <option value="<%= category._id %>"><%= category.name %></option>
                   <% }) %>
                 </select>
-                <span
-                  id="applicableCategoriesError"
-                  style="color: red"
-                ></span>
+                <span id="applicableCategoriesError" style="color: red"></span>
               </div>
-
+            
               <!-- Discount Type (Percentage or Fixed) -->
               <div class="mb-4">
-                <label for="discountType" class="form-label"
-                  >Discount Type</label
-                >
-                <select
-                  id="discountType"
-                  name="discountType"
-                  class="form-control"
-                >
+                <label for="discountType" class="form-label">Discount Type</label>
+                <select id="discountType" name="discountType" class="form-control">
                   <option value="percentage">Percentage</option>
                   <option value="fixed">Fixed Amount</option>
                 </select>
               </div>
-
+            
               <!-- Discount Value -->
               <div class="mb-4">
-                <label for="discountValue" class="form-label"
-                  >Discount Value</label
-                >
-                <input
-                  type="number"
-                  id="discountValue"
-                  name="discountValue"
-                  class="form-control"
-                  min="0"
-                />
+                <label for="discountValue" class="form-label">Discount Value</label>
+                <input type="number" id="discountValue" name="discountValue" class="form-control" min="0" />
                 <span id="discountValueError" style="color: red"></span>
               </div>
-
+            
               <!-- Start Date -->
               <div class="mb-4">
                 <label for="startDate" class="form-label">Start Date</label>
-                <input
-                  type="date"
-                  id="startDate"
-                  name="startDate"
-                  class="form-control"
-                />
+                <input type="date" id="startDate" name="startDate" class="form-control" />
                 <span id="startDateError" style="color: red"></span>
               </div>
-
+            
               <!-- End Date -->
               <div class="mb-4">
                 <label for="endDate" class="form-label">End Date</label>
-                <input
-                  type="date"
-                  id="endDate"
-                  name="endDate"
-                  class="form-control"
-                />
+                <input type="date" id="endDate" name="endDate" class="form-control" />
                 <span id="endDateError" style="color: red"></span>
               </div>
-
+            
               <!-- Is Listed Checkbox -->
               <div class="mb-4 form-check">
-                <input
-                  type="checkbox"
-                  id="isListed"
-                  name="isListed"
-                  class="form-check-input"
-                />
-                <label for="isListed" class="form-check-label"
-                  >Is Listed</label
-                >
+                <input type="checkbox" id="isListed" name="isListed" class="form-check-input" />
+                <label for="isListed" class="form-check-label">Is Listed</label>
               </div>
-
-              <button type="submit" class="btn btn-primary">
-                Submit Offer
-              </button>
+            
+              <button type="submit" class="btn btn-primary">Submit Offer</button>
             </form>
           </div>
         </div>
@@ -351,6 +284,115 @@
         toggleApplicableFields();
       });
     </script>
+    <script>
+      // Toggle applicable fields based on offer type
+      function toggleApplicableFields() {
+        const offerType = document.getElementById("offerType").value;
+        const productSelect = document.getElementById("productSelect");
+        const categorySelect = document.getElementById("categorySelect");
+    
+        if (offerType === "product") {
+          productSelect.classList.remove("hidden");
+          categorySelect.classList.add("hidden");
+        } else {
+          productSelect.classList.add("hidden");
+          categorySelect.classList.remove("hidden");
+        }
+      }
+    
+      // Validation function
+      function validateOfferForm() {
+        let isValid = true;
+    
+        // Clear previous error messages
+        document.getElementById("offerNameError").textContent = "";
+        document.getElementById("applicableProductsError").textContent = "";
+        document.getElementById("applicableCategoriesError").textContent = "";
+        document.getElementById("discountValueError").textContent = "";
+        document.getElementById("startDateError").textContent = "";
+        document.getElementById("endDateError").textContent = "";
+    
+        // 1. Validate Offer Name
+        const offerName = document.getElementById("offerName").value.trim();
+        const offerNameRegex = /^[a-zA-Z0-9\s-]{3,}$/; // Letters, numbers, spaces, hyphens, min 3 chars
+        if (!offerName) {
+          document.getElementById("offerNameError").textContent = "Offer Name is required.";
+          isValid = false;
+        } else if (!offerNameRegex.test(offerName)) {
+          document.getElementById("offerNameError").textContent =
+            "Offer Name must be at least 3 characters and contain only letters, numbers, spaces, or hyphens.";
+          isValid = false;
+        }
+    
+        // 2. Validate Applicable Products or Categories based on Offer Type
+        const offerType = document.getElementById("offerType").value;
+        if (offerType === "product") {
+          const applicableProducts = document.querySelectorAll("input[name='applicableProducts']:checked");
+          if (applicableProducts.length === 0) {
+            document.getElementById("applicableProductsError").textContent =
+              "At least one product must be selected.";
+            isValid = false;
+          }
+        } else if (offerType === "category") {
+          const applicableCategories = document.getElementById("applicableCategories").value;
+          if (!applicableCategories) {
+            document.getElementById("applicableCategoriesError").textContent =
+              "Please select a category.";
+            isValid = false;
+          }
+        }
+    
+        // 3. Validate Discount Value
+        const discountValue = document.getElementById("discountValue").value;
+        const discountType = document.getElementById("discountType").value;
+        if (!discountValue || discountValue <= 0) {
+          document.getElementById("discountValueError").textContent =
+            "Discount Value must be a positive number.";
+          isValid = false;
+        } else if (discountType === "percentage" && discountValue > 100) {
+          document.getElementById("discountValueError").textContent =
+            "Percentage discount cannot exceed 100.";
+          isValid = false;
+        }
+    
+        // 4. Validate Start Date
+        const startDate = document.getElementById("startDate").value;
+        const today = new Date().toISOString().split("T")[0]; // Current date in YYYY-MM-DD
+        if (!startDate) {
+          document.getElementById("startDateError").textContent = "Start Date is required.";
+          isValid = false;
+        } else if (startDate < today) {
+          document.getElementById("startDateError").textContent =
+            "Start Date cannot be in the past.";
+          isValid = false;
+        }
+    
+        // 5. Validate End Date
+        const endDate = document.getElementById("endDate").value;
+        if (!endDate) {
+          document.getElementById("endDateError").textContent = "End Date is required.";
+          isValid = false;
+        } else if (endDate < startDate) {
+          document.getElementById("endDateError").textContent =
+            "End Date must be after Start Date.";
+          isValid = false;
+        }
+    
+        return isValid; // Returning false prevents form submission if validation fails
+      }
+    
+      // Initialize the form on page load
+      window.onload = function () {
+        toggleApplicableFields(); // Set initial visibility based on default offer type
+      };
+    </script>
+    
+    <!-- Optional CSS to ensure hidden class works -->
+    <style>
+      .hidden {
+        display: none;
+      }
+    </style>
     
   </body>
 

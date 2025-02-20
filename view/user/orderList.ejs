@@ -579,7 +579,9 @@ async function returnOrder(orderId) {
                                                     <button onclick="cancelVerify('<%= order._id %>')" style="display: inline-block; padding: 6px 12px; margin: 2px; background-color: #dc3545; color: #fff; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; padding-right: 30px;">  Cancel </button>
                                                 <% } else if (order.status === 'Delivered') { %>
                                                     <button onclick="returnOrderWithReason('<%= order._id %>')" style="display: inline-block; padding: 6px 12px; margin: 2px; background-color: #ffc107; color: #000; border: none; border-radius: 4px; font-size: 14px; cursor: pointer;">Return</button>
-                                                <% } else { %>
+                                                    <% } else if (order.status === 'Returned') { %>
+                                                        <button disabled style="display: inline-block; padding: 6px 12px; margin: 2px; background-color: white; color: #0e509c; border: none; border-radius: 4px; font-size: 14px; cursor: pointer;">Returned</button>
+                                                <% } else  { %>
                                                     <button disabled style="display: inline-block; padding: 6px 12px; margin: 2px; background-color: white; color: #dc3545; border: none; border-radius: 4px; font-size: 14px; cursor: pointer;">Cancelled</button>
                                                 <% } %>
                                             <% } %>
@@ -889,7 +891,8 @@ async function returnOrder(orderId) {
             });
 
             if (!response.ok) {
-                throw new Error("Failed to fetch retry order details");
+                const errorData = await response.json();
+                throw new Error(errorData.message);
             }
 
             const { order_id, amount, currency, razorpayOrderId } = await response.json();
@@ -962,6 +965,7 @@ async function returnOrder(orderId) {
         }
     }
 </script>
+
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 

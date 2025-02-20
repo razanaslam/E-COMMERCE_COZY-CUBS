@@ -1,4 +1,5 @@
 // const User = require("../model/userModel");
+const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
@@ -62,15 +63,12 @@ const registerUser = async (req, res) => {
       }
     }
 
-    console.log("is user already exists ====>", existUser);
     if (existUser) {
-      console.log("email already existed");
       req.flash("errorEmail", "User  already exists");
       return res.redirect("/register");
     } else {
       if (password !== confirmPassword) {
         req.flash("errorPassword", "Passwords do not match");
-        console.log("passwords do not match");
         return res.redirect("/register");
       }
 
@@ -194,12 +192,10 @@ const verifyOtp = async (req, res) => {
 
     // OTP is valid and not expired, proceed with user registration
     const { name, email, number, password, referalCode } = req.session.user;
-    console.log(referalCode, "refcode");
 
     // Handle referral code bonus
     if (referalCode) {
       const refUser = await userModel.findOne({ referalCode });
-      console.log(refUser, "refuser");
 
       if (refUser) {
         const refWallet = await walletModel.findOne({ userId: refUser._id });
@@ -243,7 +239,6 @@ const verifyOtp = async (req, res) => {
         type: "Credit",
         date: new Date(),
       });
-      console.log("new transaction", newTransaction);
 
       await newTransaction.save(); // Save the transaction
     }
@@ -313,18 +308,16 @@ const loadLogin = (req, res) => {
 
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
-  console.log("this is password", password);
 
   try {
     const user = await userModel.findOne({ email });
-    console.log("this is db", user);
 
     if (!user) {
       req.flash("loginError", "Invalid email ");
       return res.redirect("/login");
     }
     if (user.googleId) {
-      req.flash("googelError", "it is a google authenticated user");
+      req.flash("googleError", "It is a Google authenticated user.");
       return res.redirect("/login");
     }
 
@@ -466,11 +459,7 @@ const forgotVerifyOtp = async (req, res) => {
       return res.redirect(`/forgotVerify-otp/${id}`);
     }
     if (isOtp.otp === otp) {
-      console.log("otp match");
-
       if (isOtp.otpExpiredAt < currentOtpTime) {
-        console.log("expired");
-
         return res.redirect(`/forgotVerify-otp/${id}`);
       } else {
         await otpModel.findByIdAndDelete(id);
@@ -564,46 +553,196 @@ const changePass = async (req, res) => {
 
 //------------------------------------------------------------product List-------------------------------------------------------
 
+// const loadProductList = async (req, res) => {
+//   try {
+//     const currentDate = new Date();
+//     const { categories, query, page = 1, limit = 3 } = req.query;
+//     let filterQuery = {};
+
+//     if (categories) {
+//       filterQuery.category = {
+//         $in: Array.isArray(categories) ? categories : [categories],
+//       };
+//     }
+
+//     if (query) {
+//       filterQuery.$or = [
+//         { product_title: { $regex: query, $options: "i" } },
+//         { category: { $in: categories ? categories : [] } },
+//       ];
+//     }
+
+//     const skip = (page - 1) * limit;
+//     const totalProducts = await productModel.countDocuments(filterQuery);
+//     const totalPages = Math.ceil(totalProducts / limit);
+
+//     const products = await productModel
+//       .find(filterQuery)
+//       .skip(skip)
+//       .limit(parseInt(limit))
+//       .populate("bestOffer")
+//       .populate("category")
+//       .populate("brand");
+
+//     for (const product of products) {
+//       if (product.bestOffer) {
+//         const { endDate } = product.bestOffer;
+
+//         if (new Date(endDate) < currentDate) {
+//           product.bestOffer = null;
+//           product.discountedPrice = null;
+//           await product.save();
+
+//           await cartModel.updateMany(
+//             { "items.productId": product._id },
+//             { $pull: { items: { productId: product._id } } }
+//           );
+//         }
+//       } else {
+//         product.discountedPrice = null;
+//         await product.save();
+//       }
+//     }
+
+//     const categoriesList = await catagory.find();
+
+//     res.render("productList", {
+//       product: products,
+//       categories: categoriesList,
+//       selectedCategories: Array.isArray(categories) ? categories : [categories],
+//       searchQuery: query || "",
+//       currentPage: parseInt(page),
+//       totalPages,
+//       limit: parseInt(limit),
+//     });
+//   } catch (error) {
+//     console.error("Error loading product list:", error);
+//     res.status(500).send("An error occurred while loading the product list.");
+//   }
+// };
+
+// const sortProducts = async (req, res) => {
+//   const { sortType } = req.body;
+
+//   try {
+//     let sortCriteria;
+
+//     switch (sortType) {
+//       case "a-z":
+//         // Sort by title (case-insensitive)
+//         sortCriteria = { $sort: { product_title_lower: 1 } };
+//         break;
+//       case "z-a":
+//         // Sort by title in reverse order (case-insensitive)
+//         sortCriteria = { $sort: { product_title_lower: -1 } };
+//         break;
+//       case "low-to-high":
+//         // Sort by discounted price if exists, else by regular price
+//         sortCriteria = { $sort: { final_price: 1 } };
+//         break;
+//       case "high-to-low":
+//         // Sort by discounted price if exists, else by regular price (descending)
+//         sortCriteria = { $sort: { final_price: -1 } };
+//         break;
+//       default:
+//         // Default: No specific sorting
+//         sortCriteria = { $sort: { _id: 1 } }; // Default to sorting by _id
+//     }
+
+//     const sortedProducts = await productModel.aggregate([
+//       // Add a new field 'final_price' to consider discounted price
+//       {
+//         $addFields: {
+//           final_price: {
+//             $cond: {
+//               if: { $ifNull: ["$discountedPrice", false] },
+//               then: "$discountedPrice",
+//               else: "$price",
+//             },
+//           },
+//         },
+//       },
+//       // Add a lowercase version of the product title for case-insensitive sorting
+//       {
+//         $addFields: {
+//           product_title_lower: { $toLower: "$product_title" },
+//         },
+//       },
+//       sortCriteria, // Apply the sorting based on the selected type
+//       {
+//         $project: {
+//           product_title_lower: 0, // Exclude the temporary field from the output
+//         },
+//       },
+//     ]);
+
+//     res.json({ sortedProducts });
+//   } catch (error) {
+//     console.error("Error sorting products:", error);
+//     res.status(500).send("Error sorting products");
+//   }
+// };
 const loadProductList = async (req, res) => {
   try {
     const currentDate = new Date();
-    const { categories, query, page = 1, limit = 3 } = req.query;
+    const { categories, query, page = 1, limit = 3, sortType } = req.query;
     let filterQuery = {};
 
+    // Step 1: Apply Category Filtering (if provided)
     if (categories) {
       filterQuery.category = {
         $in: Array.isArray(categories) ? categories : [categories],
       };
     }
 
+    // Step 2: Apply Search Filtering (only within selected categories)
     if (query) {
-      filterQuery.$or = [
-        { product_title: { $regex: query, $options: "i" } },
-        { category: { $in: categories ? categories : [] } },
-      ];
+      filterQuery.product_title = { $regex: query, $options: "i" };
     }
 
+    // Step 3: Apply Sorting Logic (only on filtered + searched results)
+    let sortCriteria = {};
+    switch (sortType) {
+      case "a-z":
+        sortCriteria.product_title = 1;
+        break;
+      case "z-a":
+        sortCriteria.product_title = -1;
+        break;
+      case "low-to-high":
+        sortCriteria.price = 1;
+        break;
+      case "high-to-low":
+        sortCriteria.price = -1;
+        break;
+      default:
+        sortCriteria._id = 1; // Default sorting
+    }
+    // Pagination Logic
     const skip = (page - 1) * limit;
     const totalProducts = await productModel.countDocuments(filterQuery);
     const totalPages = Math.ceil(totalProducts / limit);
 
-    const products = await productModel
+    // Step 4: Fetch Products with Filtering, Searching, Sorting & Pagination
+    let products = await productModel
       .find(filterQuery)
+      .collation({ locale: "en", strength: 2 }) // 🔥 Ensures case-insensitive sorting
+      .sort(sortCriteria) // ✅ Sorting now works correctly
       .skip(skip)
       .limit(parseInt(limit))
       .populate("bestOffer")
       .populate("category")
       .populate("brand");
-
+    // Handling expired offers
     for (const product of products) {
       if (product.bestOffer) {
         const { endDate } = product.bestOffer;
-
         if (new Date(endDate) < currentDate) {
           product.bestOffer = null;
           product.discountedPrice = null;
           await product.save();
 
+          // Remove expired offers from cart
           await cartModel.updateMany(
             { "items.productId": product._id },
             { $pull: { items: { productId: product._id } } }
@@ -615,8 +754,10 @@ const loadProductList = async (req, res) => {
       }
     }
 
+    // Fetch Categories for UI Filter
     const categoriesList = await catagory.find();
 
+    // Render Response
     res.render("productList", {
       product: products,
       categories: categoriesList,
@@ -625,72 +766,11 @@ const loadProductList = async (req, res) => {
       currentPage: parseInt(page),
       totalPages,
       limit: parseInt(limit),
+      sortType: sortType || "default",
     });
   } catch (error) {
     console.error("Error loading product list:", error);
     res.status(500).send("An error occurred while loading the product list.");
-  }
-};
-
-const sortProducts = async (req, res) => {
-  const { sortType } = req.body;
-
-  try {
-    let sortCriteria;
-
-    switch (sortType) {
-      case "a-z":
-        // Sort by title (case-insensitive)
-        sortCriteria = { $sort: { product_title_lower: 1 } };
-        break;
-      case "z-a":
-        // Sort by title in reverse order (case-insensitive)
-        sortCriteria = { $sort: { product_title_lower: -1 } };
-        break;
-      case "low-to-high":
-        // Sort by discounted price if exists, else by regular price
-        sortCriteria = { $sort: { final_price: 1 } };
-        break;
-      case "high-to-low":
-        // Sort by discounted price if exists, else by regular price (descending)
-        sortCriteria = { $sort: { final_price: -1 } };
-        break;
-      default:
-        // Default: No specific sorting
-        sortCriteria = { $sort: { _id: 1 } }; // Default to sorting by _id
-    }
-
-    const sortedProducts = await productModel.aggregate([
-      // Add a new field 'final_price' to consider discounted price
-      {
-        $addFields: {
-          final_price: {
-            $cond: {
-              if: { $ifNull: ["$discountedPrice", false] },
-              then: "$discountedPrice",
-              else: "$price",
-            },
-          },
-        },
-      },
-      // Add a lowercase version of the product title for case-insensitive sorting
-      {
-        $addFields: {
-          product_title_lower: { $toLower: "$product_title" },
-        },
-      },
-      sortCriteria, // Apply the sorting based on the selected type
-      {
-        $project: {
-          product_title_lower: 0, // Exclude the temporary field from the output
-        },
-      },
-    ]);
-
-    res.json({ sortedProducts });
-  } catch (error) {
-    console.error("Error sorting products:", error);
-    res.status(500).send("Error sorting products");
   }
 };
 
@@ -699,18 +779,24 @@ const sortProducts = async (req, res) => {
 const loadProductDetails = async (req, res) => {
   try {
     const id = req.params.id;
-
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(404).render("404"); // Render 404 page for invalid ObjectId
+    }
     const product = await productModel
       .findById(id)
       .populate("category", "name")
       .populate("brand", "name")
       .populate("bestOffer");
-
+    if (!product) {
+      // If product is not found, render the 404 page
+      return res.status(404).render("404");
+    }
     const cartFail = req.flash("cartFail");
     const msg = req.flash("msg");
 
     res.render("product_details", { product, cartFail, msg });
   } catch (error) {
+    // return res.status(404).render("404");
     console.log(error);
   }
 };
@@ -943,6 +1029,10 @@ const loadCheckout = async (req, res) => {
       .findOne({ userId: id })
       .populate("items.product");
     const address = await addressModel.find({ userId: id });
+    const wallet = await walletModel.findOne({ userId: id });
+    const walletbalance = wallet.balance ? wallet.balance : 0;
+
+    console.log(walletbalance, "walletbalance");
 
     if (!cart || cart.items.length === 0) {
       req.flash("cartEmpty", "Your cart is empty");
@@ -966,6 +1056,7 @@ const loadCheckout = async (req, res) => {
       addressSuccess,
       messages,
       deliveryCharge,
+      walletbalance,
       razorpayKey: "rzp_test_VBZkWRTmp72VJq",
     });
   } catch (error) {
@@ -1051,7 +1142,6 @@ const cancelOrder = async (req, res) => {
   try {
     const orderId = req.params.id;
     const updatedOrder = await orderModel.findByIdAndUpdate(orderId);
-    console.log(updatedOrder.totalPrice, "hy total proce");
 
     if (!updatedOrder) {
       return res
@@ -1061,8 +1151,14 @@ const cancelOrder = async (req, res) => {
 
     if (updatedOrder.status === "Delivered") {
       updatedOrder.status = "Returned";
+      for (item of updatedOrder.items) {
+        item.itemStatus = "Returned";
+      }
     } else {
       updatedOrder.status = "Cancelled";
+      for (item of updatedOrder.items) {
+        item.itemStatus = "Cancelled";
+      }
     }
 
     await updatedOrder.save();
@@ -1082,19 +1178,21 @@ const cancelOrder = async (req, res) => {
         .status(404)
         .json({ success: false, message: "User's wallet not found" });
     }
+    let transaction = {};
+    if (updatedOrder.paymentMethod !== "COD") {
+      userWallet.balance += totalRefundAmount;
+      await userWallet.save();
 
-    userWallet.balance += totalRefundAmount;
-    await userWallet.save();
+      transaction = new transactionModel({
+        userId,
+        amount: totalRefundAmount,
+        status: "Success",
+        type: "Credit",
+        date: new Date(),
+      });
 
-    const transaction = new transactionModel({
-      userId,
-      amount: totalRefundAmount,
-      status: "Success",
-      type: "Credit",
-      date: new Date(),
-    });
-
-    await transaction.save();
+      await transaction.save();
+    }
 
     res.json({
       success: true,
@@ -1128,22 +1226,49 @@ const returnItem = async (req, res) => {
         .json({ success: false, message: "Item not found" });
 
     item.itemStatus = "Returned";
-    let refundAmount = item.finalPrice - order.couponPrice;
+
+    const totalBeforeDiscount = order.items.reduce(
+      (sum, i) => sum + i.finalPrice * i.quantity,
+      0
+    );
+
+    let refundAmount = item.finalPrice * item.quantity;
+
+    if (order.offerApplied) {
+      const totalDiscount = order.discountApplied;
+      const itemDiscountShare =
+        ((item.finalPrice * item.quantity) / totalBeforeDiscount) *
+        totalDiscount;
+      refundAmount -= itemDiscountShare;
+    }
+
     let remainingAmount = order.totalPrice + order.couponPrice - refundAmount;
 
-    if (remainingAmount <= 0) {
+    const allItemsCancelled = order.items.every(
+      (item) => item.itemStatus === "Cancelled"
+    );
+    const allItemsReturned = order.items.every(
+      (item) => item.itemStatus === "Returned"
+    );
+
+    if (allItemsCancelled || allItemsReturned) {
+      order.totalPrice = 0;
+      order.couponPrice = 0;
+      order.discountApplied = 0;
+    } else if (remainingAmount <= 0.01) {
+      // Added threshold for floating-point errors
       order.totalPrice = 0;
       order.couponPrice = 0;
       order.discountApplied = 0;
     } else if (order.offerApplied) {
       const coupon = order.offerApplied;
-      const discountAmount = Math.min(
+      const newDiscountAmount = Math.min(
         (remainingAmount * coupon.discountPercentage) / 100,
         coupon.maxDiscountAmount
       );
-      order.couponPrice = discountAmount;
-      order.discountApplied = discountAmount;
-      order.totalPrice = remainingAmount - discountAmount;
+      order.couponPrice = newDiscountAmount;
+      order.discountApplied = newDiscountAmount;
+      order.totalPrice = remainingAmount - newDiscountAmount;
     } else {
       order.totalPrice = remainingAmount;
       order.couponPrice = 0;
@@ -1151,16 +1276,19 @@ const returnItem = async (req, res) => {
     }
 
     await order.save();
+
     await productModel.findByIdAndUpdate(item.product, {
       $inc: { stock: item.quantity },
     });
 
+    let walletBalance;
     if (["razorpay", "wallet"].includes(order.paymentMethod)) {
       const userWallet = await walletModel.findOneAndUpdate(
         { userId: order.userId },
         { $inc: { balance: refundAmount } },
         { new: true }
       );
+      walletBalance = userWallet.balance;
       await new transactionModel({
         userId: order.userId,
         amount: refundAmount,
@@ -1168,33 +1296,120 @@ const returnItem = async (req, res) => {
         type: "Credit",
         date: new Date(),
       }).save();
-      res.json({
-        success: true,
-        message: "Item cancelled and refunded successfully",
-        updatedOrder: order,
-        walletBalance: userWallet.balance,
-      });
     }
 
-    const allItemsReturned = order.items.every(
-      (item) => item.itemStatus === "Returned"
-    );
-    const allItemsCancelled = order.items.every(
-      (item) => item.itemStatus === "Cancelled"
-    );
-
-    if (allItemsReturned || allItemsCancelled) {
-      order.status = allItemsReturned ? "Returned" : "Cancelled";
+    if (allItemsCancelled || allItemsReturned) {
+      order.status = allItemsCancelled ? "Cancelled" : "Returned";
       order.updatedAt = new Date();
       await order.save();
     }
+
+    res.json({
+      success: true,
+      message: "Item cancelled and refunded successfully",
+      updatedOrder: order,
+      walletBalance: walletBalance || 0,
+    });
   } catch (error) {
-    console.error("Error cancelling item:", error);
+    console.error("Error returning item:", error);
     return res
       .status(500)
       .json({ success: false, message: "An error occurred" });
   }
 };
+
+// const cancelItem = async (req, res) => {
+//   try {
+//     const { orderId, itemId } = req.params;
+//     const order = await orderModel.findById(orderId).populate("offerApplied");
+//     if (!order)
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "Order not found" });
+
+//     const item = order.items.id(itemId);
+//     if (!item)
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "Item not found" });
+
+//     item.itemStatus = "Cancelled";
+//     let refundAmount = item.finalPrice;
+//     let remainingAmount = order.totalPrice + order.couponPrice - refundAmount;
+
+//     if (remainingAmount <= 0) {
+//       order.totalPrice = 0;
+//       order.couponPrice = 0;
+//       order.discountApplied = 0;
+//     } else if (order.offerApplied) {
+//       const coupon = order.offerApplied;
+//       const discountAmount = Math.min(
+//         (remainingAmount * coupon.discountPercentage) / 100,
+//         coupon.maxDiscountAmount
+//       );
+//       order.couponPrice = discountAmount;
+//       order.discountApplied = discountAmount;
+//       order.totalPrice = remainingAmount - discountAmount;
+//     } else {
+//       order.totalPrice = remainingAmount;
+//       order.couponPrice = 0;
+//       order.discountApplied = 0;
+//     }
+
+//     await order.save();
+//     await productModel.findByIdAndUpdate(item.product, {
+//       $inc: { stock: item.quantity },
+//     });
+
+//     if (["razorpay", "wallet"].includes(order.paymentMethod)) {
+//       const userWallet = await walletModel.findOneAndUpdate(
+//         { userId: order.userId },
+//         { $inc: { balance: refundAmount } },
+//         { new: true }
+//       );
+//       await new transactionModel({
+//         userId: order.userId,
+//         amount: refundAmount,
+//         status: "Success",
+//         type: "Credit",
+//         date: new Date(),
+//       }).save();
+//       res.json({
+//         success: true,
+//         message: "Item cancelled and refunded successfully",
+//         updatedOrder: order,
+//         walletBalance: userWallet.balance,
+//       });
+//     }
+//     const allItemsDelivered = order.items.every(
+//       (item) => item.itemStatus === "Delivered"
+//     );
+//     if (allItemsDelivered) {
+//       await orderModel.findByIdAndUpdate(
+//         orderId,
+//         { $set: { status: "Delivered" } },
+//         { new: true }
+//       );
+//     }
+//     const allItemsReturned = order.items.every(
+//       (item) => item.itemStatus === "Returned"
+//     );
+//     const allItemsCancelled = order.items.every(
+//       (item) => item.itemStatus === "Cancelled"
+//     );
+
+//     if (allItemsReturned || allItemsCancelled) {
+//       order.status = allItemsReturned ? "Returned" : "Cancelled";
+//       order.updatedAt = new Date();
+//       await order.save();
+//     }
+//   } catch (error) {
+//     console.error("Error cancelling item:", error);
+//     return res
+//       .status(500)
+//       .json({ success: false, message: "An error occurred" });
+//   }
+// };
 
 const cancelItem = async (req, res) => {
   try {
@@ -1212,39 +1427,85 @@ const cancelItem = async (req, res) => {
         .json({ success: false, message: "Item not found" });
 
     item.itemStatus = "Cancelled";
-    let refundAmount = item.finalPrice - order.couponPrice;
-    let remainingAmount = order.totalPrice + order.couponPrice - refundAmount;
 
-    if (remainingAmount <= 0) {
+    // Check if all items are cancelled first
+    const allItemsCancelled = order.items.every(
+      (item) => item.itemStatus === "Cancelled"
+    );
+    const allItemsReturned = order.items.every(
+      (item) => item.itemStatus === "Returned"
+    );
+
+    let refundAmount = 0;
+    if (!allItemsCancelled && !allItemsReturned) {
+      // Only calculate refund and adjust totals if not all items are cancelled/returned
+      const totalBeforeDiscount = order.items.reduce(
+        (sum, i) => sum + i.finalPrice * i.quantity,
+        0
+      );
+      console.log(totalBeforeDiscount, "totalBeforeDiscount");
+
+      refundAmount = item.finalPrice * item.quantity;
+      console.log(refundAmount, "refundAmount");
+
+      if (order.offerApplied) {
+        const totalDiscount = order.discountApplied;
+        const itemDiscountShare =
+          ((item.finalPrice * item.quantity) / totalBeforeDiscount) *
+          totalDiscount;
+        refundAmount -= itemDiscountShare;
+        console.log(itemDiscountShare, "itemDiscountShare");
+      }
+
+      let remainingAmount = order.totalPrice + order.couponPrice - refundAmount;
+      console.log(remainingAmount, "remainingAmount");
+
+      if (remainingAmount <= 0.01) {
+        // Added threshold for floating-point errors
+        order.totalPrice = 0;
+        order.couponPrice = 0;
+        order.discountApplied = 0;
+      } else if (order.offerApplied) {
+        const coupon = order.offerApplied;
+        const newDiscountAmount = Math.min(
+          (remainingAmount * coupon.discountPercentage) / 100,
+          coupon.maxDiscountAmount
+        );
+        order.couponPrice = newDiscountAmount;
+        order.discountApplied = newDiscountAmount;
+        order.totalPrice = remainingAmount - newDiscountAmount;
+      } else {
+        order.totalPrice = remainingAmount;
+        order.couponPrice = 0;
+        order.discountApplied = 0;
+      }
+    } else {
+      // If all items are cancelled or returned, reset totals
       order.totalPrice = 0;
       order.couponPrice = 0;
       order.discountApplied = 0;
-    } else if (order.offerApplied) {
-      const coupon = order.offerApplied;
-      const discountAmount = Math.min(
-        (remainingAmount * coupon.discountPercentage) / 100,
-        coupon.maxDiscountAmount
-      );
-      order.couponPrice = discountAmount;
-      order.discountApplied = discountAmount;
-      order.totalPrice = remainingAmount - discountAmount;
-    } else {
-      order.totalPrice = remainingAmount;
-      order.couponPrice = 0;
-      order.discountApplied = 0;
+      refundAmount = item.finalPrice * item.quantity; // Still refund the item's base amount
+      if (allItemsCancelled) order.status = "Cancelled";
+      else if (allItemsReturned) order.status = "Returned";
+      order.updatedAt = new Date();
     }
 
     await order.save();
+
+    // Restore stock based on the quantity of the cancelled item
     await productModel.findByIdAndUpdate(item.product, {
       $inc: { stock: item.quantity },
     });
 
+    // Handle refund if paid via Razorpay or Wallet
+    let walletBalance;
     if (["razorpay", "wallet"].includes(order.paymentMethod)) {
       const userWallet = await walletModel.findOneAndUpdate(
         { userId: order.userId },
         { $inc: { balance: refundAmount } },
         { new: true }
       );
+      walletBalance = userWallet.balance;
       await new transactionModel({
         userId: order.userId,
         amount: refundAmount,
@@ -1252,13 +1513,9 @@ const cancelItem = async (req, res) => {
         type: "Credit",
         date: new Date(),
       }).save();
-      res.json({
-        success: true,
-        message: "Item cancelled and refunded successfully",
-        updatedOrder: order,
-        walletBalance: userWallet.balance,
-      });
     }
+
+    // Update order status for Delivered case (if needed)
     const allItemsDelivered = order.items.every(
       (item) => item.itemStatus === "Delivered"
     );
@@ -1269,18 +1526,13 @@ const cancelItem = async (req, res) => {
         { new: true }
       );
     }
-    const allItemsReturned = order.items.every(
-      (item) => item.itemStatus === "Returned"
-    );
-    const allItemsCancelled = order.items.every(
-      (item) => item.itemStatus === "Cancelled"
-    );
 
-    if (allItemsReturned || allItemsCancelled) {
-      order.status = allItemsReturned ? "Returned" : "Cancelled";
-      order.updatedAt = new Date();
-      await order.save();
-    }
+    res.json({
+      success: true,
+      message: "Item cancelled and refunded successfully",
+      updatedOrder: order,
+      walletBalance: walletBalance || 0,
+    });
   } catch (error) {
     console.error("Error cancelling item:", error);
     return res
@@ -1288,7 +1540,6 @@ const cancelItem = async (req, res) => {
       .json({ success: false, message: "An error occurred" });
   }
 };
-
 const orderPlaced = async (req, res) => {
   try {
     const { paymentMethod, addressID, couponCode } = req.body;
@@ -1508,6 +1759,9 @@ const loadMyOrders = async (req, res) => {
 const loadOrderDetails = async (req, res) => {
   try {
     const orderId = req.params.orderId;
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+      return res.status(404).render("404"); // Render 404 page for invalid ObjectId
+    }
 
     const order = await orderModel
       .findById(orderId)
@@ -1561,7 +1815,7 @@ const verifyOrderOwnership = async (req, res, next) => {
     next();
   } catch (error) {
     console.error("Error verifying order ownership:", error.message);
-    res.status(500).render("errorPage", {
+    res.status(500).render("404", {
       message: "An error occurred while verifying order ownership.",
     });
   }
@@ -2181,11 +2435,11 @@ const createOrder = async (req, res) => {
     });
 
     await order.save();
-    for (const item of orderItems) {
-      await productModel.findByIdAndUpdate(item.product, {
-        $inc: { stock: -item.quantity },
-      });
-    }
+    // for (const item of orderItems) {
+    //   await productModel.findByIdAndUpdate(item.product, {
+    //     $inc: { stock: -item.quantity },
+    //   });
+    // }
 
     await cartModel.updateOne(
       { userId },
@@ -2240,6 +2494,56 @@ const createOrder = async (req, res) => {
   }
 };
 
+// const verifyPayment = async (req, res) => {
+//   const {
+//     razorpay_payment_id,
+//     razorpay_order_id,
+//     razorpay_signature,
+//     order_id,
+//   } = req.body;
+//   const userId = req.session?.user?._id;
+
+//   try {
+//     const hmac = crypto.createHmac("sha256", process.env.RAZORPAY_KEY_SECRET);
+//     hmac.update(`${razorpay_order_id}|${razorpay_payment_id}`);
+//     const expectedSignature = hmac.digest("hex");
+
+//     if (razorpay_signature !== expectedSignature) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Invalid payment signature",
+//       });
+//     }
+
+//     const updatedOrder = await orderModel.findOneAndUpdate(
+//       { _id: order_id },
+//       {
+//         paymentStatus: "Paid",
+//         status: "Pending",
+//       },
+//       { new: true }
+//     );
+
+//     if (!updatedOrder) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Order not found",
+//       });
+//     }
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Payment verified successfully",
+//       order: updatedOrder,
+//     });
+//   } catch (error) {
+//     console.error("Payment verification error:", error);
+//     res.status(500).json({
+//       success: false,
+//       message: "An error occurred during payment verification",
+//     });
+//   }
+// };
 const verifyPayment = async (req, res) => {
   const {
     razorpay_payment_id,
@@ -2261,6 +2565,24 @@ const verifyPayment = async (req, res) => {
       });
     }
 
+    const order = await orderModel.findById(order_id).populate("items.product");
+    if (!order) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
+    }
+
+    for (const item of order.items) {
+      await productModel.findByIdAndUpdate(item.product._id, {
+        $inc: { stock: -item.quantity },
+      });
+    }
+
+    await cartModel.updateOne(
+      { userId },
+      { $set: { items: [], totalPrice: 0, couponApplied: false } }
+    );
+
     const updatedOrder = await orderModel.findOneAndUpdate(
       { _id: order_id },
       {
@@ -2270,16 +2592,9 @@ const verifyPayment = async (req, res) => {
       { new: true }
     );
 
-    if (!updatedOrder) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found",
-      });
-    }
-
     res.status(200).json({
       success: true,
-      message: "Payment verified successfully",
+      message: "Payment verified successfully, order updated",
       order: updatedOrder,
     });
   } catch (error) {
@@ -2291,20 +2606,86 @@ const verifyPayment = async (req, res) => {
   }
 };
 
+// const retryOrder = async (req, res) => {
+//   try {
+//     const orderId = req.params.orderId;
+//     const order = await orderModel.findById(orderId).populate("items.product");
+//     console.log(order, order.items.product, "order and products");
+
+//     if (!order) {
+//       return res.status(404).json({ message: "Order not found" });
+//     }
+//     for (let item of order.items) {
+//       console.log("hii orders");
+//       console.log();
+
+//       if (item.quantity > item.product.stock) {
+//         return res.status(400).json({
+//           message: `Product "${item.product.product_title}" is unavailable. Available stock: ${item.product.stock}`,
+//         });
+//       }
+//     }
+
+//     const razorpay = new Razorpay({
+//       key_id: process.env.RAZORPAY_KEY_ID,
+//       key_secret: process.env.RAZORPAY_KEY_SECRET,
+//     });
+//     console.log(order);
+//     const options = {
+//       amount: order.totalPrice * 100,
+//       currency: "INR",
+//       receipt: orderId,
+//       payment_capture: 1,
+//     };
+
+//     let razorpayOrder;
+//     try {
+//       razorpayOrder = await razorpay.orders.create(options);
+//     } catch (razorpayError) {
+//       console.error("Razorpay order creation failed:", razorpayError);
+//       return res.status(500).json({
+//         message: "Failed to create Razorpay order",
+//         error: razorpayError.message,
+//       });
+//     }
+
+//     return res.json({
+//       order_id: orderId,
+//       amount: order.amount,
+//       currency: "INR",
+//       razorpayOrderId: razorpayOrder.id,
+//     });
+//   } catch (error) {
+//     console.error("Error in retry order:", error);
+//     return res.status(500).json({
+//       message: "Failed to retry order",
+//       error: error.message,
+//     });
+//   }
+// };
+
 const retryOrder = async (req, res) => {
   try {
     const orderId = req.params.orderId;
-    const order = await orderModel.findById(orderId);
+    const order = await orderModel.findById(orderId).populate("items.product");
 
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
+    }
+
+    for (let item of order.items) {
+      if (item.quantity > item.product.stock) {
+        return res.status(400).json({
+          message: `Product "${item.product.product_title}" is unavailable. Available stock: ${item.product.stock}`,
+        });
+      }
     }
 
     const razorpay = new Razorpay({
       key_id: process.env.RAZORPAY_KEY_ID,
       key_secret: process.env.RAZORPAY_KEY_SECRET,
     });
-    console.log(order);
+
     const options = {
       amount: order.totalPrice * 100,
       currency: "INR",
@@ -2316,7 +2697,6 @@ const retryOrder = async (req, res) => {
     try {
       razorpayOrder = await razorpay.orders.create(options);
     } catch (razorpayError) {
-      console.error("Razorpay order creation failed:", razorpayError);
       return res.status(500).json({
         message: "Failed to create Razorpay order",
         error: razorpayError.message,
@@ -2330,7 +2710,6 @@ const retryOrder = async (req, res) => {
       razorpayOrderId: razorpayOrder.id,
     });
   } catch (error) {
-    console.error("Error in retry order:", error);
     return res.status(500).json({
       message: "Failed to retry order",
       error: error.message,
@@ -2340,6 +2719,8 @@ const retryOrder = async (req, res) => {
 
 const reVerifyPayment = async (req, res) => {
   try {
+    console.log("halooo retry");
+
     const {
       razorpay_payment_id,
       razorpay_order_id,
@@ -2354,7 +2735,7 @@ const reVerifyPayment = async (req, res) => {
       .digest("hex");
 
     if (generated_signature === razorpay_signature) {
-      const order = await Order.findById(order_id);
+      const order = await order.findById(order_id);
 
       if (!order) {
         return res.status(404).json({
@@ -2838,7 +3219,7 @@ module.exports = {
   loadOrderDetails,
   verifyOrderOwnership,
   cancelOrder,
-  sortProducts,
+  // sortProducts,
   loadWishlist,
   addToWhishlist,
   removeFromWhishlist,

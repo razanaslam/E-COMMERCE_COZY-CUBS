@@ -576,35 +576,41 @@
                 <form id="addAddressForm" action="/checkout" method="POST">
                   <div class="row">
                     <div class="col-md-6 mb-3">
-                      <label for="fullName"  class="form-label">Full Name</label>
-                      <input type="text" class="form-control" style="background-color: transparent !important;" ba id="fullName" name="fullName"  />
+                      <label for="fullName" class="form-label">Full Name</label>
+                      <input type="text" class="form-control" style="background-color: transparent !important;" id="fullName" name="fullName" />
+                      <div id="fullNameError" class="text-danger"></div> <!-- Error message for Full Name -->
                     </div>
                     <div class="col-md-6 mb-3">
-                      <label for="city" class="form-label" >City</label>
-                      <input type="text" class="form-control" style="background-color: transparent !important;" id="city" name="city"  />
+                      <label for="city" class="form-label">City</label>
+                      <input type="text" class="form-control" style="background-color: transparent !important;" id="city" name="city" />
+                      <div id="cityError" class="text-danger"></div> <!-- Error message for City -->
                     </div>
                     <div class="col-md-6 mb-3">
-                      <label for="state" class="form-label" >State/Province/Region</label>
-                      <input type="text" class="form-control" style="background-color: transparent !important;" id="state" name="state"  />
+                      <label for="state" class="form-label">State/Province/Region</label>
+                      <input type="text" class="form-control" style="background-color: transparent !important;" id="state" name="state" />
+                      <div id="stateError" class="text-danger"></div> <!-- Error message for State -->
                     </div>
                     <div class="col-md-6 mb-3">
-                      <label for="postalCode" class="form-label" >Postal Code</label>
-                      <input type="text" class="form-control" style="background-color: transparent !important;" id="postalCode" name="postalCode"  />
+                      <label for="postalCode" class="form-label">Postal Code</label>
+                      <input type="text" class="form-control" style="background-color: transparent !important;" id="postalCode" name="postalCode" />
+                      <div id="postalCodeError" class="text-danger"></div> <!-- Error message for Postal Code -->
                     </div>
                     <div class="col-md-6 mb-3">
-                      <label for="country" class="form-label" >Country</label>
-                      <input type="text" class="form-control" style="background-color: transparent !important;" id="country" name="country"  />
+                      <label for="country" class="form-label">Country</label>
+                      <input type="text" class="form-control" style="background-color: transparent !important;" id="country" name="country" />
+                      <div id="countryError" class="text-danger"></div> <!-- Error message for Country -->
                     </div>
                     <div class="col-md-6 mb-3">
-                      <label for="mobileNumber" class="form-label" >Mobile Number</label>
-                      <input type="tel" class="form-control" style="background-color: transparent !important;" id="mobileNumber" name="number"  />
+                      <label for="mobileNumber" class="form-label">Mobile Number</label>
+                      <input type="tel" class="form-control" style="background-color: transparent !important;" id="mobileNumber" name="number" />
+                      <div id="mobileNumberError" class="text-danger"></div> <!-- Error message for Mobile Number -->
                     </div>
                     <div class="col-md-6 mb-3">
-                      <label for="email" class="form-label" >Email Address </label>
+                      <label for="email" class="form-label">Email Address</label>
                       <input type="email" class="form-control" style="background-color: transparent !important;" id="email" name="email" />
+                      <div id="emailError" class="text-danger"></div> <!-- Error message for Email -->
                     </div>
                   </div>
-                  <div id="add-error-message" class="text-danger mb-3"></div>
                   <button type="submit" class="btn btn-primary">Save Address</button>
                 </form>
               </div>
@@ -717,15 +723,18 @@
     <% if (subtotal >= 1000) { %>
       <p style="color: red;">Cash On Delivery Not Available</p>
     <% } %>
+    <p>Wallet Balance: <%= walletbalance %></p>
 
     <select id="payment-method" name="payment-method" class="form-select">
       <% if (subtotal < 1000) { %>
         <option value="cod">Cash on Delivery</option>
       <% } %>
       <option value="razorpay">Razorpay</option>
-      <option value="wallet">Wallet </option>
+      <option value="wallet">Wallet</option>
     </select>
-  </div>
+    </div>
+  
+ 
 
   <div id="cod-form" style="display: none;">
       <button id="placeOrderButton" class="btn btn-primary btn-lg w-100">Place Order</button>
@@ -753,6 +762,9 @@
     const razorpayForm = document.getElementById("razorpay-form");
     const walletForm = document.getElementById("wallet-form");
 
+   
+
+
     const updatePaymentForms = () => {
       const selectedMethod = paymentMethodSelect.value;
       codForm.style.display = selectedMethod === "cod" ? "block" : "none";
@@ -762,6 +774,10 @@
 
     paymentMethodSelect.addEventListener("change", updatePaymentForms);
     updatePaymentForms(); 
+
+  
+
+ 
 
     const placeOrder = async (paymentMethod) => {
   const selectedAddressID = document.querySelector("input[name='addressID']:checked")?.value;
@@ -1159,8 +1175,9 @@ console.log("yyyyy");
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-  function validateAddressForm(form, errorMessageDiv) {
-    errorMessageDiv.textContent = '';
+  function validateAddressForm(form) {
+    // Clear previous error messages
+    document.querySelectorAll('.text-danger').forEach(el => el.textContent = '');
 
     const fullName = form.fullName.value.trim();
     const city = form.city.value.trim();
@@ -1170,63 +1187,77 @@ console.log("yyyyy");
     const mobileNumber = form.number.value.trim();
     const email = form.email.value.trim();
 
-    const namePattern = /^[a-zA-Z\s]+$/;
+    let isValid = true;
+
+    // Validate Full Name
     if (!fullName) {
-      errorMessageDiv.textContent += 'Full Name is required. ';
-    } else if (!namePattern.test(fullName)) {
-      errorMessageDiv.textContent += 'Full Name must contain only letters and spaces. ';
+      document.getElementById('fullNameError').textContent = 'Full Name is required.';
+      isValid = false;
+    } else if (!/^[a-zA-Z\s]+$/.test(fullName)) {
+      document.getElementById('fullNameError').textContent = 'Full Name must contain only letters and spaces.';
+      isValid = false;
     }
 
-    const cityPattern = /^[a-zA-Z\s]+$/;
+    // Validate City
     if (!city) {
-      errorMessageDiv.textContent += 'City is required. ';
-    } else if (!cityPattern.test(city)) {
-      errorMessageDiv.textContent += 'City must contain only letters and spaces. ';
+      document.getElementById('cityError').textContent = 'City is required.';
+      isValid = false;
+    } else if (!/^[a-zA-Z\s]+$/.test(city)) {
+      document.getElementById('cityError').textContent = 'City must contain only letters and spaces.';
+      isValid = false;
     }
 
-    const statePattern = /^[a-zA-Z\s]+$/;
+    // Validate State
     if (!state) {
-      errorMessageDiv.textContent += 'State/Province/Region is required. ';
-    } else if (!statePattern.test(state)) {
-      errorMessageDiv.textContent += 'State must contain only letters and spaces. ';
+      document.getElementById('stateError').textContent = 'State/Province/Region is required.';
+      isValid = false;
+    } else if (!/^[a-zA-Z\s]+$/.test(state)) {
+      document.getElementById('stateError').textContent = 'State must contain only letters and spaces.';
+      isValid = false;
     }
 
-    const postalPattern = /^[0-9]{6}$/;
+    // Validate Postal Code
     if (!postalCode) {
-      errorMessageDiv.textContent += 'Postal Code is required. ';
-    } else if (!postalPattern.test(postalCode)) {
-      errorMessageDiv.textContent += 'Postal Code must be exactly 6 digits. ';
+      document.getElementById('postalCodeError').textContent = 'Postal Code is required.';
+      isValid = false;
+    } else if (!/^[0-9]{6}$/.test(postalCode)) {
+      document.getElementById('postalCodeError').textContent = 'Postal Code must be exactly 6 digits.';
+      isValid = false;
     }
 
-    const countryPattern = /^[a-zA-Z\s]+$/;
+    // Validate Country
     if (!country) {
-      errorMessageDiv.textContent += 'Country is required. ';
-    } else if (!countryPattern.test(country)) {
-      errorMessageDiv.textContent += 'Country must contain only letters and spaces. ';
+      document.getElementById('countryError').textContent = 'Country is required.';
+      isValid = false;
+    } else if (!/^[a-zA-Z\s]+$/.test(country)) {
+      document.getElementById('countryError').textContent = 'Country must contain only letters and spaces.';
+      isValid = false;
     }
 
-    const mobilePattern = /^[0-9]{10}$/;
+    // Validate Mobile Number
     if (!mobileNumber) {
-      errorMessageDiv.textContent += 'Mobile Number is required. ';
-    } else if (!mobilePattern.test(mobileNumber)) {
-      errorMessageDiv.textContent += 'Mobile Number must be exactly 10 digits and contain only numbers. ';
+      document.getElementById('mobileNumberError').textContent = 'Mobile Number is required.';
+      isValid = false;
+    } else if (!/^[0-9]{10}$/.test(mobileNumber)) {
+      document.getElementById('mobileNumberError').textContent = 'Mobile Number must be exactly 10 digits and contain only numbers.';
+      isValid = false;
     }
 
-    if (email && !/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/.test(email)) {
-      errorMessageDiv.textContent += 'Please enter a valid Email Address. ';
+    // Validate Email
+    if (!email) {
+      document.getElementById('emailError').textContent = 'Email Address is required.';
+      isValid = false;
+    } else if (!/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/.test(email)) {
+      document.getElementById('emailError').textContent = 'Please enter a valid Email Address.';
+      isValid = false;
     }
 
-    if (errorMessageDiv.textContent) {
-      return false;
-    }
-
-    return true;
+    return isValid;
   }
 
   document.getElementById('addAddressForm').addEventListener('submit', function (event) {
     event.preventDefault();
-    const errorMessageDiv = document.getElementById('add-error-message');
-    const isValid = validateAddressForm(this, errorMessageDiv);
+    const isValid = validateAddressForm(this);
 
     if (isValid) {
       Swal.fire({
@@ -1240,19 +1271,9 @@ console.log("yyyyy");
       this.submit();
     }
   });
-
-  document.getElementById('editaddressForm').addEventListener('submit', function (event) {
-    event.preventDefault();
-    const errorMessageDiv = document.getElementById('error-message');
-    const isValid = validateAddressForm(this, errorMessageDiv);
-
-    if (isValid) {
-      this.submit();
-    }
-  });
 </script>
 
-//coupo applies eg 
+
 
 <script>
   if (applyCouponBtn) {

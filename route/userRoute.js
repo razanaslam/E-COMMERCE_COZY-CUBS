@@ -55,7 +55,9 @@ userRoute.get("/", (req, res) => {
 // Define your other routes
 userRoute.get("/home", isUser, userController.loadHome);
 userRoute.get("/home", isUser, userController.loadHome);
+// userRoute.get("/product", isUser, userController.loadProductList);
 userRoute.get("/product", isUser, userController.loadProductList);
+
 userRoute.get(
   "/product-details/:id",
   isUser,
@@ -101,6 +103,7 @@ userRoute.get(
   userController.verifyOrderOwnership,
   userController.loadOrderDetails
 );
+
 // userRoute.post("/updateOrderStatus/:orderId", userController.orderList);
 userRoute.post("/updateOrderStatus/:id", userController.cancelOrder);
 userRoute.post("/cancelItem/:orderId/:itemId", userController.cancelItem);
@@ -108,7 +111,8 @@ userRoute.post("/returnItem/:orderId/:itemId", userController.returnItem);
 userRoute.post("/generate-referral", userController.getReferal);
 
 userRoute.get("/logout", userController.logout);
-userRoute.post("/sort-products", userController.sortProducts);
+
+// userRoute.post("/sort-products", userController.sortProducts);
 
 // userRoute.get("/loadShopPage", userController.loadProductList);
 
@@ -145,5 +149,5 @@ userRoute.get(
 );
 userRoute.get("/about-us", userController.aboutUs);
 userRoute.get("/pagination", userController.pagination);
-
+userRoute.get("/product-details/*", (req, res) => res.send("somthing fishyy"));
 module.exports = userRoute;

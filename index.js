@@ -88,6 +88,7 @@ app.use("/admin", adminRoute);
 app.use("/*", (req, res) => {
   res.render("404");
 });
+
 const PORT = process.env.PORT || 3700;
 app.listen(PORT, (err) => {
   if (err) {
