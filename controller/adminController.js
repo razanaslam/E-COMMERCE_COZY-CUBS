@@ -1734,7 +1734,7 @@ const loadSalesReport = async (req, res) => {
     const skip = (page - 1) * limit;
 
     let filterOptions = {
-      status: { $nin: ["Cancelled", "Failed", "Returned"] },
+      status: { $in: ["Pending", "Delivered"] },
     };
 
     const today = dayjs().startOf("day");
@@ -1787,12 +1787,26 @@ const loadSalesReport = async (req, res) => {
     }
 
     // Fetch total orders and calculate total pages
-    const totalOrders = await orderModel.countDocuments(filterOptions);
+    const totalOrders = await orderModel.countDocuments({
+      ...filterOptions,
+      items: {
+        $elemMatch: {
+          itemStatus: { $nin: ["Cancelled", "Returned"] }, // Ensure at least one valid item
+        },
+      },
+    });
     const totalPages = Math.ceil(totalOrders / limit);
 
     // Fetch paginated orders
     const orders = await orderModel
-      .find(filterOptions)
+      .find({
+        ...filterOptions,
+        items: {
+          $elemMatch: {
+            itemStatus: { $nin: ["Cancelled", "Returned"] }, // Fetch orders with at least one valid item
+          },
+        },
+      })
       .populate("userId", "email")
       .populate("items.product", "name")
       .populate("billingDetails", "address")
@@ -1800,9 +1814,30 @@ const loadSalesReport = async (req, res) => {
       .skip(skip)
       .limit(limit);
 
-    // Render the EJS template with data
+    // Filter out Cancelled and Returned items from each order
+    const filteredOrders = orders
+      .map((order) => {
+        const validItems = order.items.filter(
+          (item) =>
+            item.itemStatus !== "Cancelled" &&
+            item.itemStatus !== "Returned" &&
+            item.itemStatus !== "Failed"
+        );
+        if (validItems.length === 0) return null; // Skip orders with no valid items
+        return {
+          ...order.toObject(),
+          items: validItems,
+          totalPrice: validItems.reduce(
+            (sum, item) => sum + (item.finalPrice || 0),
+            0
+          ), // Recalculate totalPrice
+        };
+      })
+      .filter((order) => order !== null); // Remove null entries
+
+    // Render the EJS template with filtered data
     res.render("salesReport", {
-      orders,
+      orders: filteredOrders, // Use filteredOrders instead of raw orders
       filter,
       startDate,
       endDate,
@@ -2019,12 +2054,286 @@ const loadSalesReport = async (req, res) => {
 //   }
 // };
 
+// const downloadSalesReportPDF = async (req, res) => {
+//   try {
+//     console.log("vi");
+
+//     const { filter = "all", startDate, endDate } = req.query;
+//     let filterOptions = {};
+//     const today = dayjs().startOf("day");
+
+//     // 🔹 Apply Date Filters
+//     if (filter === "daily") {
+//       filterOptions.createdAt = {
+//         $gte: today.toDate(),
+//         $lte: today.endOf("day").toDate(),
+//       };
+//     } else if (filter === "weekly") {
+//       const lastWeek = today.subtract(7, "days");
+//       filterOptions.createdAt = {
+//         $gte: lastWeek.toDate(),
+//         $lte: today.endOf("day").toDate(),
+//       };
+//     } else if (filter === "monthly") {
+//       const lastMonth = today.subtract(1, "month");
+//       filterOptions.createdAt = {
+//         $gte: lastMonth.toDate(),
+//         $lte: today.endOf("day").toDate(),
+//       };
+//     } else if (filter === "custom" && startDate && endDate) {
+//       filterOptions.createdAt = {
+//         $gte: dayjs(startDate).startOf("day").toDate(),
+//         $lte: dayjs(endDate).endOf("day").toDate(),
+//       };
+//     }
+
+//     // 🔹 Fetch Orders
+//     const orders = await orderModel
+//       .find(filterOptions)
+//       .populate("userId", "email")
+//       .populate("items.product") // Populate product title
+//       .sort({ createdAt: -1 });
+
+//     // 🔹 Filter out Cancelled and Returned items from each order
+//     const filteredOrders = orders
+//       .map((order) => {
+//         const validItems = order.items.filter(
+//           (item) =>
+//             item.itemStatus !== "Cancelled" &&
+//             item.itemStatus !== "Returned" &&
+//             item.itemStatus !== "Failed"
+//         );
+//         if (validItems.length === 0) return null; // Skip orders with no valid items
+//         return {
+//           ...order.toObject(),
+//           items: validItems,
+//           totalPrice: validItems.reduce(
+//             (sum, item) => sum + (item.finalPrice || 0),
+//             0
+//           ), // Recalculate totalPrice
+//         };
+//       })
+//       .filter((order) => order !== null); // Remove null entries
+
+//     // 🔹 Create PDF Stream
+//     const doc = new PDFDocument({ margin: 50, size: "A4" });
+
+//     res.setHeader(
+//       "Content-Disposition",
+//       "attachment; filename=sales-report.pdf"
+//     );
+//     res.setHeader("Content-Type", "application/pdf");
+
+//     doc.pipe(res);
+
+//     // 🔹 Helper Function: Draw Table Cells
+//     const drawTableCell = (
+//       x,
+//       y,
+//       width,
+//       height,
+//       text,
+//       isHeader = false,
+//       align = "left",
+//       fillColor = "#ffffff"
+//     ) => {
+//       doc.rect(x, y, width, height).fillAndStroke(fillColor, "#000000");
+//       doc
+//         .font(isHeader ? "Helvetica-Bold" : "Helvetica")
+//         .fontSize(isHeader ? 12 : 10)
+//         .fillColor(isHeader ? "#ffffff" : "#000000")
+//         .text(text, x + 5, y + 5, { width: width - 10, align });
+//     };
+
+//     // 🔹 PDF Title & Metadata
+//     doc
+//       .fontSize(24)
+//       .font("Helvetica-Bold")
+//       .fillColor("#333333")
+//       .text("Sales Report", { align: "center" })
+//       .moveDown(0.5);
+//     doc
+//       .fontSize(12)
+//       .font("Helvetica")
+//       .fillColor("#666666")
+//       .text(`Filter: ${filter}`, { align: "center" })
+//       .moveDown(0.5);
+
+//     if (filter === "custom" && startDate && endDate) {
+//       doc
+//         .text(`Date Range: ${startDate} to ${endDate}`, { align: "center" })
+//         .moveDown(0.5);
+//     }
+
+//     doc
+//       .fontSize(10)
+//       .text(`Generated on: ${dayjs().format("DD/MM/YYYY HH:mm")}`, {
+//         align: "center",
+//       })
+//       .moveDown(1);
+
+//     // 🔹 Table Headers
+//     const tableTop = 180;
+//     const tableLeft = 50;
+//     const colWidths = [30, 150, 100, 80, 80, 80]; // Adjusted column widths
+//     const rowHeight = 30;
+//     const headers = [
+//       "No.",
+//       "Customer",
+//       "Product",
+//       "Total Amount",
+//       "Coupon Price",
+//       "Date",
+//     ];
+
+//     // Draw table headers with a blue background
+//     headers.forEach((header, i) => {
+//       let x = tableLeft + colWidths.slice(0, i).reduce((sum, w) => sum + w, 0);
+//       drawTableCell(
+//         x,
+//         tableTop,
+//         colWidths[i],
+//         rowHeight,
+//         header,
+//         true,
+//         "center",
+//         "#007BFF" // Blue background for headers
+//       );
+//     });
+
+//     let currentTop = tableTop + rowHeight;
+//     let rowCount = 0;
+//     const itemsPerPage = 10;
+
+//     // 🔹 Render Table Rows
+//     filteredOrders.forEach((order, index) => {
+//       if (rowCount >= itemsPerPage) {
+//         doc.addPage();
+//         currentTop = 50;
+//         rowCount = 0;
+
+//         // Redraw headers on new page
+//         headers.forEach((header, i) => {
+//           let x =
+//             tableLeft + colWidths.slice(0, i).reduce((sum, w) => sum + w, 0);
+//           drawTableCell(
+//             x,
+//             currentTop,
+//             colWidths[i],
+//             rowHeight,
+//             header,
+//             true,
+//             "center",
+//             "#007BFF"
+//           );
+//         });
+//         currentTop += rowHeight;
+//       }
+
+//       // Alternate row colors for better readability
+//       const rowColor = index % 2 === 0 ? "#f9f9f9" : "#ffffff";
+
+//       // Draw table cells
+//       drawTableCell(
+//         tableLeft,
+//         currentTop,
+//         colWidths[0],
+//         rowHeight,
+//         (index + 1).toString(),
+//         false,
+//         "center",
+//         rowColor
+//       );
+//       drawTableCell(
+//         tableLeft + colWidths[0],
+//         currentTop,
+//         colWidths[1],
+//         rowHeight,
+//         order.userId?.email || "N/A",
+//         false,
+//         "left",
+//         rowColor
+//       );
+//       drawTableCell(
+//         tableLeft + colWidths[0] + colWidths[1],
+//         currentTop,
+//         colWidths[2],
+//         rowHeight,
+//         order.items.map((p) => p.product?.product_title).join(", ") || "N/A", // Product titles
+//         false,
+//         "left",
+//         rowColor
+//       );
+//       drawTableCell(
+//         tableLeft + colWidths[0] + colWidths[1] + colWidths[2],
+//         currentTop,
+//         colWidths[3],
+//         rowHeight,
+//         `₹${order.totalPrice?.toFixed(2) || "0.00"}`,
+//         false,
+//         "right",
+//         rowColor
+//       );
+//       drawTableCell(
+//         tableLeft + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3],
+//         currentTop,
+//         colWidths[4],
+//         rowHeight,
+//         `₹${order.couponPrice?.toFixed(2) || "0.00"}`, // Coupon price
+//         false,
+//         "right",
+//         rowColor
+//       );
+//       drawTableCell(
+//         tableLeft +
+//           colWidths[0] +
+//           colWidths[1] +
+//           colWidths[2] +
+//           colWidths[3] +
+//           colWidths[4],
+//         currentTop,
+//         colWidths[5],
+//         rowHeight,
+//         dayjs(order.createdAt).format("DD/MM/YYYY"),
+//         false,
+//         "center",
+//         rowColor
+//       );
+
+//       currentTop += rowHeight;
+//       rowCount++;
+//     });
+
+//     // 🔹 Total Sales Summary
+//     const totalSales = filteredOrders.reduce(
+//       (sum, order) => sum + (order.totalPrice || 0),
+//       0
+//     );
+//     doc
+//       .font("Helvetica-Bold")
+//       .fontSize(14)
+//       .fillColor("#333333")
+//       .text(
+//         `Total Sales: ₹${totalSales.toFixed(2)}`,
+//         tableLeft,
+//         currentTop + 20,
+//         { width: colWidths.reduce((sum, w) => sum + w, 0), align: "right" }
+//       );
+
+//     console.log(totalSales, "hii");
+
+//     doc.end(); // 🔹 End the PDF stream
+//   } catch (error) {
+//     console.error("❌ Error generating PDF:", error);
+//     res.status(500).send("Failed to generate PDF report.");
+//   }
+// };
 const downloadSalesReportPDF = async (req, res) => {
   try {
-    console.log("vi");
-
     const { filter = "all", startDate, endDate } = req.query;
-    let filterOptions = {};
+    let filterOptions = {
+      status: { $in: ["Pending", "Delivered"] },
+    };
     const today = dayjs().startOf("day");
 
     // 🔹 Apply Date Filters
@@ -2056,223 +2365,325 @@ const downloadSalesReportPDF = async (req, res) => {
     const orders = await orderModel
       .find(filterOptions)
       .populate("userId", "email")
-      .populate("items.product") // Populate product title
+      .populate("items.product", "product_title")
+      .populate("billingDetails", "street city state zip")
+      .populate("offerApplied", "code")
       .sort({ createdAt: -1 });
 
-    // 🔹 Create PDF Stream
-    const doc = new PDFDocument({ margin: 50, size: "A4" });
+    // 🔹 Filter Items
+    const filteredOrders = orders
+      .map((order) => {
+        const validItems = order.items.filter(
+          (item) =>
+            item.itemStatus !== "Cancelled" &&
+            item.itemStatus !== "Returned" &&
+            item.itemStatus !== "Failed"
+        );
+        if (validItems.length === 0) return null;
+        return {
+          ...order.toObject(),
+          items: validItems,
+          totalPrice: validItems.reduce(
+            (sum, item) => sum + (item.finalPrice || 0),
+            0
+          ),
+        };
+      })
+      .filter((order) => order !== null);
 
+    // 🔹 Calculate Summary Metrics
+    const totalSales = filteredOrders.reduce(
+      (sum, order) => sum + (order.totalPrice || 0),
+      0
+    );
+    const totalItems = filteredOrders.reduce(
+      (sum, order) => sum + order.items.reduce((s, i) => s + i.quantity, 0),
+      0
+    );
+    const avgOrderValue = filteredOrders.length
+      ? totalSales / filteredOrders.length
+      : 0;
+    const totalDiscounts = filteredOrders.reduce(
+      (sum, order) =>
+        sum + (order.couponPrice || 0) + (order.discountApplied || 0),
+      0
+    );
+    const paymentMethodBreakdown = filteredOrders.reduce((acc, order) => {
+      acc[order.paymentMethod] = acc[order.paymentMethod] || {
+        count: 0,
+        amount: 0,
+      };
+      acc[order.paymentMethod].count += 1;
+      acc[order.paymentMethod].amount += order.totalPrice || 0;
+      return acc;
+    }, {});
+    const statusBreakdown = filteredOrders.reduce((acc, order) => {
+      acc[order.status] = (acc[order.status] || 0) + 1;
+      return acc;
+    }, {});
+    const topProductsArray = Object.entries(
+      filteredOrders
+        .flatMap((order) => order.items)
+        .reduce((acc, item) => {
+          const key = item.product?.product_title || "Unknown";
+          acc[key] = acc[key] || { quantity: 0, revenue: 0 };
+          acc[key].quantity += item.quantity;
+          acc[key].revenue += item.finalPrice * item.quantity;
+          return acc;
+        }, {})
+    )
+      .sort((a, b) => b[1].revenue - a[1].revenue)
+      .slice(0, 5);
+    const uniqueCustomers = new Set(
+      filteredOrders.map((order) => order.userId._id.toString())
+    ).size;
+
+    // 🔹 Create PDF Stream
+    const doc = new PDFDocument({ margin: 20, size: "A4" });
     res.setHeader(
       "Content-Disposition",
       "attachment; filename=sales-report.pdf"
     );
     res.setHeader("Content-Type", "application/pdf");
-
     doc.pipe(res);
 
-    // 🔹 Helper Function: Draw Table Cells
-    const drawTableCell = (
-      x,
-      y,
-      width,
-      height,
-      text,
-      isHeader = false,
-      align = "left",
-      fillColor = "#ffffff"
-    ) => {
-      doc.rect(x, y, width, height).fillAndStroke(fillColor, "#000000");
-      doc
-        .font(isHeader ? "Helvetica-Bold" : "Helvetica")
-        .fontSize(isHeader ? 12 : 10)
-        .fillColor(isHeader ? "#ffffff" : "#000000")
-        .text(text, x + 5, y + 5, { width: width - 10, align });
-    };
-
-    // 🔹 PDF Title & Metadata
+    // 🔹 Header Section
     doc
-      .fontSize(24)
+      .fontSize(24) // Reduced for better fit
       .font("Helvetica-Bold")
-      .fillColor("#333333")
-      .text("Sales Report", { align: "center" })
+      .fillColor("#3F51B5")
+      .text("Sales Report", 50, 50, { align: "center" })
       .moveDown(0.5);
     doc
       .fontSize(12)
-      .font("Helvetica")
-      .fillColor("#666666")
-      .text(`Filter: ${filter}`, { align: "center" })
-      .moveDown(0.5);
-
-    if (filter === "custom" && startDate && endDate) {
-      doc
-        .text(`Date Range: ${startDate} to ${endDate}`, { align: "center" })
-        .moveDown(0.5);
-    }
-
+      .font("Helvetica-Oblique")
+      .fillColor("#555555")
+      .text(`Filter: ${filter.toUpperCase()}`, 50, 80, { align: "center" }) // Adjusted position
+      .moveDown(0.3);
     doc
       .fontSize(10)
-      .text(`Generated on: ${dayjs().format("DD/MM/YYYY HH:mm")}`, {
+      .font("Helvetica")
+      .fillColor("#777777")
+      .text(`Generated on: ${dayjs().format("DD/MM/YYYY HH:mm")}`, 50, 100, {
         align: "center",
-      })
+      }) // Adjusted position
       .moveDown(1);
+    doc.moveTo(50, 120).lineTo(550, 120).strokeColor("#D3D3D3").stroke();
 
-    // 🔹 Table Headers
-    const tableTop = 180;
-    const tableLeft = 50;
-    const colWidths = [30, 150, 100, 80, 80, 80]; // Adjusted column widths
-    const rowHeight = 30;
+    // 🔹 Summary Section
+    doc
+      .roundedRect(50, 130, 500, 140, 10) // Reduced height for better fit
+      .fillAndStroke("#E8F5E9", "#3F51B5") // Light green fill, indigo border (matches image)
+      .moveDown(1);
+    doc
+      .fontSize(16) // Reduced for better fit
+      .font("Helvetica-Bold")
+      .fillColor("#3F51B5")
+      .text("Sales Summary", 60, 140, { align: "left" })
+      .moveDown(0.5);
+
+    const summaryLeft = 60;
+    let summaryTop = 160;
+    doc
+      .fontSize(10) // Reduced for better fit
+      .font("Helvetica")
+      .fillColor("#333333")
+      .text(`Total Sales: `, summaryLeft, summaryTop, { continued: true })
+      .font("Helvetica-Bold")
+      .fillColor("#D32F2F") // Red for Total Sales (matches image)
+      .text(`₹${totalSales.toFixed(2)}`);
+    summaryTop += 20;
+    doc
+      .font("Helvetica")
+      .fillColor("#333333")
+      .text(`Total Items Sold: `, summaryLeft, summaryTop, { continued: true })
+      .font("Helvetica-Bold")
+      .text(`${totalItems}`);
+    summaryTop += 20;
+    doc
+      .font("Helvetica")
+      .text(`Avg. Order Value: `, summaryLeft, summaryTop, { continued: true })
+      .font("Helvetica-Bold")
+      .text(`₹${avgOrderValue.toFixed(2)}`);
+    summaryTop += 20;
+    doc
+      .font("Helvetica")
+      .text(`Total Discounts: `, summaryLeft, summaryTop, { continued: true })
+      .font("Helvetica-Bold")
+      .text(`₹${totalDiscounts.toFixed(2)}`);
+    summaryTop += 20;
+    doc
+      .font("Helvetica")
+      .text(`Unique Customers: `, summaryLeft, summaryTop, { continued: true })
+      .font("Helvetica-Bold")
+      .text(`${uniqueCustomers}`);
+
+    const summaryRight = 320;
+    summaryTop = 160;
+    doc
+      .fontSize(10)
+      .font("Helvetica-Bold")
+      .fillColor("#333333")
+      .text("Payment Methods:", summaryRight, summaryTop, { align: "left" });
+    summaryTop += 15;
+    doc.font("Helvetica").fillColor("#555555");
+    Object.entries(paymentMethodBreakdown).forEach(
+      ([method, { count, amount }]) => {
+        doc.text(
+          `${method}: ${count} orders, ₹${amount.toFixed(2)}`,
+          summaryRight,
+          summaryTop,
+          { align: "left" }
+        );
+        summaryTop += 15;
+      }
+    );
+
+    // 🔹 Detailed Table Section
+    const tableTop = 290; // Adjusted for better spacing
+    const tableLeft = 10;
+    const colWidths = [30, 120, 160, 50, 50, 50, 50, 50]; // Matches image layout
+    const rowHeight = 40;
     const headers = [
       "No.",
       "Customer",
-      "Product",
-      "Total Amount",
-      "Coupon Price",
+      "Products",
+      "Total",
+      "Coupon",
+      "Payment",
+      "Status",
       "Date",
     ];
 
-    // Draw table headers with a blue background
+    // Table Header
+    doc.fontSize(10).font("Helvetica-Bold").fillColor("#000000");
     headers.forEach((header, i) => {
-      let x = tableLeft + colWidths.slice(0, i).reduce((sum, w) => sum + w, 0);
-      drawTableCell(
-        x,
-        tableTop,
-        colWidths[i],
-        rowHeight,
-        header,
-        true,
-        "center",
-        "#007BFF" // Blue background for headers
-      );
+      const x =
+        tableLeft + colWidths.slice(0, i).reduce((sum, w) => sum + w, 0);
+      doc
+        .rect(x, tableTop, colWidths[i], rowHeight)
+        .fillAndStroke("#2196F3", "#FFFFFF") // Bright blue (matches image)
+        .font("Helvetica")
+        .fillColor("#00000");
+      doc.text(header, x + 5, tableTop + 15, {
+        width: colWidths[i] - 10,
+        align: "center",
+      });
     });
 
     let currentTop = tableTop + rowHeight;
     let rowCount = 0;
-    const itemsPerPage = 10;
+    const itemsPerPage = 7;
 
-    // 🔹 Render Table Rows
-    orders.forEach((order, index) => {
+    filteredOrders.forEach((order, index) => {
       if (rowCount >= itemsPerPage) {
         doc.addPage();
         currentTop = 50;
         rowCount = 0;
-
-        // Redraw headers on new page
+        doc.fontSize(12).font("Helvetica-Bold").fillColor("#4CAF50");
         headers.forEach((header, i) => {
-          let x =
+          const x =
             tableLeft + colWidths.slice(0, i).reduce((sum, w) => sum + w, 0);
-          drawTableCell(
-            x,
-            currentTop,
-            colWidths[i],
-            rowHeight,
-            header,
-            true,
-            "center",
-            "#007BFF"
-          );
+          doc
+            .rect(x, currentTop, colWidths[i], rowHeight)
+            .fillAndStroke("#2196F3", "#000000");
+          doc.text(header, x + 5, currentTop + 15, {
+            width: colWidths[i] - 10,
+            align: "center",
+          });
         });
         currentTop += rowHeight;
       }
 
-      // Alternate row colors for better readability
-      const rowColor = index % 2 === 0 ? "#f9f9f9" : "#ffffff";
-
-      // Draw table cells
-      drawTableCell(
-        tableLeft,
-        currentTop,
-        colWidths[0],
-        rowHeight,
+      const rowColor = index % 2 === 0 ? "#F9FAFB" : "#FFFFFF";
+      const rowData = [
         (index + 1).toString(),
-        false,
-        "center",
-        rowColor
-      );
-      drawTableCell(
-        tableLeft + colWidths[0],
-        currentTop,
-        colWidths[1],
-        rowHeight,
         order.userId?.email || "N/A",
-        false,
-        "left",
-        rowColor
-      );
-      drawTableCell(
-        tableLeft + colWidths[0] + colWidths[1],
-        currentTop,
-        colWidths[2],
-        rowHeight,
-        order.items.map((p) => p.product?.product_title).join(", ") || "N/A", // Product titles
-        false,
-        "left",
-        rowColor
-      );
-      drawTableCell(
-        tableLeft + colWidths[0] + colWidths[1] + colWidths[2],
-        currentTop,
-        colWidths[3],
-        rowHeight,
-        `₹${order.totalPrice?.toFixed(2) || "0.00"}`,
-        false,
-        "right",
-        rowColor
-      );
-      drawTableCell(
-        tableLeft + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3],
-        currentTop,
-        colWidths[4],
-        rowHeight,
-        `₹${order.couponPrice?.toFixed(2) || "0.00"}`, // Coupon price
-        false,
-        "right",
-        rowColor
-      );
-      drawTableCell(
-        tableLeft +
-          colWidths[0] +
-          colWidths[1] +
-          colWidths[2] +
-          colWidths[3] +
-          colWidths[4],
-        currentTop,
-        colWidths[5],
-        rowHeight,
+        order.items
+          .map((p) => `${p.product?.product_title} (x${p.quantity})`)
+          .join(", "),
+        `₹${order.totalPrice.toFixed(2)}`,
+        `₹${order.couponPrice.toFixed(2)}`,
+        order.paymentMethod,
+        order.status,
         dayjs(order.createdAt).format("DD/MM/YYYY"),
-        false,
-        "center",
-        rowColor
-      );
+      ];
 
+      rowData.forEach((text, i) => {
+        const x =
+          tableLeft + colWidths.slice(0, i).reduce((sum, w) => sum + w, 0);
+        doc
+          .rect(x, currentTop, colWidths[i], rowHeight)
+          .fillAndStroke(rowColor, "#E0E0E0");
+        doc
+          .fontSize(10)
+          .font("Helvetica")
+          .fillColor("#4CAF50") // Green for all table rows (matches image)
+          .text(text, x + 5, currentTop + 15, {
+            width: colWidths[i] - 10,
+            align:
+              i === 0 || i === 3 || i === 4 || i === 5 || i === 6 || i === 7
+                ? "center"
+                : "left",
+          });
+      });
       currentTop += rowHeight;
       rowCount++;
     });
 
-    // 🔹 Total Sales Summary
-    const totalSales = orders.reduce(
-      (sum, order) => sum + (order.totalPrice || 0),
-      0
-    );
+    // 🔹 Additional Summary
+    currentTop += 40;
+    doc
+      .fontSize(14)
+      .font("Helvetica-Bold")
+      .fillColor("#3F51B5")
+      .text("Order Status Breakdown", tableLeft, currentTop, { align: "left" });
+    currentTop += 20;
+    doc.fontSize(12).font("Helvetica").fillColor("#555555");
+    Object.entries(statusBreakdown).forEach(([status, count]) => {
+      doc.text(`${status}: ${count} orders`, tableLeft + 20, currentTop, {
+        align: "left",
+      }); // Increased indent
+      currentTop += 20;
+    });
+
+    currentTop += 30;
     doc
       .font("Helvetica-Bold")
-      .fontSize(14)
-      .fillColor("#333333")
+      .fillColor("#3F51B5")
+      .text("Top 5 Products", tableLeft, currentTop, { align: "left" });
+    currentTop += 20;
+    doc.font("Helvetica").fillColor("#000000"); // Green for Top 5 Products (matches image)
+    topProductsArray.forEach(([name, { quantity, revenue }], i) => {
+      doc.text(
+        `${i + 1}. ${name}: ${quantity} sold, ₹${revenue.toFixed(2)}`,
+        tableLeft + 20,
+        currentTop,
+        { align: "left" }
+      );
+      currentTop += 20;
+    });
+
+    // 🔹 Footer
+    doc
+      .fontSize(8)
+      .font("Helvetica-Oblique")
+      .fillColor("#777777")
       .text(
-        `Total Sales: ₹${totalSales.toFixed(2)}`,
-        tableLeft,
-        currentTop + 20,
-        { width: colWidths.reduce((sum, w) => sum + w, 0), align: "right" }
+        "Generated by CozyCubs E-commerce Platform",
+        50,
+        doc.page.height - 50,
+        {
+          align: "center",
+        }
       );
 
-    console.log(totalSales, "hii");
-
-    doc.end(); // 🔹 End the PDF stream
+    doc.end();
   } catch (error) {
     console.error("❌ Error generating PDF:", error);
     res.status(500).send("Failed to generate PDF report.");
   }
 };
-
 const downloadSalesReportExcel = async (req, res) => {
   try {
     const { filter = "all", startDate, endDate } = req.query;

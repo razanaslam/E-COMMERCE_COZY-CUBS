@@ -2196,6 +2196,7 @@ const applyCoupon = async (req, res) => {
       return res.json({ success: false, message: "Invalid or expired coupon" });
     }
     let discountAmount = totalPrice * (coupon.discountPercentage / 100);
+
     let newTotal = 0;
     if (discountAmount > coupon.maxDiscountAmount) {
       discountAmount = coupon.maxDiscountAmount;
@@ -2210,6 +2211,12 @@ const applyCoupon = async (req, res) => {
 
     await cart.save();
     await coupon.save();
+
+    console.log(totalPrice, "totalprice");
+
+    console.log(discountAmount, "discountAmount");
+
+    console.log(newTotal, "newTotal");
 
     console.log("123456789741852963");
     return res.json({

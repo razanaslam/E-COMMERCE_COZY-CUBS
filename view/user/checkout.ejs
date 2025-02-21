@@ -713,7 +713,11 @@
                    
                     <div class="your-order-info order-total">
                       <ul class="list-unstyled">
-                        <li class="d-flex justify-content-between">Total <span id="totalPrice"> <%= subtotal %></span></li>
+                        <%if(cart?.couponApplied){%>
+                        <li class="d-flex justify-content-between">Total <span id="totalPrice"> <%= cart.totalPrice-cart.couponDiscount %></span></li>
+                        <%}else{%>
+                          <li class="d-flex justify-content-between">Total <span id="totalPrice"> <%=cart.totalPrice %></span></li>
+                          <%}%>
                       </ul>
                     </div>
                   </div>
