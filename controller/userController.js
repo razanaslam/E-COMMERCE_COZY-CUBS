@@ -685,7 +685,7 @@ const changePass = async (req, res) => {
 const loadProductList = async (req, res) => {
   try {
     const currentDate = new Date();
-    const { categories, query, page = 1, limit = 3, sortType } = req.query;
+    const { categories, query, page = 1, limit = 10, sortType } = req.query;
     let filterQuery = {};
 
     // Step 1: Apply Category Filtering (if provided)
